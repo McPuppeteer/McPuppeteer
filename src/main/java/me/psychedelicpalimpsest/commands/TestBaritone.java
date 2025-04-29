@@ -1,0 +1,15 @@
+package me.psychedelicpalimpsest.commands;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import me.psychedelicpalimpsest.BaseCommand;
+import me.psychedelicpalimpsest.PuppeteerCommand;
+
+import java.util.Map;
+
+@PuppeteerCommand(cmd="test baritone", needs_baritone = true)
+public class TestBaritone implements BaseCommand {
+    @Override
+    public void onRequest(JsonNode request, LaterCallback callback) {
+        callback.callback(Map.of());
+    }
+}
