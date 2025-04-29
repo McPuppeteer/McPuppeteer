@@ -44,7 +44,7 @@ public class ExampleMixin {
 	private void onGetTitle(CallbackInfoReturnable<String> cir){
 		String port_s = PuppeteerSocketServer.getInstance() == null ? "unknown" : "" + PuppeteerSocketServer.getInstancePort();
 
-		cir.setReturnValue(cir.getReturnValue() + " - [" +  port_s + ", "+ PuppeteerCommandRegistry.COMMANDS.size() +"]");
+		cir.setReturnValue(cir.getReturnValue() + " - [" +  port_s + "]");
 	}
 	@Inject(at = @At("HEAD"), method="close")
 	private void onClose(CallbackInfo ci) {

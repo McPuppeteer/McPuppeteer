@@ -13,7 +13,6 @@ package me.psychedelicpalimpsest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -21,7 +20,7 @@ import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_BARITONE_MAP;
+import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_NEEDS_BARITONE_MAP;
 import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_MAP;
 
 public class PuppeteerSocketServer implements Runnable {
@@ -183,7 +182,7 @@ public class PuppeteerSocketServer implements Runnable {
             sendPacket(session, response);
             return;
         }
-        if (COMMAND_BARITONE_MAP.get(cmd) && !McPuppeteer.hasBaritoneInstalled){
+        if (COMMAND_NEEDS_BARITONE_MAP.get(cmd) && !McPuppeteer.hasBaritoneInstalled){
             response.put("status", "error");
             response.put("message", "baritone not installed");
             response.put("id", id);
@@ -193,10 +192,11 @@ public class PuppeteerSocketServer implements Runnable {
 
         /* The command has the option send something at ANY TIME. */
         COMMAND_MAP.get(cmd).onRequest(request, (result -> {
-            if (!result.containsKey("status"))
-                result.put("status", "ok");
-            result.put("id", id);
-            sendPacket(session, result);
+            Map<String, Object> responseMap = new HashMap<>(result);
+            if (!responseMap.containsKey("status"))
+                responseMap.put("status", "ok");
+            responseMap.put("id", id);
+            sendPacket(session, responseMap);
         }));
     }
 

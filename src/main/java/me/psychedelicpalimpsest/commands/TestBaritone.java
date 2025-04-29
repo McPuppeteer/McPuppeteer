@@ -6,7 +6,9 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 
 import java.util.Map;
 
-@PuppeteerCommand(cmd="test baritone", needs_baritone = true)
+@PuppeteerCommand(
+        cmd="test baritone", needs_baritone = true,
+        description = "A quick and simple way to test if baritone is installed.")
 public class TestBaritone implements BaseCommand {
     @Override
     public void onRequest(JsonNode request, LaterCallback callback) {

@@ -9,7 +9,8 @@ import java.util.*;
 
 public class PuppeteerCommandRegistry {
     public static final Map<String, BaseCommand> COMMAND_MAP = new HashMap<>();
-    public static final Map<String, Boolean> COMMAND_BARITONE_MAP = new HashMap<>();
+    public static final Map<String, String> COMMAND_DESC_MAP = new HashMap<>();
+    public static final Map<String, Boolean> COMMAND_NEEDS_BARITONE_MAP = new HashMap<>();
     public static final List<BaseCommand> COMMANDS = new ArrayList<>();
 
 
@@ -40,10 +41,12 @@ public class PuppeteerCommandRegistry {
                 throw new RuntimeException("Error instantiating " + aClass.getName() + ", A puppeteer-command annotated class MUST have a no-arg constructor!");
             }
             String commandName = aClass.getAnnotation(PuppeteerCommand.class).cmd();
+            String commandDesc = aClass.getAnnotation(PuppeteerCommand.class).description();
             Boolean commandBaritone = aClass.getAnnotation(PuppeteerCommand.class).needs_baritone();
 
             COMMAND_MAP.put(commandName, command);
-            COMMAND_BARITONE_MAP.put(commandName, commandBaritone);
+            COMMAND_NEEDS_BARITONE_MAP.put(commandName, commandBaritone);
+            COMMAND_DESC_MAP.put(commandName, commandDesc);
             COMMANDS.add(command);
         }
     }

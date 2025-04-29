@@ -11,5 +11,6 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 public @interface PuppeteerCommand {
     String cmd();
+    String description();
     boolean needs_baritone() default false;
 }
