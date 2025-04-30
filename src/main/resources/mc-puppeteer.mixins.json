@@ -1,11 +1,12 @@
 {
-	"required": true,
-	"package": "me.psychedelicpalimpsest.mixin",
-	"compatibilityLevel": "JAVA_21",
-	"mixins": [
-		"ExampleMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "package": "me.psychedelicpalimpsest.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "HiddenServerAccessor",
+    "MinecraftClientMixin"
+  ]
 }

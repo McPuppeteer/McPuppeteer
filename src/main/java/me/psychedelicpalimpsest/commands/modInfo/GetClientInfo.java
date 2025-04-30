@@ -1,4 +1,4 @@
-package me.psychedelicpalimpsest.commands;
+package me.psychedelicpalimpsest.commands.modInfo;
 
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,7 +10,6 @@ import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;

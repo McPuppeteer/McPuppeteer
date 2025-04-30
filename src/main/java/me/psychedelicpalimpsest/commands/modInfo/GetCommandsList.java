@@ -1,4 +1,4 @@
-package me.psychedelicpalimpsest.commands;
+package me.psychedelicpalimpsest.commands.modInfo;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import me.psychedelicpalimpsest.BaseCommand;
