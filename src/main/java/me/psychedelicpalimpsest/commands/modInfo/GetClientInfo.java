@@ -26,7 +26,6 @@ public class GetClientInfo implements BaseCommand {
             throw new RuntimeException("Could not find ModContainer for " + MOD_ID);
         }
         ModContainer modc = mod.get();
-        MinecraftClient mc = MinecraftClient.getInstance();
 
 
         callback.callback(Map.of(

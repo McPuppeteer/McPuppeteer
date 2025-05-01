@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
         cmd = "get worlds",
         description =
                 "List ALL the worlds on this minecraft instances .minecraft folder."
-              +" This can be slow on some installs, as some uses may have thousands of worlds."
+              +" This can be slow on some installs, as some users may have thousands of worlds."
 )
 public class GetWorlds implements BaseCommand {
 

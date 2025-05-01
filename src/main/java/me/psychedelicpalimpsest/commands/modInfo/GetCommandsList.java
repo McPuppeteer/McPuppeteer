@@ -5,6 +5,7 @@ import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class GetCommandsList implements BaseCommand {
             ret.add(Map.of(
                "cmd", commandName,
                "desc", commandDesc,
-                "requires baritone", COMMAND_NEEDS_BARITONE_MAP.get(commandName)
+                "requirements", Arrays.stream(COMMAND_REQUIREMENTS_MAP.get(commandName)).toList()
             ));
         });
         return ret;

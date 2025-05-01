@@ -10,7 +10,7 @@ import java.util.*;
 public class PuppeteerCommandRegistry {
     public static final Map<String, BaseCommand> COMMAND_MAP = new HashMap<>();
     public static final Map<String, String> COMMAND_DESC_MAP = new HashMap<>();
-    public static final Map<String, Boolean> COMMAND_NEEDS_BARITONE_MAP = new HashMap<>();
+    public static final Map<String, String[]> COMMAND_REQUIREMENTS_MAP = new HashMap<>();
     public static final List<BaseCommand> COMMANDS = new ArrayList<>();
 
 
@@ -42,10 +42,10 @@ public class PuppeteerCommandRegistry {
             }
             String commandName = aClass.getAnnotation(PuppeteerCommand.class).cmd();
             String commandDesc = aClass.getAnnotation(PuppeteerCommand.class).description();
-            Boolean commandBaritone = aClass.getAnnotation(PuppeteerCommand.class).needs_baritone();
+            String[] requirements = aClass.getAnnotation(PuppeteerCommand.class).mod_requirements();
 
             COMMAND_MAP.put(commandName, command);
-            COMMAND_NEEDS_BARITONE_MAP.put(commandName, commandBaritone);
+            COMMAND_REQUIREMENTS_MAP.put(commandName, requirements);
             COMMAND_DESC_MAP.put(commandName, commandDesc);
             COMMANDS.add(command);
         }

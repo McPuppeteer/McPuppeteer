@@ -1,6 +1,9 @@
 package me.psychedelicpalimpsest;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.annotation.*;
+import java.util.List;
 
 /**
  * Register your command with the PuppeteerCommandRegistry. Keep in mind,
@@ -12,5 +15,6 @@ import java.lang.annotation.*;
 public @interface PuppeteerCommand {
     String cmd();
     String description();
-    boolean needs_baritone() default false;
+    @Nullable
+    String[] mod_requirements() default {};
 }

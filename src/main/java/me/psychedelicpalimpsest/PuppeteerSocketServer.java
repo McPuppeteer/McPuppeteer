@@ -15,8 +15,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
-import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_NEEDS_BARITONE_MAP;
-import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_MAP;
+import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.*;
 
 public class PuppeteerSocketServer implements Runnable {
 
@@ -61,7 +60,7 @@ public class PuppeteerSocketServer implements Runnable {
         state.addProperty("mod", MOD_ID);
         state.addProperty("port", getInstancePort());
         state.addProperty("server uuid", instance.uuid.toString());
-        state.addProperty("player", MinecraftClient.getInstance().getSession().getUsername());
+        state.addProperty("player username", MinecraftClient.getInstance().getSession().getUsername());
         if (uid != null)
             state.addProperty("player uuid", uid.toString());
         state.addProperty("is in world", MinecraftClient.getInstance().player != null);
@@ -218,13 +217,18 @@ public class PuppeteerSocketServer implements Runnable {
             sendPacket(session, response);
             return;
         }
-        if (COMMAND_NEEDS_BARITONE_MAP.get(cmd) && !McPuppeteer.hasBaritoneInstalled) {
+
+
+        for (String r : COMMAND_REQUIREMENTS_MAP.get(cmd)){
+            if (McPuppeteer.installedMods.contains(r)) continue;
+
             response.put("status", "error");
-            response.put("message", "baritone not installed");
+            response.put("message", r + " not installed");
             response.put("id", id);
             sendPacket(session, response);
             return;
         }
+
 
         COMMAND_MAP.get(cmd).onRequest(request, (result -> {
             Map<String, Object> responseMap = new HashMap<>(result);

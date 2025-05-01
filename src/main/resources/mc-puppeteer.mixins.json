@@ -8,5 +8,8 @@
   "client": [
     "HiddenServerAccessor",
     "MinecraftClientMixin"
+  ],
+  "mixins": [
+
   ]
 }

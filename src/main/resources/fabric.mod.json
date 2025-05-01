@@ -20,9 +20,10 @@
 	],
 	"depends": {
 		"fabricloader": ">=0.16.14",
-		"minecraft": "~1.21.4",
+		"minecraft": "~1.21.3",
 		"java": ">=21",
-		"fabric-api": "*"
+
+		"malilib": ">=0.22.6-sakura.2"
 	},
 	"suggests": {
 

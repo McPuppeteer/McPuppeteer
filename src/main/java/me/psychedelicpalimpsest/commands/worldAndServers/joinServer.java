@@ -15,7 +15,7 @@ import java.util.Map;
 
 @PuppeteerCommand(
         cmd = "join server",
-        description = ""
+        description = "Join multiplayer server. This requires one parameter, the 'address', and it must be valid."
 )
 public class joinServer implements BaseCommand {
     @Override
