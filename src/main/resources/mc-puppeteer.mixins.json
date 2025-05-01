@@ -6,10 +6,10 @@
     "defaultRequire": 1
   },
   "client": [
+    "CameraMixin",
+    "ClientPlayerEntityMixin",
     "HiddenServerAccessor",
-    "MinecraftClientMixin"
-  ],
-  "mixins": [
-
+    "MinecraftClientMixin",
+    "EntityMixin"
   ]
 }

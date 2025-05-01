@@ -27,5 +27,6 @@
 	},
 	"suggests": {
 
-	}
+	},"accessWidener": "puppeteer.accesswidener"
+
 }

@@ -7,6 +7,7 @@ import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
+import me.psychedelicpalimpsest.safefreecam.Freecam;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.loader.api.FabricLoader;
@@ -41,6 +42,7 @@ public class McPuppeteer {
 		}
 
 
+
 		McPuppeteer.installedMods = FabricLoader.getInstance()
 				.getAllMods()
 				.stream()
@@ -58,6 +60,8 @@ public class McPuppeteer {
 			System.out.println("Open Config GUI");
 			return true;
 		});
+
+		PuppeteerConfig.TOGGLE_FREECAM.getKeybind().setCallback(Freecam::toggleFreecam);
 
 
 

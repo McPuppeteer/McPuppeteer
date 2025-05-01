@@ -39,10 +39,12 @@ public class PuppeteerConfig implements IConfigHandler {
 
 
     public static final ConfigHotkey OPEN_CONFIG_GUI   = new ConfigHotkey("Open Config UI",  "I,C");
+    public static final ConfigHotkey TOGGLE_FREECAM   = new ConfigHotkey("Freecam",  "I,F");
 
 
     public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
-            OPEN_CONFIG_GUI
+            OPEN_CONFIG_GUI,
+            TOGGLE_FREECAM
     );
 
 

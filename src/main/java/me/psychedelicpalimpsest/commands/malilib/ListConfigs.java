@@ -3,17 +3,13 @@ package me.psychedelicpalimpsest.commands.malilib;
 import com.fasterxml.jackson.databind.JsonNode;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.IConfigHandler;
-import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.FileUtils;
 import me.psychedelicpalimpsest.BaseCommand;
-import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @PuppeteerCommand(
         cmd = "list config info",
