@@ -1,3 +1,22 @@
+/**
+ *     Copyright (C) 2025 - PsychedelicPalimpsest
+ *     Copyright (C) 2025 - Tweekeroo developers (Mostly mesa)
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
 package me.psychedelicpalimpsest.safefreecam;
 
 import fi.dy.masa.malilib.hotkeys.IKeybind;
@@ -10,7 +29,15 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 
 /*
-    Again, I stole a lot from tweakeroo
+    Again, I stole a lot from tweakeroo. But the difference is I am updating
+    the camera itself, while not doing anything with the player entity, meaning
+    baritone will still work, and Puppeteer can still function, while still in
+    freecam.
+
+    The free cam tool used the following classes to function:
+        * CameraMixin.java - Prevent camera updates and render player
+        * ClientPlayerEntityMixin.java - Change player input, tick movement
+        * EntityMixin.java - Calculate rotation
 
  */
 

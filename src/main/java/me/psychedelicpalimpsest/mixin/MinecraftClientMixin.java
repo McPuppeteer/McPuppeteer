@@ -1,18 +1,25 @@
+/**
+ *     Copyright (C) 2025 - PsychedelicPalimpsest
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package me.psychedelicpalimpsest.mixin;
 
-import fi.dy.masa.malilib.config.ConfigManager;
-import fi.dy.masa.malilib.event.InitializationHandler;
-import fi.dy.masa.malilib.event.InputEventHandler;
-import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
-import fi.dy.masa.malilib.hotkeys.IKeybind;
-import fi.dy.masa.malilib.hotkeys.KeyAction;
-import fi.dy.masa.malilib.registry.Registry;
-import fi.dy.masa.malilib.util.data.ModInfo;
-import me.psychedelicpalimpsest.GuiConfigs;
 import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerConfig;
 import me.psychedelicpalimpsest.PuppeteerSocketServer;
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -21,7 +28,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 import static me.psychedelicpalimpsest.PuppeteerSocketServer.broadcastState;
 
