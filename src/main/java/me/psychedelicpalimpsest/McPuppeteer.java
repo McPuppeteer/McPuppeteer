@@ -17,6 +17,7 @@
 
 package me.psychedelicpalimpsest;
 
+import com.google.common.collect.ImmutableList;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.event.InputEventHandler;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
@@ -24,13 +25,16 @@ import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
-import me.psychedelicpalimpsest.safefreecam.Freecam;
+import me.psychedelicpalimpsest.modules.Freecam;
+import me.psychedelicpalimpsest.modules.Freerot;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -75,10 +79,11 @@ public class McPuppeteer {
 		PuppeteerConfig.OPEN_CONFIG_GUI.getKeybind().setCallback((action, key) -> {
 			MinecraftClient.getInstance().setScreen(new GuiConfigs());
 			System.out.println("Open Config GUI");
-			return true;
+			return false;
 		});
 
 		PuppeteerConfig.TOGGLE_FREECAM.getKeybind().setCallback(Freecam::toggleFreecam);
+		PuppeteerConfig.TOGGLE_FREEROT.getKeybind().setCallback(Freerot::toggleFreerot);
 
 
 
@@ -101,6 +106,27 @@ public class McPuppeteer {
 		}
 
 
+
+		System.out.println("P:" + MinecraftClient.getInstance().getResourceManager().getResource(noRotationEffect.texture).isPresent());
+	}
+
+
+	public static PuppeteerEffect noRotationEffect = new PuppeteerEffect(Identifier.of(MOD_ID, "textures/no_rotation.png"));
+
+
+	/* Just some simple potion effect like icons */
+	public static final List<PuppeteerEffect> effects = ImmutableList.of(
+			noRotationEffect
+	);
+
+
+	public static final class PuppeteerEffect {
+		public boolean isActive = false;
+		public final Identifier texture;
+
+		public PuppeteerEffect(Identifier texture) {
+			this.texture = texture;
+		}
 	}
 
 

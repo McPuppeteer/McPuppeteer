@@ -8,8 +8,9 @@
   "client": [
     "CameraMixin",
     "ClientPlayerEntityMixin",
+    "EntityMixin",
     "HiddenServerAccessor",
-    "MinecraftClientMixin",
-    "EntityMixin"
+    "InGameHudMixin",
+    "MinecraftClientMixin"
   ]
 }

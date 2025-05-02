@@ -17,13 +17,14 @@
  */
 
 
-package me.psychedelicpalimpsest.safefreecam;
+package me.psychedelicpalimpsest.modules;
 
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.SimpleOption;
 import net.minecraft.client.render.Camera;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
@@ -53,21 +54,29 @@ public class Freecam {
 
         if (isFreecam) initializeFreecam();
         else deactivateFreecam();
-        return false;
+        return true;
     }
 
     public static boolean isFreecamActive(){
         return isFreecam;
     }
 
-
+    private static boolean oldViewBobSetting = false;
     private static void initializeFreecam() {
         MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Enabled freecam"), false);
         movementHandler = new FreecamMovementHandler();
 
+
+        SimpleOption<Boolean> bob = MinecraftClient.getInstance().options.getBobView();
+        oldViewBobSetting = bob.getValue();
+        bob.setValue(false);
+
     }
     private static void deactivateFreecam() {
         MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Disabled freecam"), false);
+
+        SimpleOption<Boolean> bob = MinecraftClient.getInstance().options.getBobView();
+        bob.setValue(oldViewBobSetting);
     }
 
     // https://github.com/sakura-ryoko/tweakeroo/blob/8e762332d29135d9634a86ebe5f325a8484dc3f6/src/main/java/fi/dy/masa/tweakeroo/util/CameraEntity.java

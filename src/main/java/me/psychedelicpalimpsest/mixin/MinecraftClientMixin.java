@@ -69,4 +69,7 @@ public class MinecraftClientMixin {
 	private void onClose(CallbackInfo ci) {
 		PuppeteerServer.killServer();
 	}
+
+
+
 }

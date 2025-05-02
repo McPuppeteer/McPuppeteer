@@ -15,7 +15,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.safefreecam;
+package me.psychedelicpalimpsest.modules;
 
 import net.minecraft.client.input.Input;
 

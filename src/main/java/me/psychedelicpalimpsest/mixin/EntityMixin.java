@@ -17,7 +17,8 @@
 
 package me.psychedelicpalimpsest.mixin;
 
-import me.psychedelicpalimpsest.safefreecam.Freecam;
+import me.psychedelicpalimpsest.modules.Freecam;
+import me.psychedelicpalimpsest.modules.Freerot;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -31,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EntityMixin {
     @Inject(method="changeLookDirection", at=@At("HEAD"), cancellable = true)
     void onChangeLookDirection(double cursorDeltaX, double cursorDeltaY, CallbackInfo ci){
-        if (Freecam.isFreecamActive()) {
+        if (Freecam.isFreecamActive() || Freerot.isFreerotActive()) {
             ci.cancel();
 
             Camera c = MinecraftClient.getInstance().gameRenderer.getCamera();

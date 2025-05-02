@@ -205,7 +205,7 @@ public class PuppeteerServer implements Runnable{
         }
         while (running) {
             try{
-                selector.select(100);
+                selector.select(20);
 
                 Runnable task;
                 while ((task = pendingTasks.poll()) != null) {
@@ -408,7 +408,7 @@ public class PuppeteerServer implements Runnable{
         /* Just write all the shit */
         while (!attachment.writeQueue.isEmpty()) {
             ByteBuffer buffer = attachment.writeQueue.peek();
-
+            client.write(buffer);
             if (buffer.remaining() == 0) attachment.writeQueue.poll();
         }
 

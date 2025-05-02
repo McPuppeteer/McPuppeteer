@@ -54,13 +54,15 @@ public class PuppeteerConfig implements IConfigHandler {
     );
 
 
-    public static final ConfigHotkey OPEN_CONFIG_GUI   = new ConfigHotkey("Open Config UI",  "I,C");
-    public static final ConfigHotkey TOGGLE_FREECAM   = new ConfigHotkey("Freecam",  "I,F");
+    public static final ConfigHotkey OPEN_CONFIG_GUI   = new ConfigHotkey("Open Config UI",  "I,C", "Open this menu");
+    public static final ConfigHotkey TOGGLE_FREECAM   = new ConfigHotkey("Freecam",  "I,F", "Toggle freecam");
+    public static final ConfigHotkey TOGGLE_FREEROT   = new ConfigHotkey("Free rotation",  "I,R", "Disconnects your player and cameras rotation");
 
 
     public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
             OPEN_CONFIG_GUI,
-            TOGGLE_FREECAM
+            TOGGLE_FREECAM,
+            TOGGLE_FREEROT
     );
 
 

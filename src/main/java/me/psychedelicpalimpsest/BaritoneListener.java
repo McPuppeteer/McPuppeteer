@@ -3,6 +3,7 @@ package me.psychedelicpalimpsest;
 import baritone.api.BaritoneAPI;
 import baritone.api.event.events.PathEvent;
 import baritone.api.event.listener.AbstractGameEventListener;
+import net.minecraft.client.MinecraftClient;
 
 import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -33,10 +34,10 @@ public class BaritoneListener implements AbstractGameEventListener {
             hasStartedSinceCancel = true;
 
         /* Seems something somebody might want */
-//        PuppeteerServer.getInstance().broadcastJsonPacket(BaseCommand.jsonOf(
-//                "type", "baritone event",
-//                "path state", pathEvent.name()
-//        ));
+        PuppeteerServer.getInstance().broadcastJsonPacket(BaseCommand.jsonOf(
+                "type", "baritone event",
+                "path state", pathEvent.name()
+        ));
 
         if (baritoneCommandCallbacks.isEmpty()) return;
 
@@ -44,9 +45,9 @@ public class BaritoneListener implements AbstractGameEventListener {
 
          if (PathEvent.CANCELED == pathEvent && hasStartedSinceCancel){
             baritoneCommandCallbacks.remove().resultCallback(BaseCommand.jsonOf(
-                    "message", "baritone canceled, this is neither got nor bad, it spams these"
+                    "message", "baritone canceled the operation"
             ));
-            System.out.println("baritone canceled, this is neither got nor bad, it spams these");
+
 
             hasStartedSinceCancel = false;
         } else if (PathEvent.CALC_FAILED == pathEvent){

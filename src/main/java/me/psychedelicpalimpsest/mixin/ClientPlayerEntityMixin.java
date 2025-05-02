@@ -17,8 +17,8 @@
 
 package me.psychedelicpalimpsest.mixin;
 
-import me.psychedelicpalimpsest.safefreecam.Freecam;
-import me.psychedelicpalimpsest.safefreecam.FreecamNoInput;
+import me.psychedelicpalimpsest.modules.Freecam;
+import me.psychedelicpalimpsest.modules.FreecamNoInput;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static me.psychedelicpalimpsest.safefreecam.Freecam.inputNop;
+import static me.psychedelicpalimpsest.modules.Freecam.inputNop;
 
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
