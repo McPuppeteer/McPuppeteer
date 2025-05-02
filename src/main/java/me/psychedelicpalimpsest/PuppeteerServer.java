@@ -1,3 +1,20 @@
+/**
+ *     Copyright (C) 2025 - PsychedelicPalimpsest
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package me.psychedelicpalimpsest;
 
 import com.google.gson.JsonElement;
@@ -26,6 +43,61 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
 import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_MAP;
 import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_REQUIREMENTS_MAP;
+
+
+
+/*
+    Complete communication system for the Puppeteer protocol
+
+    * The MC instance frequently sends UDP broadcasts:
+        - Broadcasts are sent on port 43842.
+        - Each broadcast contains the magic number 'PUPPETEER'.
+        - The payload is JSON. See broadcastState() for details.
+            * The JSON includes the server port.
+
+    * The Puppeteer protocol is "full duplex":
+        - Both the MC instance and the Python client can initiate communication.
+        - This enables instantaneous callbacks and commands.
+
+    * All packets must follow this format:
+        [1 byte for data type: 'j' (JSON) or 'n' (NBT)]
+        [32-bit network-endian length of data]
+        [data]
+
+    * The Python client can only send JSON.
+    * When the client sends a JSON command, it must use this format:
+        {"cmd": "SOME_VALID_PUPPETEER_COMMAND",
+         "id": "some_unique_string",
+         ... additional command-specific fields}
+
+    * When the server sends data, it can be either a 'callback' or a 'response':
+        - 'Callbacks' are unsolicited updates about the MC instance state.
+            Format:
+            {"callback": true,
+             "status": "ok" or "error",
+             "message": "Usually only present on error",
+             "type": "Callback type",
+             ...additional type-specific fields}
+        - 'Responses' are replies to client requests.
+            Format:
+            {"id": "same_unique_string_for_request",
+             "status": "ok" or "error",
+             "message": "Usually only present on error",
+             ...additional command-specific fields}
+
+    * For some commands, the server may respond with NBT data. In this case,
+      the packet format is:
+        ['n']
+        [32-bit network-endian length of data]
+        [data]
+        [16-bit network-endian length of id]
+        [id]
+
+        - If a command results in an error, the response will always be in JSON,
+          regardless of the command.
+*/
+
+
 
 public class PuppeteerServer implements Runnable{
 
@@ -332,11 +404,10 @@ public class PuppeteerServer implements Runnable{
     private static void writeData(SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         ClientAttachment attachment = (ClientAttachment) key.attachment();
-        System.out.println("Write size" + attachment.writeQueue.size());
+
+        /* Just write all the shit */
         while (!attachment.writeQueue.isEmpty()) {
             ByteBuffer buffer = attachment.writeQueue.peek();
-
-            System.out.println("Write amount: " + client.write(buffer));
 
             if (buffer.remaining() == 0) attachment.writeQueue.poll();
         }
