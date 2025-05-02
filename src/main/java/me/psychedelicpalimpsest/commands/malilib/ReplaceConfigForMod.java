@@ -17,8 +17,7 @@
 
 package me.psychedelicpalimpsest.commands.malilib;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.util.FileUtils;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
@@ -26,7 +25,6 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Map;
 
 @PuppeteerCommand(
         cmd = "replace config",
@@ -34,26 +32,31 @@ import java.util.Map;
 )
 public class ReplaceConfigForMod implements BaseCommand {
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
-        if (request.get("file name") == null || !request.get("file name").isTextual()) {
-            callback.callback(Map.of(
+    public void onRequest(JsonObject request, LaterCallback callback) {
+        if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
+            callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "message", "Missing parameter 'file name'"
             ));
             return;
         }
         if (request.get("json") == null) {
-            callback.callback(Map.of(
+            callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "message", "Missing parameter 'json'"
             ));
             return;
         }
-        File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").asText()).toFile();
+        File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
 
-        ObjectMapper mapper = new ObjectMapper();
+
         try {
-            mapper.writeValue(config, request.get("json"));
+            FileWriter writer = new FileWriter(config);
+
+            writer.write(request.get("json").toString());
+
+            writer.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

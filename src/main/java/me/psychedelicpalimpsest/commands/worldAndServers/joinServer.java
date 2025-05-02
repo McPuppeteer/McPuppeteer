@@ -17,7 +17,7 @@
 
 package me.psychedelicpalimpsest.commands.worldAndServers;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
@@ -25,10 +25,7 @@ import net.minecraft.client.gui.screen.DisconnectedScreen;
 import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
-import net.minecraft.client.option.ServerList;
 import net.minecraft.client.resource.language.I18n;
-
-import java.util.Map;
 
 @PuppeteerCommand(
         cmd = "join server",
@@ -36,16 +33,16 @@ import java.util.Map;
 )
 public class joinServer implements BaseCommand {
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
-        if (request.get("address") == null || !request.get("address").isTextual()) {
-            callback.callback(Map.of(
+    public void onRequest(JsonObject request, LaterCallback callback) {
+        if (request.get("address") == null || !request.get("address").isJsonPrimitive()) {
+            callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "message", "Missing parameter 'address' in join server"
             ));
             return;
         }
-        if (!ServerAddress.isValid(request.get("address").asText())) {
-            callback.callback(Map.of(
+        if (!ServerAddress.isValid(request.get("address").getAsString())) {
+            callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "message", "Invalid server address"
             ));
@@ -54,7 +51,7 @@ public class joinServer implements BaseCommand {
 
 
         MinecraftClient.getInstance().execute(() -> {
-            String addr = request.get("address").asText();
+            String addr = request.get("address").getAsString();
 
             ServerInfo info = new ServerInfo(I18n.translate("selectServer.defaultName"), addr, ServerInfo.ServerType.OTHER);
             ConnectScreen.connect(
@@ -72,18 +69,18 @@ public class joinServer implements BaseCommand {
                         Thread.sleep(100);
 
                         if (MinecraftClient.getInstance().currentScreen instanceof DisconnectedScreen){
-                            callback.callback(Map.of(
+                            callback.resultCallback(BaseCommand.jsonOf(
                                     "status", "error",
                                     "message", "Disconnect during connect"
                             ));
                             return;
                         }
                         if (MinecraftClient.getInstance().world != null && MinecraftClient.getInstance().player != null) {
-                            callback.callback(Map.of("message", "in game"));
+                            callback.resultCallback(BaseCommand.jsonOf("message", "in game"));
                             return;
                         }
                         if (!(MinecraftClient.getInstance().currentScreen instanceof ConnectScreen)) {
-                            callback.callback(Map.of(
+                            callback.resultCallback(BaseCommand.jsonOf(
                                     "status", "error",
                                     "message", "Unexpected screen: "
                                             + (MinecraftClient.getInstance().currentScreen.getTitle() != null

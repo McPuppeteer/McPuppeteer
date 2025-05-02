@@ -17,16 +17,16 @@
 
 package me.psychedelicpalimpsest.commands.malilib;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import fi.dy.masa.malilib.util.FileUtils;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
-import java.io.*;
-import java.util.Map;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 @PuppeteerCommand(
         cmd = "get config",
@@ -34,17 +34,17 @@ import java.util.Map;
 )
 public class GetConfigSettingsForMod implements BaseCommand {
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
-        if (request.get("file name") == null || !request.get("file name").isTextual()) {
-            callback.callback(Map.of(
+    public void onRequest(JsonObject request, LaterCallback callback) {
+        if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
+            callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "message", "Missing parameter 'file name'"
             ));
             return;
         }
-        File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").asText()).toFile();
+        File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
         if (!config.exists()) {
-            callback.callback(Map.of(
+            callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "message", "Config file does not exist"
             ));
@@ -53,11 +53,10 @@ public class GetConfigSettingsForMod implements BaseCommand {
         try {
             FileReader reader = new FileReader(config);
 
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode tree = mapper.readTree(reader);
 
-            callback.callback(Map.of(
-                    "json", tree
+
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "json", JsonParser.parseReader(reader)
             ));
 
             reader.close();

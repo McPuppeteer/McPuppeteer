@@ -17,7 +17,7 @@
 
 package me.psychedelicpalimpsest.commands.malilib;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.util.FileUtils;
@@ -34,7 +34,7 @@ import java.util.*;
 )
 public class ListConfigs implements BaseCommand {
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
+    public void onRequest(JsonObject request, LaterCallback callback) {
         File configDir = FileUtils.getConfigDirectoryAsPath().toFile();
         List<String> jsonFiles = new ArrayList<>();
         if (configDir.exists() && configDir.isDirectory()) {
@@ -42,7 +42,8 @@ public class ListConfigs implements BaseCommand {
                     configDir.listFiles((dir, name) -> name.endsWith(".json"))
             )).map(File::getName).toList();
         }
-        callback.callback(Map.of(
+
+        callback.resultCallback(BaseCommand.jsonOf(
                 "mods installed", getConfigHandlers().keySet().stream().toList(),
                 "json files", jsonFiles
         ));

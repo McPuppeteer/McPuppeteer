@@ -19,8 +19,10 @@ package me.psychedelicpalimpsest;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.annotation.*;
-import java.util.List;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * Register your command with the PuppeteerCommandRegistry. Keep in mind,

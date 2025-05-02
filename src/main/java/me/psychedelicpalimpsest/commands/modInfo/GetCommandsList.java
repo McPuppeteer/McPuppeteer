@@ -17,14 +17,13 @@
 
 package me.psychedelicpalimpsest.commands.modInfo;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.*;
 
@@ -35,8 +34,8 @@ import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.*;
 )
 public class GetCommandsList implements BaseCommand {
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
-        callback.callback(Map.of(
+    public void onRequest(JsonObject request, LaterCallback callback) {
+        callback.resultCallback(BaseCommand.jsonOf(
                 "commands", getCommands()
         ));
     }
@@ -44,10 +43,10 @@ public class GetCommandsList implements BaseCommand {
     public static List<Object> getCommands(){
         List<Object> ret = new ArrayList<>(COMMANDS.size());
         COMMAND_DESC_MAP.forEach((commandName, commandDesc) -> {
-            ret.add(Map.of(
-               "cmd", commandName,
-               "desc", commandDesc,
-                "requirements", Arrays.stream(COMMAND_REQUIREMENTS_MAP.get(commandName)).toList()
+            ret.add(BaseCommand.jsonOf(
+                    "cmd", commandName,
+                    "desc", commandDesc,
+                    "requirements", Arrays.stream(COMMAND_REQUIREMENTS_MAP.get(commandName)).toList()
             ));
         });
         return ret;

@@ -25,8 +25,6 @@ import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
 import me.psychedelicpalimpsest.safefreecam.Freecam;
-import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import org.slf4j.Logger;
@@ -35,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static me.psychedelicpalimpsest.BaritoneListener.baritoneInit;
 
 
 public class McPuppeteer {
@@ -53,7 +53,7 @@ public class McPuppeteer {
 	public static void init() {
 		/* Yes, this makes init slower, but I do not care */
 		try {
-			PuppeteerSocketServer.createServer();
+			PuppeteerServer.createServer();
 		} catch (IOException e) {
 			McPuppeteer.LOGGER.error("Failed to create server", e);
 		}
@@ -96,7 +96,13 @@ public class McPuppeteer {
 			}
 		});
 
+		if (McPuppeteer.installedMods.contains("baritone")){
+			baritoneInit();
+		}
+
 
 	}
+
+
 
 }

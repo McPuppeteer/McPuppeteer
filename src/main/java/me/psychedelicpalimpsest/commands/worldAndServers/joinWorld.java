@@ -17,13 +17,11 @@
 
 package me.psychedelicpalimpsest.commands.worldAndServers;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.TitleScreen;
-
-import java.util.Map;
 
 @PuppeteerCommand(
         cmd="join world",
@@ -31,10 +29,10 @@ import java.util.Map;
 )
 public class joinWorld implements BaseCommand {
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
+    public void onRequest(JsonObject request, LaterCallback callback) {
 
-        if (request.get("load name") == null || !request.get("load name").isTextual()) {
-            callback.callback(Map.of(
+        if (request.get("load name") == null || !request.get("load name").isJsonPrimitive()) {
+            callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "message", "Missing parameter 'load name' in joinWorld"
             ));
@@ -45,7 +43,7 @@ public class joinWorld implements BaseCommand {
                 try {
                     while (true) {
                         if (MinecraftClient.getInstance().world != null && MinecraftClient.getInstance().player != null) {
-                            callback.callback(Map.of("message", "in game"));
+                            callback.resultCallback(BaseCommand.jsonOf("message", "in game"));
                             return;
                         }
 
@@ -56,8 +54,8 @@ public class joinWorld implements BaseCommand {
             });
             listenThread.start();
 
-            MinecraftClient.getInstance().createIntegratedServerLoader().start(request.get("load name").asText(), () -> {
-                callback.callback(Map.of(
+            MinecraftClient.getInstance().createIntegratedServerLoader().start(request.get("load name").getAsString(), () -> {
+                callback.resultCallback(BaseCommand.jsonOf(
                         "status", "error",
                         "message", "Unknown world join error, are you sure you sent the 'load name' parameter directly from the 'load name' value from 'get worlds'?"
                 ));

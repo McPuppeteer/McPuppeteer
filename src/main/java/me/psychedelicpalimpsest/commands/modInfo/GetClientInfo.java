@@ -18,7 +18,7 @@
 package me.psychedelicpalimpsest.commands.modInfo;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.fabricmc.loader.api.FabricLoader;
@@ -26,7 +26,6 @@ import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.MinecraftClient;
 
-import java.util.Map;
 import java.util.Optional;
 
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
@@ -37,7 +36,7 @@ import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
 )
 public class GetClientInfo implements BaseCommand {
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
+    public void onRequest(JsonObject request, LaterCallback callback) {
         Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(MOD_ID);
         if (mod.isEmpty()) {
             throw new RuntimeException("Could not find ModContainer for " + MOD_ID);
@@ -45,9 +44,9 @@ public class GetClientInfo implements BaseCommand {
         ModContainer modc = mod.get();
 
 
-        callback.callback(Map.of(
+        callback.resultCallback(BaseCommand.jsonOf(
                 "puppeteer commands", GetCommandsList.getCommands(),
-                "puppeteer info", Map.of(
+                "puppeteer info", BaseCommand.jsonOf(
                         "name", modc.getMetadata().getName(),
                         "mod id", MOD_ID,
                         "version", modc.getMetadata().getVersion().getFriendlyString(),

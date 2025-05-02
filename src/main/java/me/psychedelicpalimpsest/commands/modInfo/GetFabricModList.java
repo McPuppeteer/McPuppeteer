@@ -17,14 +17,13 @@
 
 package me.psychedelicpalimpsest.commands.modInfo;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.Person;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @PuppeteerCommand(
@@ -33,8 +32,8 @@ import java.util.stream.Collectors;
 )
 public class GetFabricModList implements BaseCommand {
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
-        List<Map<String, Object>> mods = FabricLoader.getInstance().getAllMods().stream().map((modContainer -> Map.of(
+    public void onRequest(JsonObject request, LaterCallback callback) {
+        List<JsonObject> mods = FabricLoader.getInstance().getAllMods().stream().map((modContainer -> BaseCommand.jsonOf(
                 "name", modContainer.getMetadata().getName(),
                 "description", modContainer.getMetadata().getDescription(),
                 "version", modContainer.getMetadata().getVersion().getFriendlyString(),
@@ -47,6 +46,6 @@ public class GetFabricModList implements BaseCommand {
                 "contacts", modContainer.getMetadata().getContact().asMap()
         ))).toList();
 
-        callback.callback(Map.of("mods", mods));
+        callback.resultCallback(BaseCommand.jsonOf("mods", mods));
     }
 }

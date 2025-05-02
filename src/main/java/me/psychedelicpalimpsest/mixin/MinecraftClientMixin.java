@@ -19,7 +19,7 @@ package me.psychedelicpalimpsest.mixin;
 
 import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerConfig;
-import me.psychedelicpalimpsest.PuppeteerSocketServer;
+import me.psychedelicpalimpsest.PuppeteerServer;
 import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,7 +29,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
 
-import static me.psychedelicpalimpsest.PuppeteerSocketServer.broadcastState;
+import static me.psychedelicpalimpsest.PuppeteerServer.broadcastState;
 
 
 @Mixin(MinecraftClient.class)
@@ -61,12 +61,12 @@ public class MinecraftClientMixin {
 
 	@Inject(at = @At("RETURN"), method="getWindowTitle", cancellable = true)
 	private void onGetTitle(CallbackInfoReturnable<String> cir){
-		String port_s = PuppeteerSocketServer.getInstance() == null ? "unknown" : "" + PuppeteerSocketServer.getInstancePort();
+		String port_s = PuppeteerServer.getInstance() == null ? "unknown" : "" + PuppeteerServer.getInstance().getPort();
 
 		cir.setReturnValue(cir.getReturnValue() + " - [" +  port_s + "]");
 	}
 	@Inject(at = @At("HEAD"), method="close")
 	private void onClose(CallbackInfo ci) {
-		PuppeteerSocketServer.killServer();
+		PuppeteerServer.killServer();
 	}
 }

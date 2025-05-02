@@ -17,7 +17,7 @@
 
 package me.psychedelicpalimpsest.commands.worldAndServers;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
@@ -26,7 +26,6 @@ import net.minecraft.world.level.storage.LevelSummary;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @PuppeteerCommand(
@@ -37,19 +36,19 @@ import java.util.concurrent.CompletableFuture;
 )
 public class GetWorlds implements BaseCommand {
 
-    public CompletableFuture<List<Map<String, Object>>> getWorldListJson(){
+    public CompletableFuture<List<JsonObject>> getWorldListJson(){
         LevelStorage.LevelList list = MinecraftClient.getInstance().getLevelStorage().getLevelList();
         if (list.isEmpty()){
             return CompletableFuture.completedFuture(List.of());
         }
         List<LevelStorage.LevelSave> levelsSaves = list.levels();
         return MinecraftClient.getInstance().getLevelStorage().loadSummaries(list).thenApply((levelSummaries ->{
-            List<Map<String, Object>> worlds = new ArrayList<>(levelSummaries.size());
+            List<JsonObject> worlds = new ArrayList<>(levelSummaries.size());
             for (int i = 0; i < levelSummaries.size(); i++) {
                 LevelSummary levelSummary = levelSummaries.get(i);
                 LevelStorage.LevelSave save = levelsSaves.get(i);
 
-                worlds.add(Map.of(
+                worlds.add(BaseCommand.jsonOf(
                         "display name", levelSummary.getDisplayName(),
                         "load name", levelSummary.getName(),
                         "last played", levelSummary.getLastPlayed(),
@@ -65,10 +64,10 @@ public class GetWorlds implements BaseCommand {
 
 
     @Override
-    public void onRequest(JsonNode request, LaterCallback callback) {
+    public void onRequest(JsonObject request, LaterCallback callback) {
         new Thread(() -> {
             getWorldListJson().thenAccept(list -> {
-                callback.callback(Map.of(
+                callback.resultCallback(BaseCommand.jsonOf(
                         "world count", list.size(),
                         "worlds", list
                 ));
