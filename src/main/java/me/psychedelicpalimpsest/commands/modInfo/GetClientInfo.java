@@ -43,6 +43,11 @@ public class GetClientInfo implements BaseCommand {
         }
         ModContainer modc = mod.get();
 
+        callback.generalCallback(BaseCommand.jsonOf("foo", "bar1"));
+        callback.generalCallback(BaseCommand.jsonOf("foo", "bar2"));
+        callback.generalCallback(BaseCommand.jsonOf("foo", "bar3"));
+        callback.generalCallback(BaseCommand.jsonOf("foo", "bar4"));
+        callback.generalCallback(BaseCommand.jsonOf("foo", "bar5"));
 
         callback.resultCallback(BaseCommand.jsonOf(
                 "puppeteer commands", GetCommandsList.getCommands(),

@@ -302,7 +302,10 @@ public class PuppeteerServer implements Runnable{
             ClientAttachment attachment = (ClientAttachment)
                     client.keyFor(selector).attachment();
             attachment.writeQueue.add(respBuffer);
-            client.keyFor(selector).interestOps(SelectionKey.OP_WRITE);
+
+            SelectionKey key = client.keyFor(selector);
+            key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
+
         });
     }
     public static void broadcastJsonPacket(JsonObject packet) {
@@ -329,18 +332,17 @@ public class PuppeteerServer implements Runnable{
     private static void writeData(SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         ClientAttachment attachment = (ClientAttachment) key.attachment();
-
+        System.out.println("Write size" + attachment.writeQueue.size());
         while (!attachment.writeQueue.isEmpty()) {
             ByteBuffer buffer = attachment.writeQueue.peek();
-            client.write(buffer);
-            if (buffer.remaining() > 0) break;
-            attachment.writeQueue.poll();
+
+            System.out.println("Write amount: " + client.write(buffer));
+
+            if (buffer.remaining() == 0) attachment.writeQueue.poll();
         }
 
+        key.interestOps(SelectionKey.OP_READ);
 
-        if (attachment.writeQueue.isEmpty()) {
-            key.interestOps(SelectionKey.OP_READ);
-        }
     }
 
 

@@ -33,10 +33,10 @@ public class BaritoneListener implements AbstractGameEventListener {
             hasStartedSinceCancel = true;
 
         /* Seems something somebody might want */
-        PuppeteerServer.getInstance().broadcastJsonPacket(BaseCommand.jsonOf(
-                "type", "baritone event",
-                "path state", pathEvent.name()
-        ));
+//        PuppeteerServer.getInstance().broadcastJsonPacket(BaseCommand.jsonOf(
+//                "type", "baritone event",
+//                "path state", pathEvent.name()
+//        ));
 
         if (baritoneCommandCallbacks.isEmpty()) return;
 
