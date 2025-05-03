@@ -39,6 +39,7 @@ public class BaritoneGoto implements BaseCommand {
               || !request.has("z") || !request.get("z").isJsonPrimitive()){
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
+                    "type", "expected argument",
                     "message", "Must have three integer arguments, x, y, z"
             ));
             return;

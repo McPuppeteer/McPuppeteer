@@ -38,6 +38,7 @@ public class GetConfigSettingsForMod implements BaseCommand {
         if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
+                    "type", "expected argument",
                     "message", "Missing parameter 'file name'"
             ));
             return;
@@ -45,7 +46,8 @@ public class GetConfigSettingsForMod implements BaseCommand {
         File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
         if (!config.exists()) {
             callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
+            "status", "error",
+                    "type", "config file missing",
                     "message", "Config file does not exist"
             ));
             return;

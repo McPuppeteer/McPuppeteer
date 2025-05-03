@@ -35,6 +35,7 @@ public class ReloadConfigForModFromDisk implements BaseCommand {
         if (request.get("mod id") == null || !request.get("mod id").isJsonPrimitive()) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
+                    "type", "expected argument",
                     "message", "Missing parameter 'mod id'"
             ));
             return;
@@ -44,6 +45,7 @@ public class ReloadConfigForModFromDisk implements BaseCommand {
         if (!configs.containsKey(modId)) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
+                    "type", "unknown mod",
                     "message", "Unknown mod id"
             ));
             return;

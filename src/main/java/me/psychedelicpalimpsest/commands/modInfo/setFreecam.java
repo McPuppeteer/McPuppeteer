@@ -15,7 +15,8 @@ public class setFreecam implements BaseCommand {
         if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
-                    "message", "Must have 'enabled' as a boolean property"
+                    "message", "Must have 'enabled' as a boolean property",
+                    "type", "expected argument"
             ));
             return;
         }

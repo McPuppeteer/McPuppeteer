@@ -14,6 +14,10 @@ public class BaritoneListener implements AbstractGameEventListener {
         BaritoneAPI.getProvider().getPrimaryBaritone().getGameEventHandler().registerEventListener(getOrCreateInstance());
     }
 
+    public static void panic() {
+        BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().cancelEverything();
+    }
+
     public void addBaritoneEventCallback(BaseCommand.LaterCallback callback){
         this.baritoneCommandCallbacks.add(callback);
     }

@@ -34,7 +34,8 @@ public class joinWorld implements BaseCommand {
         if (request.get("load name") == null || !request.get("load name").isJsonPrimitive()) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
-                    "message", "Missing parameter 'load name' in joinWorld"
+                    "message", "Missing parameter 'load name' in joinWorld",
+                    "type", "expected argument"
             ));
             return;
         }
@@ -57,6 +58,7 @@ public class joinWorld implements BaseCommand {
             MinecraftClient.getInstance().createIntegratedServerLoader().start(request.get("load name").getAsString(), () -> {
                 callback.resultCallback(BaseCommand.jsonOf(
                         "status", "error",
+                        "type", "cannot join world",
                         "message", "Unknown world join error, are you sure you sent the 'load name' parameter directly from the 'load name' value from 'get worlds'?"
                 ));
                 listenThread.interrupt();

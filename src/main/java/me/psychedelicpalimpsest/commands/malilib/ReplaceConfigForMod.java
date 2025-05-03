@@ -36,6 +36,7 @@ public class ReplaceConfigForMod implements BaseCommand {
         if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
+                    "type", "expected argument",
                     "message", "Missing parameter 'file name'"
             ));
             return;
@@ -43,6 +44,7 @@ public class ReplaceConfigForMod implements BaseCommand {
         if (request.get("json") == null) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
+                    "type", "expected argument",
                     "message", "Missing parameter 'json'"
             ));
             return;

@@ -287,6 +287,7 @@ public class PuppeteerServer implements Runnable{
                     JsonObject response = new JsonObject();
 
                     response.addProperty("status", "error");
+                    response.addProperty("type", "format");
                     response.addProperty("message", "invalid request");
                     if (request.has("id"))
                         response.add("id", request.get("id"));
@@ -301,6 +302,7 @@ public class PuppeteerServer implements Runnable{
                 if (!COMMAND_MAP.containsKey(cmd)) {
                     JsonObject response = new JsonObject();
                     response.addProperty("status", "error");
+                    response.addProperty("type", "format");
                     response.addProperty("message", "unknown command");
                     response.addProperty("id", id);
                     writeJsonPacket(client, response);
@@ -312,6 +314,7 @@ public class PuppeteerServer implements Runnable{
                     if (McPuppeteer.installedMods.contains(r)) continue;
                     JsonObject response = new JsonObject();
                     response.addProperty("status", "error");
+                    response.addProperty("type", "mod requirement");
                     response.addProperty("message", r + " not installed");
                     response.addProperty("id", id);
                     writeJsonPacket(client, response);

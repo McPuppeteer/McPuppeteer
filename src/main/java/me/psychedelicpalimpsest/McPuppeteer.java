@@ -78,13 +78,26 @@ public class McPuppeteer {
 
 		PuppeteerConfig.OPEN_CONFIG_GUI.getKeybind().setCallback((action, key) -> {
 			MinecraftClient.getInstance().setScreen(new GuiConfigs());
-			System.out.println("Open Config GUI");
-			return false;
+			return true;
 		});
 
 		PuppeteerConfig.TOGGLE_FREECAM.getKeybind().setCallback(Freecam::toggleFreecam);
 		PuppeteerConfig.TOGGLE_FREEROT.getKeybind().setCallback(Freerot::toggleFreerot);
+		PuppeteerConfig.PANNIC_BUTTON.getKeybind().setCallback((ignored, ignored2)->{
+			if (McPuppeteer.installedMods.contains("baritone")) {
+				BaritoneListener.panic();
+			}
+			PuppeteerServer.broadcastJsonPacket(BaseCommand.jsonOf(
+			"status", "error",
+					"type", "panic",
+					"message", "The user has pressed that panic button",
 
+					/* Specifically force the client to interpret as error */
+					"callback", false
+			));
+
+			return true;
+		});
 
 
 
@@ -106,8 +119,6 @@ public class McPuppeteer {
 		}
 
 
-
-		System.out.println("P:" + MinecraftClient.getInstance().getResourceManager().getResource(noRotationEffect.texture).isPresent());
 	}
 
 

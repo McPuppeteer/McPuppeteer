@@ -37,6 +37,7 @@ public class joinServer implements BaseCommand {
         if (request.get("address") == null || !request.get("address").isJsonPrimitive()) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
+                    "type", "expected argument",
                     "message", "Missing parameter 'address' in join server"
             ));
             return;
@@ -44,6 +45,7 @@ public class joinServer implements BaseCommand {
         if (!ServerAddress.isValid(request.get("address").getAsString())) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
+                    "type", "cannot connect",
                     "message", "Invalid server address"
             ));
             return;
@@ -71,6 +73,7 @@ public class joinServer implements BaseCommand {
                         if (MinecraftClient.getInstance().currentScreen instanceof DisconnectedScreen){
                             callback.resultCallback(BaseCommand.jsonOf(
                                     "status", "error",
+                                    "type", "cannot connect",
                                     "message", "Disconnect during connect"
                             ));
                             return;
@@ -82,6 +85,7 @@ public class joinServer implements BaseCommand {
                         if (!(MinecraftClient.getInstance().currentScreen instanceof ConnectScreen)) {
                             callback.resultCallback(BaseCommand.jsonOf(
                                     "status", "error",
+                                    "type", "cannot connect",
                                     "message", "Unexpected screen: "
                                             + (MinecraftClient.getInstance().currentScreen.getTitle() != null
                                             ? MinecraftClient.getInstance().currentScreen.getTitle()
