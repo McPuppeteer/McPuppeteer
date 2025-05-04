@@ -21,10 +21,13 @@ import baritone.api.pathing.goals.Goal;
 import baritone.api.pathing.goals.GoalGetToBlock;
 import baritone.api.process.ICustomGoalProcess;
 import com.google.gson.JsonObject;
-import me.psychedelicpalimpsest.BaritoneListener;
 import me.psychedelicpalimpsest.BaseCommand;
+import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.util.math.BlockPos;
+
+import static me.psychedelicpalimpsest.Tasks.PuppeteerTask.baritoneTask;
+
 
 @PuppeteerCommand(
         cmd="baritone goto", mod_requirements = {"baritone"},
@@ -33,7 +36,6 @@ import net.minecraft.util.math.BlockPos;
 public class BaritoneGoto implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-
         if (!request.has("x") || !request.get("x").isJsonPrimitive()
               || !request.has("y") || !request.get("y").isJsonPrimitive()
               || !request.has("z") || !request.get("z").isJsonPrimitive()){
@@ -44,27 +46,25 @@ public class BaritoneGoto implements BaseCommand {
             ));
             return;
         }
-        int x = request.get("x").getAsInt();
-        int y = request.get("y").getAsInt();
-        int z = request.get("z").getAsInt();
+        final int x = request.get("x").getAsInt();
+        final int y = request.get("y").getAsInt();
+        final int z = request.get("z").getAsInt();
 
-        ICustomGoalProcess progress = BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess();
-
-
-        boolean noCancel = request.has("no cancel") && request.get("no cancel").getAsBoolean();
+        final boolean noCancel = request.has("no cancel") && request.get("no cancel").getAsBoolean();
 
         if (!noCancel)
             BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().cancelEverything();
 
 
 
-        BaritoneListener.getOrCreateInstance().addBaritoneEventCallback(callback);
-
-        Goal goal = new GoalGetToBlock(new BlockPos(x, y, z));
-        progress.setGoalAndPath(goal);
+        McPuppeteer.tasks.add(baritoneTask((task, ignored) -> {
+            ICustomGoalProcess progress = BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess();
 
 
-
-
+            Goal goal = new GoalGetToBlock(new BlockPos(x, y, z));
+            progress.setGoalAndPath(goal);
+        }, (task, ignored)-> callback.resultCallback(BaseCommand.jsonOf(
+                "message", "baritone completed the operation"
+        )), (t, e)-> callback.resultCallback(e)));
     }
 }

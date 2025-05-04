@@ -4,7 +4,6 @@ package me.psychedelicpalimpsest.commands.modInfo;
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
-import me.psychedelicpalimpsest.modules.Freecam;
 import me.psychedelicpalimpsest.modules.Freerot;
 
 @PuppeteerCommand(

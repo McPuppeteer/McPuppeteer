@@ -26,8 +26,15 @@ import fi.dy.masa.malilib.config.IConfigHandler;
 import fi.dy.masa.malilib.config.options.ConfigBoolean;
 import fi.dy.masa.malilib.config.options.ConfigFloat;
 import fi.dy.masa.malilib.config.options.ConfigHotkey;
+import fi.dy.masa.malilib.event.InputEventHandler;
+import fi.dy.masa.malilib.hotkeys.IHotkey;
+import fi.dy.masa.malilib.hotkeys.IKeybindManager;
+import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
+import me.psychedelicpalimpsest.modules.Freecam;
+import me.psychedelicpalimpsest.modules.Freerot;
+import net.minecraft.client.MinecraftClient;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,6 +113,46 @@ public class PuppeteerConfig implements IConfigHandler {
 
     }
 
+
+    public static void initHotkeys() {
+        PuppeteerConfig.OPEN_CONFIG_GUI.getKeybind().setCallback((action, key) -> {
+            MinecraftClient.getInstance().setScreen(new GuiConfigs());
+            return true;
+        });
+
+        PuppeteerConfig.TOGGLE_FREECAM.getKeybind().setCallback(Freecam::toggleFreecam);
+        PuppeteerConfig.TOGGLE_FREEROT.getKeybind().setCallback(Freerot::toggleFreerot);
+        PuppeteerConfig.PANNIC_BUTTON.getKeybind().setCallback((ignored, ignored2)->{
+            if (McPuppeteer.installedMods.contains("baritone")) {
+                BaritoneListener.panic();
+            }
+            PuppeteerServer.broadcastJsonPacket(BaseCommand.jsonOf(
+                    "status", "error",
+                    "type", "panic",
+                    "message", "The user has pressed that panic button",
+
+                    /* Specifically force the client to interpret as error */
+                    "callback", false
+            ));
+
+            return true;
+        });
+
+
+
+        InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {
+            @Override
+            public void addKeysToMap(IKeybindManager manager) {
+                for (IHotkey hotkey : PuppeteerConfig.HOTKEY_LIST)
+                    manager.addKeybindToMap(hotkey.getKeybind());
+            }
+
+            @Override
+            public void addHotkeys(IKeybindManager manager) {
+                manager.addHotkeysForCategory(McPuppeteer.MOD_ID, "", PuppeteerConfig.HOTKEY_LIST);
+            }
+        });
+    }
 
 
 }

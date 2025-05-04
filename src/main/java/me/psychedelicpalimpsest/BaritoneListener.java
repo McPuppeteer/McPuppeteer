@@ -3,10 +3,9 @@ package me.psychedelicpalimpsest;
 import baritone.api.BaritoneAPI;
 import baritone.api.event.events.PathEvent;
 import baritone.api.event.listener.AbstractGameEventListener;
-import net.minecraft.client.MinecraftClient;
+import me.psychedelicpalimpsest.Tasks.PuppeteerTask;
 
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
+import static me.psychedelicpalimpsest.Tasks.PuppeteerTask.TaskType.BARITONE;
 
 public class BaritoneListener implements AbstractGameEventListener {
     public static void baritoneInit(){
@@ -18,11 +17,6 @@ public class BaritoneListener implements AbstractGameEventListener {
         BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().cancelEverything();
     }
 
-    public void addBaritoneEventCallback(BaseCommand.LaterCallback callback){
-        this.baritoneCommandCallbacks.add(callback);
-    }
-
-    private Queue<BaseCommand.LaterCallback> baritoneCommandCallbacks = new LinkedBlockingQueue<>();
 
     private static BaritoneListener instance;
     public static BaritoneListener getOrCreateInstance(){
@@ -34,33 +28,35 @@ public class BaritoneListener implements AbstractGameEventListener {
 
     @Override
     public void onPathEvent(PathEvent pathEvent) {
-        if (PathEvent.CALC_FINISHED_NOW_EXECUTING == pathEvent)
-            hasStartedSinceCancel = true;
-
         /* Seems something somebody might want */
-        PuppeteerServer.getInstance().broadcastJsonPacket(BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(BaseCommand.jsonOf(
                 "type", "baritone event",
                 "path state", pathEvent.name()
         ));
-
-        if (baritoneCommandCallbacks.isEmpty()) return;
-
-
-
-         if (PathEvent.CANCELED == pathEvent && hasStartedSinceCancel){
-            baritoneCommandCallbacks.remove().resultCallback(BaseCommand.jsonOf(
-                    "message", "baritone canceled the operation"
-            ));
+        if (PathEvent.CALC_FINISHED_NOW_EXECUTING == pathEvent)
+            hasStartedSinceCancel = true;
 
 
+        if (McPuppeteer.tasks.isEmpty()) return;
+
+        PuppeteerTask task = McPuppeteer.tasks.peek();
+
+        if (PathEvent.CANCELED == pathEvent && hasStartedSinceCancel){
             hasStartedSinceCancel = false;
-        } else if (PathEvent.CALC_FAILED == pathEvent){
-            baritoneCommandCallbacks.remove().resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "message", "CALC_FAILED"
-            ));
 
+            if (task.getType() == BARITONE)
+                task.onBaritoneCancel();
         }
+        if (PathEvent.CALC_FAILED == pathEvent){
+            if (task.getType() == BARITONE)
+                task.onBaritoneCalculationFailure();
+        }
+
+
+
+
+
+
 
     }
 }

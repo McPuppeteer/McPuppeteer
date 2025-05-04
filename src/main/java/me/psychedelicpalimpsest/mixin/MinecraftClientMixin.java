@@ -20,6 +20,7 @@ package me.psychedelicpalimpsest.mixin;
 import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerConfig;
 import me.psychedelicpalimpsest.PuppeteerServer;
+import me.psychedelicpalimpsest.Tasks.PuppeteerTask;
 import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.io.IOException;
 
 import static me.psychedelicpalimpsest.PuppeteerServer.broadcastState;
+import static me.psychedelicpalimpsest.Tasks.PuppeteerTask.TaskType.TICKLY;
 
 
 @Mixin(MinecraftClient.class)
@@ -56,6 +58,33 @@ public class MinecraftClientMixin {
 			}).start();
 		}
 
+
+
+
+		if (!McPuppeteer.tasks.isEmpty()){
+			PuppeteerTask task = McPuppeteer.tasks.peek();
+			switch (task.getState()){
+				case NOT_STARTED:
+					task.start();
+					break;
+				case ENDED:
+					McPuppeteer.tasks.remove();
+					break;
+				case RUNNING:
+					if (task.getType() == TICKLY)
+						task.tick();
+					break;
+				default:
+					break;
+			}
+
+
+
+
+		}
+
+
+
 	}
 
 
@@ -68,6 +97,8 @@ public class MinecraftClientMixin {
 	@Inject(at = @At("HEAD"), method="close")
 	private void onClose(CallbackInfo ci) {
 		PuppeteerServer.killServer();
+		if (!McPuppeteer.tasks.isEmpty())
+			McPuppeteer.tasks.peek().kill();
 	}
 
 

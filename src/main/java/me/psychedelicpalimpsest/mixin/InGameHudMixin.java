@@ -1,14 +1,10 @@
 package me.psychedelicpalimpsest.mixin;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import fi.dy.masa.malilib.render.RenderUtils;
-import me.psychedelicpalimpsest.McPuppeteer;
+import me.psychedelicpalimpsest.PuppeteerEffects;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.RenderTickCounter;
-import net.minecraft.client.render.VertexConsumer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -21,7 +17,7 @@ public class InGameHudMixin {
     void onRenderStatusEffectOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci){
         int x = 1;
         int y = 1;
-        for (McPuppeteer.PuppeteerEffect effect : McPuppeteer.effects) {
+        for (PuppeteerEffects.PuppeteerEffect effect : PuppeteerEffects.effects) {
             if (!effect.isActive) continue;
 
 
