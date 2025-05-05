@@ -17,10 +17,18 @@
 
 package me.psychedelicpalimpsest;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonSerializationContext;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,4 +86,20 @@ public class McPuppeteer {
 
 
 	public static Queue<PuppeteerTask> tasks = new ConcurrentLinkedQueue<>();
+
+
+
+	public static String textToString(Text text){
+		StringBuilder builder = new StringBuilder();
+		text.visit((style, string) -> {
+			builder.append(string);
+
+            return java.util.Optional.empty();
+        }, Style.EMPTY);
+		return builder.toString();
+	}
+	public static Gson createTextJsonSerializer() {
+		Text.Serializer serializer = new Text.Serializer(DynamicRegistryManager.of(Registries.REGISTRIES));
+		return new GsonBuilder().registerTypeHierarchyAdapter(Text.class, serializer).create();
+	}
 }

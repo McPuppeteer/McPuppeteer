@@ -28,9 +28,12 @@ public class CallbackManager {
         BARITONE,
 
         PLAYER_POSITION,
-        PLAYER_HEALTH,
+        PLAYER_YAW,
+        PLAYER_PITCH,
+        PLAYER_DAMAGE,
         PLAYER_DEATH,
         PLAYER_INVENTORY,
+        CHAT,
     }
 
     public static final Map<CallbackType, String> CALLBACK_TYPE_STRING_MAP;
@@ -41,9 +44,12 @@ public class CallbackManager {
         map.put(CallbackType.BARITONE, "BARITONE");
 
         map.put(CallbackType.PLAYER_POSITION, "PLAYER_POSITION");
-        map.put(CallbackType.PLAYER_HEALTH, "PLAYER_HEALTH");
+        map.put(CallbackType.PLAYER_YAW, "PLAYER_YAW");
+        map.put(CallbackType.PLAYER_PITCH, "PLAYER_PITCH");
+        map.put(CallbackType.PLAYER_DAMAGE, "PLAYER_DAMAGE");
         map.put(CallbackType.PLAYER_DEATH, "PLAYER_DEATH");
         map.put(CallbackType.PLAYER_INVENTORY, "PLAYER_INVENTORY");
+        map.put(CallbackType.CHAT, "CHAT");
 
 
 
