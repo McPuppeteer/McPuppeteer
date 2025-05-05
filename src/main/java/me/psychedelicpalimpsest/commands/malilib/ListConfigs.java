@@ -28,6 +28,8 @@ import java.io.File;
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
+
 @PuppeteerCommand(
         cmd = "list config info",
         description = "Lists all mods with configs registered with malilib"
@@ -57,7 +59,8 @@ public class ListConfigs implements BaseCommand {
 
             return (Map<String, IConfigHandler>) field.get(ConfigManager.getInstance());
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            LOGGER.error("Error trying to get config handlers", e);
+
             return null;
         }
     }

@@ -30,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
 
+import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 import static me.psychedelicpalimpsest.PuppeteerServer.broadcastState;
 import static me.psychedelicpalimpsest.Tasks.PuppeteerTask.TaskType.TICKLY;
 
@@ -53,7 +54,7 @@ public class MinecraftClientMixin {
 				try {
 					broadcastState();
 				} catch (IOException e) {
-					e.printStackTrace();
+					LOGGER.error("Error trying to broadcast state", e);
 				}
 			}).start();
 		}

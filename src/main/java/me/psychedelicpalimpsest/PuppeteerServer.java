@@ -23,15 +23,9 @@ import com.google.gson.JsonParser;
 import net.minecraft.client.MinecraftClient;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.*;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
-import java.nio.channels.ServerSocketChannel;
-import java.nio.channels.SocketChannel;
+import java.nio.channels.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.Queue;
@@ -40,6 +34,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
 import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_MAP;
 import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_REQUIREMENTS_MAP;
@@ -200,7 +195,7 @@ public class PuppeteerServer implements Runnable{
             serverSocket.register(selector, SelectionKey.OP_ACCEPT);
 
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("Error in creating puppeteer server", e);
             return;
         }
         while (running) {
@@ -212,7 +207,7 @@ public class PuppeteerServer implements Runnable{
                     try {
                         task.run();
                     } catch (Exception e) {
-                        e.printStackTrace();
+                        LOGGER.error("Error in creating puppeteer server task", e);
                     }
                 }
 
@@ -238,7 +233,7 @@ public class PuppeteerServer implements Runnable{
                     }
                 }
             }catch (IOException e){
-                e.printStackTrace();
+                LOGGER.error("Error in creating puppeteer server iteration", e);
             }
         }
     }
@@ -247,8 +242,16 @@ public class PuppeteerServer implements Runnable{
         ClientAttachment attachment = (ClientAttachment) key.attachment();
         ByteBuffer buffer = attachment.readBuffer;
 
-        int bytesRead = client.read(buffer);
-        if (bytesRead == -1) {
+
+        try {
+            int bytesRead = client.read(buffer);
+            if (bytesRead == -1) {
+                client.close();
+                connectedClients.remove(client);
+
+                return;
+            }
+        } catch (SocketException | ClosedChannelException e) {
             client.close();
             connectedClients.remove(client);
 
@@ -333,7 +336,7 @@ public class PuppeteerServer implements Runnable{
 
                             writeJsonPacket(client, result);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LOGGER.error("Error in resultCallback()", e);
                         }
                     }
 
@@ -345,7 +348,7 @@ public class PuppeteerServer implements Runnable{
                         try {
                             writeJsonPacket(client, result);
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            LOGGER.error("Error in generalCallback()", e);
                         }
                     }
                 });
@@ -353,13 +356,14 @@ public class PuppeteerServer implements Runnable{
             } else if (type == 'n') {
                 /* TODO: THIS */
             } else {
-                System.out.println("Unknown data type: " + (char) type);
+
+                LOGGER.warn("Unknown data type: " + (char) type);
                 return;
             }
 
 
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Error in processData()", e);
         }
     }
 

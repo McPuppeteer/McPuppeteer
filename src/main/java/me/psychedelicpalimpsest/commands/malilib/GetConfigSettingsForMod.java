@@ -28,6 +28,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
+
 @PuppeteerCommand(
         cmd = "get config",
         description = "Load a config file with a certain name from the disk, assumes it is json. Takes one parameter: 'file name'"
@@ -66,7 +68,12 @@ public class GetConfigSettingsForMod implements BaseCommand {
             /* This should not be possible as we check this ourselves */
             throw new RuntimeException(e);
         } catch (IOException e) {
-            e.printStackTrace();
+            callback.resultCallback(BaseCommand.jsonOf(
+               "status", "error",
+               "type", "exception",
+               "message", e.getMessage()
+            ));
+            LOGGER.error("IO exception in GetConfigSettingsForMod", e);
         }
 
 

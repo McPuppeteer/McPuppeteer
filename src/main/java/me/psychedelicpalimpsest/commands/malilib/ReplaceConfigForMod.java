@@ -26,6 +26,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
+
 @PuppeteerCommand(
         cmd = "replace config",
         description = "Replaces a json file in the config folder"
@@ -60,7 +62,12 @@ public class ReplaceConfigForMod implements BaseCommand {
             writer.close();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "status", "error",
+                    "type", "exception",
+                    "message", e.getMessage()
+            ));
+            LOGGER.error("IO exception in ReplaceConfigForMod", e);
         }
 
 

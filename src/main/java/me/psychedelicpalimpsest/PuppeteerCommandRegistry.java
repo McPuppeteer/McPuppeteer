@@ -22,6 +22,7 @@ import org.reflections.Reflections;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
+import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 
 
 public class PuppeteerCommandRegistry {
@@ -50,8 +51,7 @@ public class PuppeteerCommandRegistry {
 
                     break;
                 } catch (Exception e) {
-                    System.err.println("Error instantiating " + aClass.getName() + ", are you sure it implements baseCommand?");
-                    e.printStackTrace();
+                    LOGGER.error("Error instantiating " + aClass.getName() + ", are you sure it implements baseCommand?", e);
                 }
             }
             if (command == null) {
