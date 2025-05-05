@@ -19,7 +19,6 @@ package me.psychedelicpalimpsest.commands.callbacks;
 
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
-import me.psychedelicpalimpsest.CallbackManager;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
 @PuppeteerCommand(
