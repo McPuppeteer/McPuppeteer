@@ -126,7 +126,13 @@ public class PuppeteerConfig implements IConfigHandler {
             if (McPuppeteer.installedMods.contains("baritone")) {
                 BaritoneListener.panic();
             }
-            PuppeteerServer.broadcastJsonPacket(BaseCommand.jsonOf(
+
+            if (!McPuppeteer.tasks.isEmpty()){
+                McPuppeteer.tasks.peek().kill();
+                McPuppeteer.tasks.clear();
+            }
+
+            PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, BaseCommand.jsonOf(
                     "status", "error",
                     "type", "panic",
                     "message", "The user has pressed that panic button",

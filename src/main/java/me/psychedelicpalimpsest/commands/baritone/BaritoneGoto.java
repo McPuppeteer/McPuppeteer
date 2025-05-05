@@ -26,7 +26,7 @@ import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.util.math.BlockPos;
 
-import static me.psychedelicpalimpsest.Tasks.PuppeteerTask.baritoneTask;
+import static me.psychedelicpalimpsest.PuppeteerTask.baritoneTask;
 
 
 @PuppeteerCommand(

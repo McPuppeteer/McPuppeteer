@@ -15,11 +15,9 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.Tasks;
+package me.psychedelicpalimpsest;
 
 import com.google.gson.JsonObject;
-import me.psychedelicpalimpsest.BaseCommand;
-import me.psychedelicpalimpsest.McPuppeteer;
 import org.jetbrains.annotations.Nullable;
 
 /**

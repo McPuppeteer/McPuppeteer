@@ -27,10 +27,7 @@ import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
-import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -295,7 +292,7 @@ public class PuppeteerServer implements Runnable{
                     if (request.has("id"))
                         response.add("id", request.get("id"));
 
-                    writeJsonPacket(client, response);
+                    writeJsonPacket(client, response, true);
                     return;
                 }
 
@@ -308,7 +305,7 @@ public class PuppeteerServer implements Runnable{
                     response.addProperty("type", "format");
                     response.addProperty("message", "unknown command");
                     response.addProperty("id", id);
-                    writeJsonPacket(client, response);
+                    writeJsonPacket(client, response, true);
                     return;
                 }
 
@@ -320,12 +317,20 @@ public class PuppeteerServer implements Runnable{
                     response.addProperty("type", "mod requirement");
                     response.addProperty("message", r + " not installed");
                     response.addProperty("id", id);
-                    writeJsonPacket(client, response);
+                    writeJsonPacket(client, response, true);
                     return;
                 }
 
 
                 COMMAND_MAP.get(cmd).onRequest(request, new BaseCommand.LaterCallback() {
+                    @Override
+                    public void callbacksModView(BaseCommand.CallbackModView callback) {
+                        scheduleSelectorTask(()->{
+                           ClientAttachment attachment = (ClientAttachment) client.keyFor(instance.selector).attachment();
+                            callback.invoke(attachment.allowedCallbacks);
+                        });
+                    }
+
                     @Override
                     public void resultCallback(JsonObject result) {
 
@@ -334,7 +339,7 @@ public class PuppeteerServer implements Runnable{
                         result.addProperty("id", id);
                         try {
 
-                            writeJsonPacket(client, result);
+                            writeJsonPacket(client, result, false);
                         } catch (IOException e) {
                             LOGGER.error("Error in resultCallback()", e);
                         }
@@ -346,7 +351,7 @@ public class PuppeteerServer implements Runnable{
                         result.addProperty("callback", true);
 
                         try {
-                            writeJsonPacket(client, result);
+                            writeJsonPacket(client, result, false);
                         } catch (IOException e) {
                             LOGGER.error("Error in generalCallback()", e);
                         }
@@ -368,7 +373,7 @@ public class PuppeteerServer implements Runnable{
     }
 
 
-    public void writeJsonPacket(SocketChannel client, JsonObject packet) throws IOException {
+    private void writeJsonPacket(SocketChannel client, JsonObject packet, boolean isOnServerThread) throws IOException {
         String jsond = packet.toString();
 
         ByteBuffer respBuffer = ByteBuffer.allocate(1 + 4 + jsond.length());
@@ -377,7 +382,7 @@ public class PuppeteerServer implements Runnable{
         respBuffer.put(jsond.getBytes());
         respBuffer.flip();
 
-        scheduleSelectorTask(()->{
+        Runnable run = (()->{
             ClientAttachment attachment = (ClientAttachment)
                     client.keyFor(selector).attachment();
             attachment.writeQueue.add(respBuffer);
@@ -386,26 +391,45 @@ public class PuppeteerServer implements Runnable{
             key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
 
         });
+
+        if (isOnServerThread)
+            run.run();
+        else
+            scheduleSelectorTask(run);
     }
-    public static void broadcastJsonPacket(JsonObject packet) {
+
+    public static void broadcastJsonPacket(CallbackManager.CallbackType type, JsonObject packet) {
+        String type_name = CallbackManager.CALLBACK_TYPE_STRING_MAP.getOrDefault(type, "UNKNOWN");
+
         if (!packet.has("callback"))
             packet.addProperty("callback", true);
         if (!packet.has("status"))
             packet.addProperty("status", "ok");
+        packet.addProperty("type", type_name);
 
-        for (SocketChannel client : instance.connectedClients) {
-            if (client.isOpen()) {
-                try {
-                    instance.writeJsonPacket(client, packet);
-                } catch (IOException e) {
-                    // Optionally remove client on error
+        getInstance().scheduleSelectorTask(()->{
+            Selector s = instance.selector;
+            for (SocketChannel client : instance.connectedClients) {
+                if (client.isOpen()) {
+                    ClientAttachment attachment = (ClientAttachment)
+                            client.keyFor(s).attachment();
+
+                    if (type != CallbackManager.CallbackType.FORCED && !attachment.allowedCallbacks.getOrDefault(type, false))
+                        continue;
+
+
+                    try {
+                        instance.writeJsonPacket(client, packet, true);
+                    } catch (IOException e) {
+                        // Optionally remove client on error
+                        instance.connectedClients.remove(client);
+                        try { client.close(); } catch (IOException ignored) {}
+                    }
+                } else {
                     instance.connectedClients.remove(client);
-                    try { client.close(); } catch (IOException ignored) {}
                 }
-            } else {
-                instance.connectedClients.remove(client);
             }
-        }
+        });
     }
 
     private static void writeData(SelectionKey key) throws IOException {
@@ -426,10 +450,11 @@ public class PuppeteerServer implements Runnable{
 
     static class ClientAttachment {
         ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
-        ByteBuffer writeBuffer = null;
         Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
         int expectedLength = -1;
         byte dataType = 0;
+
+        Map<CallbackManager.CallbackType, Boolean> allowedCallbacks = new HashMap<>();
     }
 
 

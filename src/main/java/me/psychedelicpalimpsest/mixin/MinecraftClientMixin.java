@@ -20,7 +20,7 @@ package me.psychedelicpalimpsest.mixin;
 import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerConfig;
 import me.psychedelicpalimpsest.PuppeteerServer;
-import me.psychedelicpalimpsest.Tasks.PuppeteerTask;
+import me.psychedelicpalimpsest.PuppeteerTask;
 import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,7 +32,7 @@ import java.io.IOException;
 
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 import static me.psychedelicpalimpsest.PuppeteerServer.broadcastState;
-import static me.psychedelicpalimpsest.Tasks.PuppeteerTask.TaskType.TICKLY;
+import static me.psychedelicpalimpsest.PuppeteerTask.TaskType.TICKLY;
 
 
 @Mixin(MinecraftClient.class)

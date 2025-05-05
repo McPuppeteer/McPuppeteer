@@ -15,38 +15,32 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.commands.actions;
+package me.psychedelicpalimpsest.commands.callbacks;
 
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
+import me.psychedelicpalimpsest.CallbackManager;
 import me.psychedelicpalimpsest.PuppeteerCommand;
-import net.minecraft.client.MinecraftClient;
+
 
 @PuppeteerCommand(
-        cmd = "instantaneous rotation",
-        description = "Immediately set the players rotation, no interpolation, just speed!"
+        cmd = "get callbacks",
+        description = "Gets the state of all the callbacks"
 )
-public class InstantaneousRotation implements BaseCommand {
+public class GetCallbacks implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        if (!request.has("pitch") || !request.has("yaw")) {
+        callback.callbacksModView((callbackMap)->{
+            JsonObject result = new JsonObject();
+            CallbackManager.CALLBACK_TYPE_STRING_MAP.forEach((type, name)->{
+                result.addProperty(
+                        name, callbackMap.getOrDefault(type, false)
+                );
+            });
+
             callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "expected argument",
-                    "message", "Must have two float arguments, pitch and yaw"
+                    "callbacks", result
             ));
-            return;
-        }
-        float pitch = request.get("pitch").getAsFloat();
-        float yaw = request.get("yaw").getAsFloat();
-
-
-        MinecraftClient.getInstance().execute(() -> {
-            MinecraftClient.getInstance().player.setPitch(pitch);
-            MinecraftClient.getInstance().player.setYaw(yaw);
-
-            callback.resultCallback(BaseCommand.jsonOf());
         });
-
     }
 }

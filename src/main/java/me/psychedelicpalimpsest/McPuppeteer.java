@@ -20,7 +20,6 @@ package me.psychedelicpalimpsest;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
-import me.psychedelicpalimpsest.Tasks.PuppeteerTask;
 import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

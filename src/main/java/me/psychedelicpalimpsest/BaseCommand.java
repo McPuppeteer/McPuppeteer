@@ -29,9 +29,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 
 import java.util.Collection;
+import java.util.Map;
 
 public interface BaseCommand {
+
+    interface CallbackModView {
+        void invoke(Map<CallbackManager.CallbackType, Boolean> callbacks);
+    }
     interface LaterCallback {
+        /* Allows you to both view and modify the callbacks map */
+        void callbacksModView(CallbackModView callback);
         /* When something specific to this has occurred */
         void resultCallback(JsonObject result);
         /* Something general everybody should here */
