@@ -31,7 +31,7 @@ import java.util.Map;
 
 @PuppeteerCommand(
         cmd = "algorithmic rotation",
-        description = ""
+        description = "Smoothly rotates the player to the specified pitch and yaw using an optional interpolation method and degrees per tick. Usage: {pitch: float, yaw: float, [interpolation: string], [degrees per tick: float]}"
 )
 public class AlgorithmicRotation implements BaseCommand {
     // percentage of time -> percentage toward target
