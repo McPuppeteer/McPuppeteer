@@ -40,6 +40,7 @@ public class InGameHudMixin {
 
             context.drawGuiTexture(RenderLayer::getGuiTextured, InGameHud.EFFECT_BACKGROUND_TEXTURE, x, y, 24, 24);
             context.drawTexture(RenderLayer::getGuiTextured, effect.texture, x + 2, y + 2, 0f, 0f, 20, 20, 20, 20);
+            x += 24 + 2 + 2;
         }
     }
 }

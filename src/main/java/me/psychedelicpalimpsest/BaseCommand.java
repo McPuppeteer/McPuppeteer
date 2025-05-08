@@ -64,6 +64,19 @@ public interface BaseCommand {
             return new JsonPrimitive((Float) object);
         } else if (object instanceof JsonElement) {
             return (JsonElement) object;
+        } else if (object instanceof Map) {
+            Map map = (Map) object;
+            JsonObject jsonObject = new JsonObject();
+            map.forEach((key, value) -> {
+                if (!(key instanceof String)) {
+                    throw new IllegalArgumentException("Unknown map key type: " + key.getClass());
+                }
+                jsonObject.add((String) key, jsonObjectOf(value));
+            });
+
+
+            return jsonObject;
+
         }
         else if (object instanceof Collection) {
             Collection<Object> collection = (Collection<Object>) object;

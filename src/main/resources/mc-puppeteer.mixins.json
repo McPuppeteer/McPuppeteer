@@ -7,10 +7,12 @@
   },
   "client": [
     "CameraMixin",
+    "ChatHubMixin",
     "ClientPlayerEntityMixin",
     "EntityMixin",
     "HiddenServerAccessor",
     "InGameHudMixin",
+    "LivingEntityMixin",
     "MinecraftClientMixin"
   ]
 }

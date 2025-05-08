@@ -37,10 +37,7 @@ public class setFreecam implements BaseCommand {
             ));
             return;
         }
-        if (request.get("enabled").getAsBoolean() && !Freecam.isFreecamActive()) {
-            Freecam.toggleFreecam(null, null);
-        }
-        if (!request.get("enabled").getAsBoolean() && Freecam.isFreecamActive()) {
+        if (request.get("enabled").getAsBoolean() != Freecam.isFreecamActive()) {
             Freecam.toggleFreecam(null, null);
         }
 

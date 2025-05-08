@@ -26,11 +26,15 @@ import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
 
 public class PuppeteerEffects {
     public static PuppeteerEffect noRotationEffect = new PuppeteerEffect(Identifier.of(MOD_ID, "textures/no_rotation.png"));
+    public static PuppeteerEffect noWalkEffect = new PuppeteerEffect(Identifier.of(MOD_ID, "textures/no_walk.png"));
+    public static PuppeteerEffect freecamEffect = new PuppeteerEffect(Identifier.of(MOD_ID, "textures/freecam.png"));
 
 
     /* Just some simple potion effect like icons */
     public static final List<PuppeteerEffect> effects = ImmutableList.of(
-            noRotationEffect
+            freecamEffect,
+            noRotationEffect,
+            noWalkEffect
     );
 
 

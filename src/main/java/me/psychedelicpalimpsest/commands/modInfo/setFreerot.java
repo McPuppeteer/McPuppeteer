@@ -37,11 +37,7 @@ public class setFreerot implements BaseCommand {
             ));
             return;
         }
-        if (request.get("enabled").getAsBoolean() && !Freerot.isFreerotActive()) {
-
-            Freerot.toggleFreerot(null, null);
-        }
-        if (!request.get("enabled").getAsBoolean() && Freerot.isFreerotActive()) {
+        if (request.get("enabled").getAsBoolean() != Freerot.isFreerotActive()) {
             Freerot.toggleFreerot(null, null);
         }
 

@@ -34,6 +34,7 @@ import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import me.psychedelicpalimpsest.modules.Freecam;
 import me.psychedelicpalimpsest.modules.Freerot;
+import me.psychedelicpalimpsest.modules.NoWalk;
 import net.minecraft.client.MinecraftClient;
 
 import java.nio.file.Files;
@@ -62,16 +63,18 @@ public class PuppeteerConfig implements IConfigHandler {
 
 
     public static final ConfigHotkey OPEN_CONFIG_GUI   = new ConfigHotkey("Open Config UI",  "I,C", "Open this menu");
-    public static final ConfigHotkey TOGGLE_FREECAM   = new ConfigHotkey("Freecam",  "I,F", "Toggle freecam");
-    public static final ConfigHotkey TOGGLE_FREEROT   = new ConfigHotkey("Free rotation",  "I,R", "Disconnects your player and cameras rotation");
-    public static final ConfigHotkey PANNIC_BUTTON   = new ConfigHotkey("Panic button",  "I,P", "Kills Baritone, and throws a python error");
+    public static final ConfigHotkey TOGGLE_FREECAM    = new ConfigHotkey("Freecam",  "I,F", "Toggle freecam");
+    public static final ConfigHotkey TOGGLE_FREEROT    = new ConfigHotkey("Free rotation",  "I,R", "Disconnects your player and cameras rotation");
+    public static final ConfigHotkey TOGGLE_NOWALK     = new ConfigHotkey("No walk", "I,W", "Toggles if the player it allowed to walk");
+    public static final ConfigHotkey PANIC_BUTTON      = new ConfigHotkey("Panic button",  "I,P", "Kills Baritone, and throws a python error");
 
 
     public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
             OPEN_CONFIG_GUI,
             TOGGLE_FREECAM,
             TOGGLE_FREEROT,
-            PANNIC_BUTTON
+            PANIC_BUTTON,
+            TOGGLE_NOWALK
     );
 
 
@@ -122,7 +125,8 @@ public class PuppeteerConfig implements IConfigHandler {
 
         PuppeteerConfig.TOGGLE_FREECAM.getKeybind().setCallback(Freecam::toggleFreecam);
         PuppeteerConfig.TOGGLE_FREEROT.getKeybind().setCallback(Freerot::toggleFreerot);
-        PuppeteerConfig.PANNIC_BUTTON.getKeybind().setCallback((ignored, ignored2)->{
+        PuppeteerConfig.TOGGLE_NOWALK.getKeybind().setCallback(NoWalk::toggle);
+        PuppeteerConfig.PANIC_BUTTON.getKeybind().setCallback((ignored, ignored2)->{
             if (McPuppeteer.installedMods.contains("baritone")) {
                 BaritoneListener.panic();
             }
@@ -131,6 +135,13 @@ public class PuppeteerConfig implements IConfigHandler {
                 McPuppeteer.tasks.peek().kill();
                 McPuppeteer.tasks.clear();
             }
+
+            if (NoWalk.isActive)
+                NoWalk.toggle(null, null);
+            if (Freerot.isFreerotActive())
+                Freerot.toggleFreerot(null, null);
+            if (Freecam.isFreecamActive())
+                Freecam.toggleFreecam(null, null);
 
             PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, BaseCommand.jsonOf(
                     "status", "error",

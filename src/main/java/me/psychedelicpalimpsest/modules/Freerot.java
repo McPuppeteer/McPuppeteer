@@ -19,6 +19,8 @@ package me.psychedelicpalimpsest.modules;
 
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
 
 import static me.psychedelicpalimpsest.PuppeteerEffects.noRotationEffect;
 
@@ -36,11 +38,18 @@ public class Freerot {
 
     public static void initializeFreerot(){
         if (!isFreerot) return;
+        MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Enabled freerot"), false);
+
+
         noRotationEffect.isActive = true;
     }
 
     public static void deactivateFreerot(){
         if (isFreerot) return;
+        MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Disabled freerot"), false);
+
+
+
         noRotationEffect.isActive = false;
     }
 

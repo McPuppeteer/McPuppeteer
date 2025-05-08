@@ -6,3 +6,6 @@ accessible method net/minecraft/client/render/Camera setPos (Lnet/minecraft/util
 accessible method net/minecraft/client/render/Camera setPos (DDD)V
 
 accessible field net/minecraft/client/gui/hud/InGameHud EFFECT_BACKGROUND_TEXTURE Lnet/minecraft/util/Identifier;
+
+
+accessible method net/minecraft/client/input/KeyboardInput getMovementMultiplier (ZZ)F

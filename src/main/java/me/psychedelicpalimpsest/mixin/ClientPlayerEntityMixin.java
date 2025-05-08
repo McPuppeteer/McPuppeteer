@@ -17,8 +17,9 @@
 
 package me.psychedelicpalimpsest.mixin;
 
+import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.modules.Freecam;
-import me.psychedelicpalimpsest.modules.FreecamNoInput;
+import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static me.psychedelicpalimpsest.modules.Freecam.inputNop;
+
 
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
@@ -38,14 +39,19 @@ public class ClientPlayerEntityMixin {
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void tickMovement(CallbackInfo ci){
 
-        /* Don't constantly be switching input, this will also mean baritone won't break */
-        if (Freecam.isFreecamActive() && this.input.getClass() == KeyboardInput.class) {
-            this.input = inputNop;
-            Freecam.oldKeyboardInput = this.input;
+
+//        if (this.input.getClass().getPackage().getName().equals("baritone")) return;
+
+
+
+
+        /* This allows other inputs, such as baritone, to still function (Looking at you tweakeroo) */
+        if (this.input.getClass() == KeyboardInput.class){
+            this.input = McPuppeteer.puppeteerInput;
         }
-        if (!Freecam.isFreecamActive() && this.input.getClass() == FreecamNoInput.class) {
-            this.input = new KeyboardInput(MinecraftClient.getInstance().options);
-        }
+
+
+
 
 
         if (Freecam.isFreecamActive()){

@@ -21,6 +21,7 @@ package me.psychedelicpalimpsest.modules;
 
 import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
+import me.psychedelicpalimpsest.PuppeteerEffects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.option.GameOptions;
@@ -44,8 +45,6 @@ import net.minecraft.util.math.Vec3d;
 
 public class Freecam {
     private static boolean isFreecam = false;
-    public static Input inputNop = new FreecamNoInput();
-    public static Input oldKeyboardInput = null;
     public static FreecamMovementHandler movementHandler = null;
 
 
@@ -71,12 +70,16 @@ public class Freecam {
         oldViewBobSetting = bob.getValue();
         bob.setValue(false);
 
+        PuppeteerEffects.freecamEffect.isActive = true;
+
     }
     private static void deactivateFreecam() {
         MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Disabled freecam"), false);
 
         SimpleOption<Boolean> bob = MinecraftClient.getInstance().options.getBobView();
         bob.setValue(oldViewBobSetting);
+
+        PuppeteerEffects.freecamEffect.isActive = false;
     }
 
     // https://github.com/sakura-ryoko/tweakeroo/blob/8e762332d29135d9634a86ebe5f325a8484dc3f6/src/main/java/fi/dy/masa/tweakeroo/util/CameraEntity.java
