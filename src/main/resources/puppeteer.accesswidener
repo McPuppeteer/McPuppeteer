@@ -18,3 +18,9 @@ accessible field net/minecraft/client/MinecraftClient attackCooldown I
 accessible method net/minecraft/client/MinecraftClient doAttack ()Z
 accessible method net/minecraft/client/MinecraftClient doItemUse ()V
 accessible method net/minecraft/client/MinecraftClient handleBlockBreaking (Z)V
+
+
+accessible field net/minecraft/client/MinecraftClient windowProvider Lnet/minecraft/client/util/WindowProvider;
+accessible method net/minecraft/client/MinecraftClient getWindowTitle ()Ljava/lang/String;
+accessible field net/minecraft/client/MinecraftClient window Lnet/minecraft/client/util/Window;
+accessible field net/minecraft/client/MinecraftClient thread Ljava/lang/Thread;

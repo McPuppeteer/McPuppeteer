@@ -21,10 +21,21 @@ import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerConfig;
 import me.psychedelicpalimpsest.PuppeteerServer;
 import me.psychedelicpalimpsest.PuppeteerTask;
+import me.psychedelicpalimpsest.modules.HeadlessMode;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Overlay;
+import net.minecraft.client.gui.screen.SplashOverlay;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.util.Window;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Util;
+import net.minecraft.util.profiler.Profiler;
+import net.minecraft.util.profiler.Profilers;
+import net.minecraft.util.thread.ThreadExecutor;
 import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,6 +45,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
 
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 import static me.psychedelicpalimpsest.PuppeteerServer.broadcastState;
@@ -45,6 +58,22 @@ public abstract class MinecraftClientMixin {
 	@Shadow private int itemUseCooldown;
 
 	@Shadow @Nullable public ClientPlayerEntity player;
+
+	@Shadow public abstract void scheduleStop();
+
+	@Shadow @Final private Queue<Runnable> renderTaskQueue;
+
+	@Shadow private @Nullable CompletableFuture<Void> resourceReloadFuture;
+
+	@Shadow private @Nullable Overlay overlay;
+
+	@Shadow public abstract CompletableFuture<Void> reloadResources();
+
+	@Shadow @Final private RenderTickCounter.Dynamic renderTickCounter;
+
+	@Shadow public abstract void tick();
+
+	@Shadow public abstract Window getWindow();
 
 	@Inject(at = @At("TAIL"), method = "<init>")
 	private void init(CallbackInfo info) {
@@ -133,6 +162,55 @@ public abstract class MinecraftClientMixin {
 			ci.cancel();
 
 	}
+
+
+	@Inject(at = @At("HEAD"), method="onResolutionChanged", cancellable=true)
+	void onResolutionChanged(CallbackInfo ci){
+		if (HeadlessMode.isHeadless()) ci.cancel();
+	}
+
+	@Inject(at = @At("HEAD"), method="render", cancellable = true)
+	void onRender(boolean tick, CallbackInfo ci) {
+		if (HeadlessMode.isHeadless()) {
+			ci.cancel();
+
+			/* This is all the stuff that 'looked' necessary */
+
+			if (!HeadlessMode.isHeadless() && this.getWindow().shouldClose()) {
+				this.scheduleStop();
+			}
+			if (this.resourceReloadFuture != null && !(this.overlay instanceof SplashOverlay)) {
+				CompletableFuture<Void> completableFuture = this.resourceReloadFuture;
+				this.resourceReloadFuture = null;
+				this.reloadResources().thenRun(() -> completableFuture.complete(null));
+			}
+
+
+			Runnable runnable;
+			while ((runnable = this.renderTaskQueue.poll()) != null) {
+				runnable.run();
+			}
+
+			int i = this.renderTickCounter.beginRenderTick(Util.getMeasuringTimeMs(), tick);
+			Profiler profiler = Profilers.get();
+			if (tick) {
+				profiler.push("scheduledExecutables");
+
+				((ThreadExecutor<Runnable>) (Object)this).runTask();
+				profiler.pop();
+				profiler.push("tick");
+
+				for (int j = 0; j < Math.min(10, i); j++) {
+					profiler.visit("clientTick");
+					this.tick();
+				}
+
+				profiler.pop();
+			}
+
+		}
+	}
+
 
 
 }
