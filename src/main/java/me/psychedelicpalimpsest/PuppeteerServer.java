@@ -407,6 +407,9 @@ public class PuppeteerServer implements Runnable{
             packet.addProperty("status", "ok");
         packet.addProperty("type", type_name);
 
+        /* No broadcasts :< */
+        if (getInstance() == null) return;
+
         getInstance().scheduleSelectorTask(()->{
             Selector s = instance.selector;
             for (SocketChannel client : instance.connectedClients) {

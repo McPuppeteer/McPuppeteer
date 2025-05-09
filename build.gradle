@@ -39,6 +39,8 @@ dependencies {
 
 	modImplementation "com.github.sakura-ryoko:malilib:${project.malilib_version}"
 	modCompileOnly "baritone-api-fabric:baritone-api-fabric:${project.baritone_version}"
+	modCompileOnly "minihud-fabric:minihud-fabric:${project.minihud_version}"
+	modCompileOnly "tweakeroo-fabric:tweakeroo-fabric:${project.tweakeroo_version}"
 
 	implementation 'org.reflections:reflections:0.10.2'
 

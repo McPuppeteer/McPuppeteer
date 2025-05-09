@@ -17,6 +17,8 @@
 
 package me.psychedelicpalimpsest.mixin;
 
+import me.psychedelicpalimpsest.McPuppeteer;
+import me.psychedelicpalimpsest.MinihudUtils;
 import me.psychedelicpalimpsest.PuppeteerEffects;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
@@ -34,6 +36,11 @@ public class InGameHudMixin {
     void onRenderStatusEffectOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci){
         int x = 1;
         int y = 1;
+
+        /* A nice courtesy, don't draw over your shit */
+        if (McPuppeteer.installedMods.contains("minihud"))
+            y += MinihudUtils.getMinhudHeight() + 4;
+
         for (PuppeteerEffects.PuppeteerEffect effect : PuppeteerEffects.effects) {
             if (!effect.isActive) continue;
 

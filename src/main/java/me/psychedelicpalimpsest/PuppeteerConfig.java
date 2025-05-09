@@ -56,10 +56,12 @@ public class PuppeteerConfig implements IConfigHandler {
 
     public static ConfigFloat UDP_BROADCAST_INTERVAL = new ConfigFloat("UDP broadcast interval", 3f, 0.5f, 10f, "Amount of time (In seconds) between UDP broadcasts. Smaller values mean you can detect the game faster in python, but slow down your network very slightly.");
     public static ConfigBoolean SEND_BROADCASTS = new ConfigBoolean("Send UDP broadcasts", true, "If you disable broadcasts you will not be able to \"Discover\" the client from python, but you might need this if you are on public wifi.");
+    public static ConfigBoolean WARN_ON_TWEAKEROO_FREECAM = new ConfigBoolean("Warn on tweakeroo freecam", true, "Gives a warning message if the user attempts to use the freecam module on tweakeroo");
 
     public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
             UDP_BROADCAST_INTERVAL,
-            SEND_BROADCASTS
+            SEND_BROADCASTS,
+            WARN_ON_TWEAKEROO_FREECAM
     );
 
 
@@ -146,6 +148,7 @@ public class PuppeteerConfig implements IConfigHandler {
 
             PuppeteerInput.isForcePressed.clear();
             PuppeteerInput.allowUserInput = true;
+            PuppeteerInput.isDirectionalMovement = false;
 
 
             PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, BaseCommand.jsonOf(
