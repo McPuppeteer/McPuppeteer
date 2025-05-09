@@ -15,8 +15,6 @@
     "KeyBindingMixin",
     "LivingEntityMixin",
     "MinecraftClientMixin",
-    "TweekerooCameraMixin",
-    "WindowMixin",
-    "WindowProviderMixin"
+    "TweekerooCameraMixin"
   ]
 }
