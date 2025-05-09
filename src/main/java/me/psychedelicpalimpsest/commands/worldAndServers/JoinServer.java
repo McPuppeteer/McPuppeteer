@@ -31,7 +31,7 @@ import net.minecraft.client.resource.language.I18n;
         cmd = "join server",
         description = "Join multiplayer server. This requires one parameter, the 'address', and it must be valid."
 )
-public class joinServer implements BaseCommand {
+public class JoinServer implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
         if (request.get("address") == null || !request.get("address").isJsonPrimitive()) {

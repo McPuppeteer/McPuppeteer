@@ -14,33 +14,34 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+package me.psychedelicpalimpsest.commands.actions;
 
-package me.psychedelicpalimpsest.commands.modInfo;
-
-
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
+import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerCommand;
-import me.psychedelicpalimpsest.modules.NoWalk;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
 
 @PuppeteerCommand(
-        cmd="set nowalk",
-        description = "Enable/disable nowalk"
+        cmd = "overview message",
+        description = "Show a message to the player"
 )
-public class setNowalk implements BaseCommand {
+public class OverlayMessage implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "message", "Must have 'enabled' as a boolean property",
-                    "type", "expected argument"
-            ));
-            return;
-        }
-        if (request.get("enabled").getAsBoolean() != NoWalk.isActive){
-            NoWalk.toggle(null, null);
-        }
-        callback.resultCallback(BaseCommand.jsonOf());
+        JsonElement element =  request.get("message");
+
+
+        Text text;
+        if (element.isJsonObject())
+            text = McPuppeteer.createTextJsonSerializer().fromJson(element, Text.class);
+        else
+            text = Text.of(element.getAsString());
+
+
+        MinecraftClient.getInstance().inGameHud.setOverlayMessage(text, false);
+        callback.resultCallback(new JsonObject());
     }
 }

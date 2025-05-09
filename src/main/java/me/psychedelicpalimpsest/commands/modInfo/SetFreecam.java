@@ -20,13 +20,13 @@ package me.psychedelicpalimpsest.commands.modInfo;
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
-import me.psychedelicpalimpsest.modules.Freerot;
+import me.psychedelicpalimpsest.modules.Freecam;
 
 @PuppeteerCommand(
-        cmd="set freerot",
-        description = "Enable/disable freerot"
+        cmd="set freecam",
+        description = "Enable/disable freecam"
 )
-public class setFreerot implements BaseCommand {
+public class SetFreecam implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
         if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
@@ -37,8 +37,8 @@ public class setFreerot implements BaseCommand {
             ));
             return;
         }
-        if (request.get("enabled").getAsBoolean() != Freerot.isFreerotActive()) {
-            Freerot.toggleFreerot(null, null);
+        if (request.get("enabled").getAsBoolean() != Freecam.isFreecamActive()) {
+            Freecam.toggleFreecam(null, null);
         }
 
         callback.resultCallback(BaseCommand.jsonOf());

@@ -28,7 +28,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
         cmd = "get player info",
         description = "Gets a bunch of info about the player"
 )
-public class getPlayerInfo implements BaseCommand {
+public class GetPlayerInfo implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
         ClientPlayerEntity p = MinecraftClient.getInstance().player;

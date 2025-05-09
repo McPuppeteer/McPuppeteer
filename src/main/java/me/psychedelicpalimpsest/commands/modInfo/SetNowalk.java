@@ -17,20 +17,30 @@
 
 package me.psychedelicpalimpsest.commands.modInfo;
 
+
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.NoWalk;
 
 @PuppeteerCommand(
-        cmd = "is nowalk",
-        description = "Gets the state of nowalk"
+        cmd="set nowalk",
+        description = "Enable/disable nowalk"
 )
-public class isNoWalk implements BaseCommand {
+public class SetNowalk implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.resultCallback(BaseCommand.jsonOf(
-                "is nowalk", NoWalk.isActive
-        ));
+        if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "status", "error",
+                    "message", "Must have 'enabled' as a boolean property",
+                    "type", "expected argument"
+            ));
+            return;
+        }
+        if (request.get("enabled").getAsBoolean() != NoWalk.isActive){
+            NoWalk.toggle(null, null);
+        }
+        callback.resultCallback(BaseCommand.jsonOf());
     }
 }

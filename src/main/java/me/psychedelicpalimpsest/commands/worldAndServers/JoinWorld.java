@@ -27,7 +27,7 @@ import net.minecraft.client.gui.screen.TitleScreen;
         cmd="join world",
         description = "Joins a local world. This requires one parameter, 'load name', which needs to be the EXACT same as from 'load name' from 'get worlds'"
 )
-public class joinWorld implements BaseCommand {
+public class JoinWorld implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
 
