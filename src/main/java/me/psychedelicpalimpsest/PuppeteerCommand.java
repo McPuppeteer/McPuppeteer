@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 
 /**
  * Register your command with the PuppeteerCommandRegistry. Keep in mind,
- * you MUST implement BaseCommand, and have a no argument constructor.
+ * you MUST implement BaseCommand.
  */
 
 @Retention(RetentionPolicy.RUNTIME)

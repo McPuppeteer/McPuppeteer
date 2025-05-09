@@ -35,6 +35,7 @@ import fi.dy.masa.malilib.util.JsonUtils;
 import me.psychedelicpalimpsest.modules.Freecam;
 import me.psychedelicpalimpsest.modules.Freerot;
 import me.psychedelicpalimpsest.modules.NoWalk;
+import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 
 import java.nio.file.Files;
@@ -142,6 +143,10 @@ public class PuppeteerConfig implements IConfigHandler {
                 Freerot.toggleFreerot(null, null);
             if (Freecam.isFreecamActive())
                 Freecam.toggleFreecam(null, null);
+
+            PuppeteerInput.isForcePressed.clear();
+            PuppeteerInput.allowUserInput = true;
+
 
             PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, BaseCommand.jsonOf(
                     "status", "error",

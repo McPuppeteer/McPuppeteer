@@ -9,3 +9,12 @@ accessible field net/minecraft/client/gui/hud/InGameHud EFFECT_BACKGROUND_TEXTUR
 
 
 accessible method net/minecraft/client/input/KeyboardInput getMovementMultiplier (ZZ)F
+
+accessible field net/minecraft/client/option/KeyBinding KEY_TO_BINDINGS Ljava/util/Map;
+accessible field net/minecraft/client/option/KeyBinding pressed Z
+accessible field net/minecraft/client/option/KeyBinding timesPressed I
+
+accessible field net/minecraft/client/MinecraftClient attackCooldown I
+accessible method net/minecraft/client/MinecraftClient doAttack ()Z
+accessible method net/minecraft/client/MinecraftClient doItemUse ()V
+accessible method net/minecraft/client/MinecraftClient handleBlockBreaking (Z)V

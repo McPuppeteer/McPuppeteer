@@ -21,10 +21,12 @@ import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerConfig;
 import me.psychedelicpalimpsest.PuppeteerServer;
 import me.psychedelicpalimpsest.PuppeteerTask;
+import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -78,10 +80,11 @@ public class MinecraftClientMixin {
 				default:
 					break;
 			}
+		}
 
-
-
-
+		/* Minecraft skips this when a screen is open */
+		if (MinecraftClient.getInstance().currentScreen != null && PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK)) {
+			MinecraftClient.getInstance().handleBlockBreaking(false /* Ignored param */);
 		}
 
 
@@ -102,6 +105,16 @@ public class MinecraftClientMixin {
 			McPuppeteer.tasks.peek().kill();
 	}
 
+
+
+	@ModifyVariable(at = @At("HEAD"), method = "handleBlockBreaking", ordinal = 0, argsOnly = true)
+	boolean handleBlockBreaking(boolean breaking){
+		if  (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK))
+			return breaking;
+
+		MinecraftClient.getInstance().attackCooldown = 0;
+		return PuppeteerInput.isForcePressed.get(PuppeteerInput.ATTACK);
+	}
 
 
 }

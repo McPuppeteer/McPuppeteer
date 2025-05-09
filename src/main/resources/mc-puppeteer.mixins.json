@@ -12,6 +12,7 @@
     "EntityMixin",
     "HiddenServerAccessor",
     "InGameHudMixin",
+    "KeyBindingMixin",
     "LivingEntityMixin",
     "MinecraftClientMixin"
   ]

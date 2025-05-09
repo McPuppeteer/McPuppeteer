@@ -19,8 +19,6 @@ package me.psychedelicpalimpsest.mixin;
 
 import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.modules.Freecam;
-import me.psychedelicpalimpsest.modules.PuppeteerInput;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.network.ClientPlayerEntity;

@@ -39,10 +39,8 @@ public class ForceInputStates implements BaseCommand {
 
                 PuppeteerInput.isForcePressed.remove(remove);
             });
-
-
-
-
         }
+
+        callback.resultCallback(new JsonObject());
     }
 }

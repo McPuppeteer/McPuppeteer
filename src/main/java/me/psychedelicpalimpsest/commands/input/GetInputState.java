@@ -2,7 +2,6 @@ package me.psychedelicpalimpsest.commands.input;
 
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
-import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 

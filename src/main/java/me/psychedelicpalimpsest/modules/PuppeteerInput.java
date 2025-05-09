@@ -21,6 +21,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.option.KeyBinding;
 import net.minecraft.util.PlayerInput;
 
 import java.util.HashMap;
@@ -46,6 +47,9 @@ public class PuppeteerInput extends Input {
     public static final String SNEAK = "sneak";
     public static final String SPRINT = "sprint";
 
+    public static final String USE = "use";
+    public static final String ATTACK = "attack";
+
     public static final Set<String> validOptions = ImmutableSet.of(
             FORWARDS,
             BACKWARDS,
@@ -53,7 +57,10 @@ public class PuppeteerInput extends Input {
             RIGHT,
             JUMP,
             SNEAK,
-            SPRINT
+            SPRINT,
+
+            USE,
+            ATTACK
     );
     public static boolean allowUserInput = true;
 
@@ -62,7 +69,7 @@ public class PuppeteerInput extends Input {
     private void regenInput() {
         GameOptions opts = MinecraftClient.getInstance().options;
 
-        final boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
+        boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
 
 
         this.playerInput = new PlayerInput(
@@ -86,10 +93,47 @@ public class PuppeteerInput extends Input {
             this.movementSideways *= slowDownFactor;
             this.movementForward *= slowDownFactor;
         }
+
+        MinecraftClient mc = MinecraftClient.getInstance();
+        if (isForcePressed.getOrDefault(ATTACK, false)){
+            if (mc.currentScreen != null){
+
+            }
+
+
+
+        }
+
     }
 
 
 
+
+    public static boolean onKeyPressed(KeyBinding keyBinding) {
+        GameOptions opts = MinecraftClient.getInstance().options;
+        boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
+
+
+        if (!opts.useKey.equals(keyBinding) && !opts.attackKey.equals(keyBinding)) return false;
+
+
+
+        return !allowUserInputAndNotFreecam;
+    }
+
+    public static boolean setPressed(KeyBinding keyBinding) {
+        GameOptions opts = MinecraftClient.getInstance().options;
+        boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
+
+
+        if (!opts.useKey.equals(keyBinding) && !opts.attackKey.equals(keyBinding)) return false;
+
+        if (allowUserInputAndNotFreecam) return false;
+
+        keyBinding.pressed = false;
+
+        return true;
+    }
 
 
 
