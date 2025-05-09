@@ -23,7 +23,10 @@ import me.psychedelicpalimpsest.PuppeteerServer;
 import me.psychedelicpalimpsest.PuppeteerTask;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -38,7 +41,11 @@ import static me.psychedelicpalimpsest.PuppeteerTask.TaskType.TICKLY;
 
 
 @Mixin(MinecraftClient.class)
-public class MinecraftClientMixin {
+public abstract class MinecraftClientMixin {
+	@Shadow private int itemUseCooldown;
+
+	@Shadow @Nullable public ClientPlayerEntity player;
+
 	@Inject(at = @At("TAIL"), method = "<init>")
 	private void init(CallbackInfo info) {
 		McPuppeteer.init();
@@ -87,6 +94,8 @@ public class MinecraftClientMixin {
 			MinecraftClient.getInstance().handleBlockBreaking(false /* Ignored param */);
 		}
 
+		if (PuppeteerInput.isForcePressed.getOrDefault(PuppeteerInput.USE, false) && this.itemUseCooldown == 0 && !this.player.isUsingItem())
+			MinecraftClient.getInstance().doItemUse();
 
 
 	}
@@ -114,6 +123,15 @@ public class MinecraftClientMixin {
 
 		MinecraftClient.getInstance().attackCooldown = 0;
 		return PuppeteerInput.isForcePressed.get(PuppeteerInput.ATTACK);
+	}
+
+	@Inject(at = @At("HEAD"), method = "doItemUse", cancellable = true)
+	void doItemUse(CallbackInfo ci){
+		if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.USE)) return;
+
+		if (!PuppeteerInput.isForcePressed.get(PuppeteerInput.USE))
+			ci.cancel();
+
 	}
 
 

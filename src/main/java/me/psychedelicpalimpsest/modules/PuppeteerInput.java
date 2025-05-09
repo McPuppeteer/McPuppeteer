@@ -65,6 +65,10 @@ public class PuppeteerInput extends Input {
     public static boolean allowUserInput = true;
 
 
+    public static boolean isDirectionalMovement = false;
+    public static float direction = 0f;
+    public static float directionalSpeed = 1f;
+
 
     private void regenInput() {
         GameOptions opts = MinecraftClient.getInstance().options;
@@ -87,23 +91,20 @@ public class PuppeteerInput extends Input {
     @Override
     public void tick(boolean slowDown, float slowDownFactor) {
         regenInput();
-        this.movementForward = KeyboardInput.getMovementMultiplier(this.playerInput.forward(), this.playerInput.backward());
-        this.movementSideways = KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right());
+        if (isDirectionalMovement){
+            float realDir = direction - MinecraftClient.getInstance().player.getYaw();
+
+            this.movementForward = (float) Math.sin(Math.toRadians(realDir)) * directionalSpeed;
+            this.movementSideways = (float) Math.cos(Math.toRadians(realDir)) * directionalSpeed;
+
+        } else {
+            this.movementForward = KeyboardInput.getMovementMultiplier(this.playerInput.forward(), this.playerInput.backward());
+            this.movementSideways = KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right());
+        }
         if (slowDown) {
             this.movementSideways *= slowDownFactor;
             this.movementForward *= slowDownFactor;
         }
-
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if (isForcePressed.getOrDefault(ATTACK, false)){
-            if (mc.currentScreen != null){
-
-            }
-
-
-
-        }
-
     }
 
 
