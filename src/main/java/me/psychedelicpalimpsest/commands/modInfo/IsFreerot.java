@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.Freerot;
+import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "is freerot",
@@ -30,8 +31,11 @@ import me.psychedelicpalimpsest.modules.Freerot;
 public class IsFreerot implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.resultCallback(BaseCommand.jsonOf(
-                "is freerot", Freerot.isFreerotActive()
-        ));
+        MinecraftClient.getInstance().execute(() -> {
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "is freerot", Freerot.isFreerotActive()
+            ));
+        });
+
     }
 }

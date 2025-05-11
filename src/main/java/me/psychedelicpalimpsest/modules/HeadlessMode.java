@@ -48,7 +48,8 @@ public class HeadlessMode {
         if (!activated) return;
 
         activated = false;
-        GLFW.glfwShowWindow(MinecraftClient.getInstance().getWindow().getHandle());
+        Window win = MinecraftClient.getInstance().getWindow();
+        GLFW.glfwShowWindow(win.getHandle());
 
     }
 

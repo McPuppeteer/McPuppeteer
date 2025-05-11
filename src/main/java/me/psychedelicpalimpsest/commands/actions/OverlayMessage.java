@@ -41,7 +41,7 @@ public class OverlayMessage implements BaseCommand {
             text = Text.of(element.getAsString());
 
 
-        MinecraftClient.getInstance().inGameHud.setOverlayMessage(text, false);
+        MinecraftClient.getInstance().execute(()-> MinecraftClient.getInstance().inGameHud.setOverlayMessage(text, false));
         callback.resultCallback(new JsonObject());
     }
 }

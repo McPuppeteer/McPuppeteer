@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
+import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "force inputs",
@@ -54,7 +55,7 @@ public class ForceInputStates implements BaseCommand {
 
 
 
-                PuppeteerInput.isForcePressed.remove(remove);
+                MinecraftClient.getInstance().execute(()->PuppeteerInput.isForcePressed.remove(remove));
             });
         }
 

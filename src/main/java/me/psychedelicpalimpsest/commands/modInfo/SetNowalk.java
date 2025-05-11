@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.NoWalk;
+import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd="set nowalk",
@@ -38,9 +39,12 @@ public class SetNowalk implements BaseCommand {
             ));
             return;
         }
-        if (request.get("enabled").getAsBoolean() != NoWalk.isActive){
-            NoWalk.toggle(null, null);
-        }
-        callback.resultCallback(BaseCommand.jsonOf());
+
+        MinecraftClient.getInstance().execute(()->{
+            if (request.get("enabled").getAsBoolean() != NoWalk.isActive){
+                NoWalk.toggle(null, null);
+            }
+            callback.resultCallback(BaseCommand.jsonOf());
+        });
     }
 }

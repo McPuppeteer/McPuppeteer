@@ -15,35 +15,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.commands;
+package me.psychedelicpalimpsest.commands.modInfo;
 
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
-import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.HeadlessMode;
-import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 
 
 @PuppeteerCommand(
-        cmd = "set headless",
+        cmd = "is headless",
         description = ""
 )
-public class setHeadless implements BaseCommand {
-
-
-
+public class IsHeadless implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-
         MinecraftClient.getInstance().execute(() -> {
-           if (request.getAsJsonPrimitive("enabled").getAsBoolean()){
-               HeadlessMode.setHeadless();
-           }else{
-               HeadlessMode.disableHeadless();
-           }
-           callback.resultCallback(BaseCommand.jsonOf());
+           callback.resultCallback(BaseCommand.jsonOf(
+                   "is headless", HeadlessMode.isHeadless()
+           ));
         });
     }
 }

@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.Freecam;
+import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd="set freecam",
@@ -29,18 +30,21 @@ import me.psychedelicpalimpsest.modules.Freecam;
 public class SetFreecam implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "message", "Must have 'enabled' as a boolean property",
-                    "type", "expected argument"
-            ));
-            return;
-        }
-        if (request.get("enabled").getAsBoolean() != Freecam.isFreecamActive()) {
-            Freecam.toggleFreecam(null, null);
-        }
+        MinecraftClient.getInstance().execute(() -> {
+            if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
+                callback.resultCallback(BaseCommand.jsonOf(
+                        "status", "error",
+                        "message", "Must have 'enabled' as a boolean property",
+                        "type", "expected argument"
+                ));
+                return;
+            }
+            if (request.get("enabled").getAsBoolean() != Freecam.isFreecamActive()) {
+                Freecam.toggleFreecam(null, null);
+            }
 
-        callback.resultCallback(BaseCommand.jsonOf());
+            callback.resultCallback(BaseCommand.jsonOf());
+
+        });
     }
 }

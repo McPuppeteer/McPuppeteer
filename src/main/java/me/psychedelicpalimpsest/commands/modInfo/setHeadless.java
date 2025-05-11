@@ -15,26 +15,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.commands.actions;
+package me.psychedelicpalimpsest.commands.modInfo;
 
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
+import me.psychedelicpalimpsest.modules.HeadlessMode;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.util.math.MathHelper;
 
 
 @PuppeteerCommand(
-        cmd = "set hotbar slot",
-        description = "Set the current hotbar slot. The parameter is 'slot' and is 0-8"
+        cmd = "set headless",
+        description = "Disabled game rendering, and hides the game window."
 )
-public class SetHotbarSlot implements BaseCommand {
+public class setHeadless implements BaseCommand {
+
+
+
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(()-> {
-            MinecraftClient.getInstance().player.getInventory().selectedSlot
-                    = MathHelper.clamp(request.get("slot").getAsInt(), 0, 8);
+
+        MinecraftClient.getInstance().execute(() -> {
+           if (request.getAsJsonPrimitive("enabled").getAsBoolean()){
+               HeadlessMode.setHeadless();
+           }else{
+               HeadlessMode.disableHeadless();
+           }
+           callback.resultCallback(BaseCommand.jsonOf());
         });
-        callback.resultCallback(BaseCommand.jsonOf());
     }
 }

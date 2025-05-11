@@ -31,7 +31,9 @@ public class ExecuteCommand implements BaseCommand {
     public void onRequest(JsonObject request, LaterCallback callback) {
         String message = request.get("message").getAsString();
 
-        MinecraftClient.getInstance().player.networkHandler.sendChatCommand(message);
+        MinecraftClient.getInstance().execute(()->
+                MinecraftClient.getInstance().player.networkHandler.sendChatCommand(message)
+        );
         callback.resultCallback(new JsonObject());
     }
 }

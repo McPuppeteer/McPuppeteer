@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.NoWalk;
+import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "is nowalk",
@@ -29,8 +30,10 @@ import me.psychedelicpalimpsest.modules.NoWalk;
 public class IsNoWalk implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.resultCallback(BaseCommand.jsonOf(
-                "is nowalk", NoWalk.isActive
-        ));
+        MinecraftClient.getInstance().execute(() -> {
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "is nowalk", NoWalk.isActive
+            ));
+        });
     }
 }

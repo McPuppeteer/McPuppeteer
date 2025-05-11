@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.Freerot;
+import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd="set freerot",
@@ -29,18 +30,20 @@ import me.psychedelicpalimpsest.modules.Freerot;
 public class SetFreerot implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "message", "Must have 'enabled' as a boolean property",
-                    "type", "expected argument"
-            ));
-            return;
-        }
-        if (request.get("enabled").getAsBoolean() != Freerot.isFreerotActive()) {
-            Freerot.toggleFreerot(null, null);
-        }
+        MinecraftClient.getInstance().execute(()->{
+            if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
+                callback.resultCallback(BaseCommand.jsonOf(
+                        "status", "error",
+                        "message", "Must have 'enabled' as a boolean property",
+                        "type", "expected argument"
+                ));
+                return;
+            }
+            if (request.get("enabled").getAsBoolean() != Freerot.isFreerotActive()) {
+                Freerot.toggleFreerot(null, null);
+            }
 
-        callback.resultCallback(BaseCommand.jsonOf());
+            callback.resultCallback(BaseCommand.jsonOf());
+        });
     }
 }

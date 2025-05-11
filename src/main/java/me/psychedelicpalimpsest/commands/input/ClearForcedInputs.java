@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
+import net.minecraft.client.MinecraftClient;
 
 
 @PuppeteerCommand(
@@ -30,7 +31,7 @@ import me.psychedelicpalimpsest.modules.PuppeteerInput;
 public class ClearForcedInputs implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        PuppeteerInput.isForcePressed.clear();
+        MinecraftClient.getInstance().execute(()-> PuppeteerInput.isForcePressed.clear());
         callback.resultCallback(new JsonObject());
     }
 }

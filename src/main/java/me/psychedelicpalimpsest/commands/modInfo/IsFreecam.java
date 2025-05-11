@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.Freecam;
+import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "is freecam",
@@ -30,8 +31,11 @@ import me.psychedelicpalimpsest.modules.Freecam;
 public class IsFreecam implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.resultCallback(BaseCommand.jsonOf(
-                "is freecam", Freecam.isFreecamActive()
-        ));
+        MinecraftClient.getInstance().execute(() -> {
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "is freecam", Freecam.isFreecamActive()
+            ));
+        });
+
     }
 }

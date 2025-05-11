@@ -32,9 +32,13 @@ public class SendMessage implements BaseCommand {
         String message = request.get("message").getAsString();
 
         if (message.startsWith("/")) {
-            MinecraftClient.getInstance().player.networkHandler.sendChatCommand(message.substring(1));
+            MinecraftClient.getInstance().execute(()->
+                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand(message.substring(1))
+            );
         } else {
-            MinecraftClient.getInstance().player.networkHandler.sendChatMessage(message);
+            MinecraftClient.getInstance().execute(()->
+                    MinecraftClient.getInstance().player.networkHandler.sendChatMessage(message)
+            );
         }
 
         callback.resultCallback(new JsonObject());

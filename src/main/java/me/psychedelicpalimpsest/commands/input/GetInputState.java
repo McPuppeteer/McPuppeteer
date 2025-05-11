@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
+import net.minecraft.client.MinecraftClient;
 
 
 @PuppeteerCommand(
@@ -30,9 +31,12 @@ import me.psychedelicpalimpsest.modules.PuppeteerInput;
 public class GetInputState implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.resultCallback(BaseCommand.jsonOf(
+        MinecraftClient.getInstance().execute(()->
+            callback.resultCallback(BaseCommand.jsonOf(
                 "inputs", PuppeteerInput.isForcePressed
-        ));
+            ))
+        );
+
 
     }
 }
