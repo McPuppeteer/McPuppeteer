@@ -31,7 +31,11 @@ import net.minecraft.client.MinecraftClient;
 public class ClearForcedInputs implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(()-> PuppeteerInput.isForcePressed.clear());
+        MinecraftClient.getInstance().execute(()->{
+            PuppeteerInput.isForcePressed.clear();
+            PuppeteerInput.isDirectionalMovement = false;
+        });
         callback.resultCallback(new JsonObject());
+
     }
 }

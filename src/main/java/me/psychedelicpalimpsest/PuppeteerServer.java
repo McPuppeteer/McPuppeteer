@@ -375,11 +375,12 @@ public class PuppeteerServer implements Runnable{
 
     private void writeJsonPacket(SocketChannel client, JsonObject packet, boolean isOnServerThread) throws IOException {
         String jsond = packet.toString();
+        byte[] byteData = jsond.getBytes();
 
-        ByteBuffer respBuffer = ByteBuffer.allocate(1 + 4 + jsond.length());
+        ByteBuffer respBuffer = ByteBuffer.allocate(1 + 4 + byteData.length);
         respBuffer.put((byte) 'j');
-        respBuffer.putInt(jsond.length());
-        respBuffer.put(jsond.getBytes());
+        respBuffer.putInt(byteData.length);
+        respBuffer.put(byteData);
         respBuffer.flip();
 
         Runnable run = (()->{
