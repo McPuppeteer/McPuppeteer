@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.psychedelicpalimpsest;
@@ -65,11 +65,11 @@ public class PuppeteerConfig implements IConfigHandler {
     );
 
 
-    public static final ConfigHotkey OPEN_CONFIG_GUI   = new ConfigHotkey("Open Config UI",  "I,C", "Open this menu");
-    public static final ConfigHotkey TOGGLE_FREECAM    = new ConfigHotkey("Freecam",  "I,F", "Toggle freecam");
-    public static final ConfigHotkey TOGGLE_FREEROT    = new ConfigHotkey("Free rotation",  "I,R", "Disconnects your player and cameras rotation");
-    public static final ConfigHotkey TOGGLE_NOWALK     = new ConfigHotkey("No walk", "I,W", "Toggles if the player it allowed to walk");
-    public static final ConfigHotkey PANIC_BUTTON      = new ConfigHotkey("Panic button",  "I,P", "Kills Baritone, and throws a python error");
+    public static final ConfigHotkey OPEN_CONFIG_GUI = new ConfigHotkey("Open Config UI", "I,C", "Open this menu");
+    public static final ConfigHotkey TOGGLE_FREECAM = new ConfigHotkey("Freecam", "I,F", "Toggle freecam");
+    public static final ConfigHotkey TOGGLE_FREEROT = new ConfigHotkey("Free rotation", "I,R", "Disconnects your player and cameras rotation");
+    public static final ConfigHotkey TOGGLE_NOWALK = new ConfigHotkey("No walk", "I,W", "Toggles if the player it allowed to walk");
+    public static final ConfigHotkey PANIC_BUTTON = new ConfigHotkey("Panic button", "I,P", "Kills Baritone, and throws a python error");
 
 
     public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
@@ -113,8 +113,7 @@ public class PuppeteerConfig implements IConfigHandler {
             ConfigUtils.writeConfigBase(root, "Hot keys", HOTKEY_LIST);
 
             JsonUtils.writeJsonToFileAsPath(root, dir.resolve(CONFIG_FILE_NAME));
-        }
-        else
+        } else
             McPuppeteer.LOGGER.error("save(): Config Folder '{}' does not exist!", dir.toAbsolutePath());
 
     }
@@ -129,12 +128,12 @@ public class PuppeteerConfig implements IConfigHandler {
         PuppeteerConfig.TOGGLE_FREECAM.getKeybind().setCallback(Freecam::toggleFreecam);
         PuppeteerConfig.TOGGLE_FREEROT.getKeybind().setCallback(Freerot::toggleFreerot);
         PuppeteerConfig.TOGGLE_NOWALK.getKeybind().setCallback(NoWalk::toggle);
-        PuppeteerConfig.PANIC_BUTTON.getKeybind().setCallback((ignored, ignored2)->{
+        PuppeteerConfig.PANIC_BUTTON.getKeybind().setCallback((ignored, ignored2) -> {
             if (McPuppeteer.installedMods.contains("baritone")) {
                 BaritoneListener.panic();
             }
 
-            if (!McPuppeteer.tasks.isEmpty()){
+            if (!McPuppeteer.tasks.isEmpty()) {
                 McPuppeteer.tasks.peek().kill();
                 McPuppeteer.tasks.clear();
             }
@@ -162,7 +161,6 @@ public class PuppeteerConfig implements IConfigHandler {
 
             return true;
         });
-
 
 
         InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {

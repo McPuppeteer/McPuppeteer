@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.psychedelicpalimpsest.mixin;
@@ -32,22 +32,25 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public class CameraMixin {
-    @Shadow private boolean thirdPerson;
-    @Shadow private float lastCameraY;
-    @Shadow private float cameraY;
+    @Shadow
+    private boolean thirdPerson;
+    @Shadow
+    private float lastCameraY;
+    @Shadow
+    private float cameraY;
 
     @Inject(method = "update", at = @At("HEAD"), cancellable = true)
-    private void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci){
-        if (Freecam.isFreecamActive()){
+    private void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
+        if (Freecam.isFreecamActive()) {
             this.thirdPerson = true;
             ci.cancel();
-        } else if (Freerot.isFreerotActive()){
+        } else if (Freerot.isFreerotActive()) {
             ci.cancel();
 
             MinecraftClient.getInstance().gameRenderer.getCamera().setPos(
-                    MathHelper.lerp((double)tickDelta, focusedEntity.prevX, focusedEntity.getX()),
-                    MathHelper.lerp((double)tickDelta, focusedEntity.prevY, focusedEntity.getY()) + MathHelper.lerp(tickDelta, this.lastCameraY, this.cameraY),
-                    MathHelper.lerp((double)tickDelta, focusedEntity.prevZ, focusedEntity.getZ())
+                    MathHelper.lerp(tickDelta, focusedEntity.prevX, focusedEntity.getX()),
+                    MathHelper.lerp(tickDelta, focusedEntity.prevY, focusedEntity.getY()) + MathHelper.lerp(tickDelta, this.lastCameraY, this.cameraY),
+                    MathHelper.lerp(tickDelta, focusedEntity.prevZ, focusedEntity.getZ())
             );
         }
 

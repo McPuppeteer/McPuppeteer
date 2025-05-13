@@ -1,19 +1,19 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *     Copyright (C) 2025 - Tweekeroo developers (Mostly mesa)
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * Copyright (C) 2025 - Tweekeroo developers (Mostly mesa)
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.psychedelicpalimpsest;
@@ -30,7 +30,6 @@ import java.util.List;
  */
 
 
-
 public class GuiConfigs extends GuiConfigsBase {
 
     static ConfigGuiTab currentTab = ConfigGuiTab.GENERIC;
@@ -39,9 +38,9 @@ public class GuiConfigs extends GuiConfigsBase {
     public GuiConfigs() {
         super(10, 50, McPuppeteer.MOD_ID, null, "Config");
     }
+
     @Override
-    public void initGui()
-    {
+    public void initGui() {
         super.initGui();
         this.clearOptions();
 
@@ -51,7 +50,6 @@ public class GuiConfigs extends GuiConfigsBase {
         for (ConfigGuiTab tab : ConfigGuiTab.values())
             x += this.createButton(x, y, -1, tab);
     }
-
 
 
     @Override
@@ -65,6 +63,7 @@ public class GuiConfigs extends GuiConfigsBase {
 
         return List.of();
     }
+
     private int createButton(int x, int y, int width, ConfigGuiTab tab) {
         ButtonGeneric button = new ButtonGeneric(x, y, width, 20, tab.getDisplayName());
         button.setEnabled(currentTab != tab);
@@ -72,19 +71,18 @@ public class GuiConfigs extends GuiConfigsBase {
 
         return button.getWidth() + 2;
     }
+
     private static class ButtonListener implements IButtonActionListener {
         private final GuiConfigs parent;
         private final ConfigGuiTab tab;
 
-        public ButtonListener(ConfigGuiTab tab, GuiConfigs parent)
-        {
+        public ButtonListener(ConfigGuiTab tab, GuiConfigs parent) {
             this.tab = tab;
             this.parent = parent;
         }
 
         @Override
-        public void actionPerformedWithButton(ButtonBase button, int mouseButton)
-        {
+        public void actionPerformedWithButton(ButtonBase button, int mouseButton) {
             GuiConfigs.currentTab = this.tab;
             this.parent.reCreateListWidget(); // apply the new config width
             this.parent.getListWidget().resetScrollbarPosition();
@@ -93,10 +91,9 @@ public class GuiConfigs extends GuiConfigsBase {
     }
 
 
-
     public enum ConfigGuiTab {
-        GENERIC         ("Settings"),
-        HOTKEYS           ("Hotkeys");
+        GENERIC("Settings"),
+        HOTKEYS("Hotkeys");
 
 
         private final String name;

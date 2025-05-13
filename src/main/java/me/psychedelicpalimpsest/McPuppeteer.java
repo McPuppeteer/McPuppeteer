@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.psychedelicpalimpsest;
@@ -41,69 +41,65 @@ import static me.psychedelicpalimpsest.BaritoneListener.baritoneInit;
 
 
 public class McPuppeteer {
-	public static final String MOD_ID = "mc-puppeteer";
-	public static long lastBroadcast = 0;
-	public static Set<String> installedMods = null;
+    public static final String MOD_ID = "mc-puppeteer";
+    public static long lastBroadcast = 0;
+    public static Set<String> installedMods = null;
 
 
-	public static PuppeteerInput puppeteerInput = new PuppeteerInput();
+    public static PuppeteerInput puppeteerInput = new PuppeteerInput();
 
 
-
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
-	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
-
+    // This logger is used to write text to the console and the log file.
+    // It is considered best practice to use your mod id as the logger's name.
+    // That way, it's clear which mod wrote info, warnings, and errors.
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 
-
-	public static void init() {
-		/* Yes, this makes init slower, but I do not care */
-		try {
-			PuppeteerServer.createServer();
-		} catch (IOException e) {
-			McPuppeteer.LOGGER.error("Failed to create server", e);
-		}
-
+    public static void init() {
+        /* Yes, this makes init slower, but I do not care */
+        try {
+            PuppeteerServer.createServer();
+        } catch (IOException e) {
+            McPuppeteer.LOGGER.error("Failed to create server", e);
+        }
 
 
-		McPuppeteer.installedMods = FabricLoader.getInstance()
-				.getAllMods()
-				.stream()
-				.map((mod)->mod.getMetadata().getId())
-				.collect(Collectors.toUnmodifiableSet());
+        McPuppeteer.installedMods = FabricLoader.getInstance()
+                .getAllMods()
+                .stream()
+                .map((mod) -> mod.getMetadata().getId())
+                .collect(Collectors.toUnmodifiableSet());
 
-		ConfigManager.getInstance().registerConfigHandler(McPuppeteer.MOD_ID, new PuppeteerConfig());
-		Registry.CONFIG_SCREEN.registerConfigScreenFactory(
-				new ModInfo(McPuppeteer.MOD_ID, "Puppeteer", GuiConfigs::new)
-		);
+        ConfigManager.getInstance().registerConfigHandler(McPuppeteer.MOD_ID, new PuppeteerConfig());
+        Registry.CONFIG_SCREEN.registerConfigScreenFactory(
+                new ModInfo(McPuppeteer.MOD_ID, "Puppeteer", GuiConfigs::new)
+        );
 
-		PuppeteerConfig.initHotkeys();
+        PuppeteerConfig.initHotkeys();
 
-		if (McPuppeteer.installedMods.contains("baritone")){
-			baritoneInit();
-		}
-
-
-	}
+        if (McPuppeteer.installedMods.contains("baritone")) {
+            baritoneInit();
+        }
 
 
-	public static Queue<PuppeteerTask> tasks = new ConcurrentLinkedQueue<>();
+    }
 
 
+    public static Queue<PuppeteerTask> tasks = new ConcurrentLinkedQueue<>();
 
-	public static String textToString(Text text){
-		StringBuilder builder = new StringBuilder();
-		text.visit((style, string) -> {
-			builder.append(string);
+
+    public static String textToString(Text text) {
+        StringBuilder builder = new StringBuilder();
+        text.visit((style, string) -> {
+            builder.append(string);
 
             return java.util.Optional.empty();
         }, Style.EMPTY);
-		return builder.toString();
-	}
-	public static Gson createTextJsonSerializer() {
-		Text.Serializer serializer = new Text.Serializer(DynamicRegistryManager.of(Registries.REGISTRIES));
-		return new GsonBuilder().registerTypeHierarchyAdapter(Text.class, serializer).create();
-	}
+        return builder.toString();
+    }
+
+    public static Gson createTextJsonSerializer() {
+        Text.Serializer serializer = new Text.Serializer(DynamicRegistryManager.of(Registries.REGISTRIES));
+        return new GsonBuilder().registerTypeHierarchyAdapter(Text.class, serializer).create();
+    }
 }

@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package me.psychedelicpalimpsest.commands.baritone;
 
@@ -30,15 +30,15 @@ import static me.psychedelicpalimpsest.PuppeteerTask.baritoneTask;
 
 
 @PuppeteerCommand(
-        cmd="baritone goto", mod_requirements = {"baritone"},
+        cmd = "baritone goto", mod_requirements = {"baritone"},
         description = "Tell baritone to go somewhere"
 )
 public class BaritoneGoto implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
         if (!request.has("x") || !request.get("x").isJsonPrimitive()
-              || !request.has("y") || !request.get("y").isJsonPrimitive()
-              || !request.has("z") || !request.get("z").isJsonPrimitive()){
+                || !request.has("y") || !request.get("y").isJsonPrimitive()
+                || !request.has("z") || !request.get("z").isJsonPrimitive()) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "type", "expected argument",
@@ -56,15 +56,14 @@ public class BaritoneGoto implements BaseCommand {
             BaritoneAPI.getProvider().getPrimaryBaritone().getPathingBehavior().cancelEverything();
 
 
-
         McPuppeteer.tasks.add(baritoneTask((task, ignored) -> {
             ICustomGoalProcess progress = BaritoneAPI.getProvider().getPrimaryBaritone().getCustomGoalProcess();
 
 
             Goal goal = new GoalGetToBlock(new BlockPos(x, y, z));
             progress.setGoalAndPath(goal);
-        }, (task, ignored)-> callback.resultCallback(BaseCommand.jsonOf(
+        }, (task, ignored) -> callback.resultCallback(BaseCommand.jsonOf(
                 "message", "baritone completed the operation"
-        )), (t, e)-> callback.resultCallback(e)));
+        )), (t, e) -> callback.resultCallback(e)));
     }
 }

@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 package me.psychedelicpalimpsest.modules;
 
@@ -92,7 +92,7 @@ public class PuppeteerInput extends Input {
     @Override
     public void tick(boolean slowDown, float slowDownFactor) {
         regenInput();
-        if (isDirectionalMovement){
+        if (isDirectionalMovement) {
             float realDir = direction - (MinecraftClient.getInstance().player.getYaw() % 360f);
 
 
@@ -104,7 +104,7 @@ public class PuppeteerInput extends Input {
                 when the player is looking perpendicular to where they are walking,
                 can move (best case) of sqrt(2) times faster!
              */
-            if (smartDirectionalScaling){
+            if (smartDirectionalScaling) {
                 float largest = Math.max(Math.abs(directionForward), Math.abs(directionBackward));
                 float scalar = 1f / largest;
 
@@ -126,15 +126,12 @@ public class PuppeteerInput extends Input {
     }
 
 
-
-
     public static boolean onKeyPressed(KeyBinding keyBinding) {
         GameOptions opts = MinecraftClient.getInstance().options;
         boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
 
 
         if (!opts.useKey.equals(keyBinding) && !opts.attackKey.equals(keyBinding)) return false;
-
 
 
         return !allowUserInputAndNotFreecam;
@@ -153,9 +150,6 @@ public class PuppeteerInput extends Input {
 
         return true;
     }
-
-
-
 
 
 }

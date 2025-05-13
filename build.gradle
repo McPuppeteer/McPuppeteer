@@ -38,9 +38,15 @@ dependencies {
 
 
 	modImplementation "com.github.sakura-ryoko:malilib:${project.malilib_version}"
+
+	// Optional mods
 	modCompileOnly "baritone-api-fabric:baritone-api-fabric:${project.baritone_version}"
+
+	// Mesa mod family integrations
 	modCompileOnly "minihud-fabric:minihud-fabric:${project.minihud_version}"
 	modCompileOnly "tweakeroo-fabric:tweakeroo-fabric:${project.tweakeroo_version}"
+	modCompileOnly "litematica-fabric:litematica-fabric:${project.litematica_version}"
+	modCompileOnly "itemscroller-fabric:itemscroller-fabric:${project.itemscroller_version}"
 
 	implementation 'org.reflections:reflections:0.10.2'
 

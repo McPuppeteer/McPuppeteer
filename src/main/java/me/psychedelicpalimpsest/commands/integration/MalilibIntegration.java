@@ -19,10 +19,8 @@ package me.psychedelicpalimpsest.commands.integration;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
+import fi.dy.masa.malilib.MaLiLibConfigs;
 import fi.dy.masa.malilib.config.IConfigBase;
-import fi.dy.masa.tweakeroo.config.Configs;
-import fi.dy.masa.tweakeroo.config.FeatureToggle;
-import fi.dy.masa.tweakeroo.config.Hotkeys;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
@@ -33,27 +31,22 @@ import java.util.Map;
 import static me.psychedelicpalimpsest.MesaConfigUtils.*;
 
 
-public class TweakerooIntegration {
+public class MalilibIntegration {
 
     /*
-        See: https://github.com/sakura-ryoko/tweakeroo/blob/601acef5eb34bbf44d9b51585d676358d91efb7c/src/main/java/fi/dy/masa/tweakeroo/config/Configs.java#L551
-        Not sure how well the categories reflect what you see in the gui.
-     */
+        See: https://github.com/sakura-ryoko/malilib/blob/1.21.5/src/main/java/fi/dy/masa/malilib/MaLiLibConfigs.java
 
+        Note: Not adding experimental and testing options
+    */
     private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
-            "Fixes", Configs.Fixes.OPTIONS,
-            "Generic", Configs.Generic.OPTIONS,
-            "GenericHotkeys", Hotkeys.HOTKEY_LIST,
-            "Internal", Configs.Internal.OPTIONS,
-            "Lists", Configs.Lists.OPTIONS,
-            "DisableToggles", Configs.Disable.OPTIONS,
-            "TweakToggles", FeatureToggle.VALUES
+            "Generic", MaLiLibConfigs.Generic.OPTIONS,
+            "Debug", MaLiLibConfigs.Debug.OPTIONS
     );
 
 
     @PuppeteerCommand(
-            cmd = "dump tweakeroo config", description = "Dumps tweakeroos config", mod_requirements = "tweakeroo")
-    public static class DumpTweakeroo implements BaseCommand {
+            cmd = "dump malilib config", description = "Dumps malilibs config")
+    public static class DumpMalilib implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -62,8 +55,8 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "get tweakeroo config item", description = "Gets specific tweakeroo config item", mod_requirements = "tweakeroo")
-    public static class GetTweakerooItem implements BaseCommand {
+            cmd = "get malilib config item", description = "Gets specific malilib config item")
+    public static class GetMalilibItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -72,8 +65,8 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "set tweakeroo config item", description = "Sets specific tweakeroo config item", mod_requirements = "tweakeroo")
-    public static class SetTweakerooItem implements BaseCommand {
+            cmd = "set malilib config item", description = "Sets specific malilib config item")
+    public static class SetMalilibItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -82,14 +75,13 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "exec tweakeroo config item", description = "Executes specific tweakeroo hotkey config item", mod_requirements = "tweakeroo")
-    public static class ExecTweakerooItem implements BaseCommand {
+            cmd = "exec malilib config item", description = "Executes specific malilib hotkey config item")
+    public static class ExecMalilibItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
             MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMalilibConfigRequest(config, request)));
         }
     }
-
 
 }

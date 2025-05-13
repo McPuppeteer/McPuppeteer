@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.psychedelicpalimpsest;
@@ -90,8 +90,7 @@ import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_REQUIREM
 */
 
 
-
-public class PuppeteerServer implements Runnable{
+public class PuppeteerServer implements Runnable {
 
     private static final int BROADCAST_PORT = 43842;
     private static final String SERVER_HOST = "0.0.0.0";
@@ -107,12 +106,12 @@ public class PuppeteerServer implements Runnable{
         JsonObject state = new JsonObject();
         state.addProperty("mod", MOD_ID);
         state.addProperty("port", instance.getPort());
-        state.addProperty("server uuid",  instance.uuid.toString());
+        state.addProperty("server uuid", instance.uuid.toString());
         state.addProperty("player username", MinecraftClient.getInstance().getSession().getUsername());
         if (uid != null)
             state.addProperty("player uuid", uid.toString());
         state.addProperty("is in world", MinecraftClient.getInstance().player != null);
-        if (MinecraftClient.getInstance().player != null){
+        if (MinecraftClient.getInstance().player != null) {
             state.addProperty("x", MinecraftClient.getInstance().player.getX());
             state.addProperty("y", MinecraftClient.getInstance().player.getY());
             state.addProperty("z", MinecraftClient.getInstance().player.getZ());
@@ -145,14 +144,13 @@ public class PuppeteerServer implements Runnable{
     }
 
 
-
-
     public static void createServer() throws IOException {
         instance = new PuppeteerServer();
         listenThread = new Thread(instance);
         listenThread.start();
 
     }
+
     public static void killServer() {
         instance.running = false;
         try {
@@ -171,8 +169,8 @@ public class PuppeteerServer implements Runnable{
     }
 
 
-
     private final Queue<Runnable> pendingTasks = new ConcurrentLinkedQueue<>();
+
     private void scheduleSelectorTask(Runnable task) {
         pendingTasks.add(task);
         selector.wakeup();
@@ -182,6 +180,7 @@ public class PuppeteerServer implements Runnable{
     private ServerSocketChannel serverSocket;
     private Selector selector;
     private boolean running = true;
+
     @Override
     public void run() {
         try {
@@ -196,7 +195,7 @@ public class PuppeteerServer implements Runnable{
             return;
         }
         while (running) {
-            try{
+            try {
                 selector.select(20);
 
                 Runnable task;
@@ -207,7 +206,6 @@ public class PuppeteerServer implements Runnable{
                         LOGGER.error("Error in creating puppeteer server task", e);
                     }
                 }
-
 
 
                 Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
@@ -229,11 +227,12 @@ public class PuppeteerServer implements Runnable{
                         writeData(key);
                     }
                 }
-            }catch (IOException e){
+            } catch (IOException e) {
                 LOGGER.error("Error in creating puppeteer server iteration", e);
             }
         }
     }
+
     private void readData(SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         ClientAttachment attachment = (ClientAttachment) key.attachment();
@@ -281,7 +280,7 @@ public class PuppeteerServer implements Runnable{
 
             if (type == 'j') {
                 JsonElement elem = JsonParser.parseString(new String(data, StandardCharsets.UTF_8));
-                JsonObject request =  elem.getAsJsonObject();
+                JsonObject request = elem.getAsJsonObject();
 
                 if (!request.has("cmd") || !request.has("id")) {
                     JsonObject response = new JsonObject();
@@ -310,7 +309,7 @@ public class PuppeteerServer implements Runnable{
                 }
 
 
-                for (String r : COMMAND_REQUIREMENTS_MAP.get(cmd)){
+                for (String r : COMMAND_REQUIREMENTS_MAP.get(cmd)) {
                     if (McPuppeteer.installedMods.contains(r)) continue;
                     JsonObject response = new JsonObject();
                     response.addProperty("status", "error");
@@ -325,8 +324,8 @@ public class PuppeteerServer implements Runnable{
                 COMMAND_MAP.get(cmd).onRequest(request, new BaseCommand.LaterCallback() {
                     @Override
                     public void callbacksModView(BaseCommand.CallbackModView callback) {
-                        scheduleSelectorTask(()->{
-                           ClientAttachment attachment = (ClientAttachment) client.keyFor(instance.selector).attachment();
+                        scheduleSelectorTask(() -> {
+                            ClientAttachment attachment = (ClientAttachment) client.keyFor(instance.selector).attachment();
                             callback.invoke(attachment.allowedCallbacks);
                         });
                     }
@@ -363,7 +362,6 @@ public class PuppeteerServer implements Runnable{
             } else {
 
                 LOGGER.warn("Unknown data type: " + (char) type);
-                return;
             }
 
 
@@ -383,7 +381,7 @@ public class PuppeteerServer implements Runnable{
         respBuffer.put(byteData);
         respBuffer.flip();
 
-        Runnable run = (()->{
+        Runnable run = (() -> {
             ClientAttachment attachment = (ClientAttachment)
                     client.keyFor(selector).attachment();
             attachment.writeQueue.add(respBuffer);
@@ -411,7 +409,7 @@ public class PuppeteerServer implements Runnable{
         /* No broadcasts :< */
         if (getInstance() == null) return;
 
-        getInstance().scheduleSelectorTask(()->{
+        getInstance().scheduleSelectorTask(() -> {
             Selector s = instance.selector;
             for (SocketChannel client : instance.connectedClients) {
                 if (client.isOpen()) {
@@ -427,7 +425,10 @@ public class PuppeteerServer implements Runnable{
                     } catch (IOException e) {
                         // Optionally remove client on error
                         instance.connectedClients.remove(client);
-                        try { client.close(); } catch (IOException ignored) {}
+                        try {
+                            client.close();
+                        } catch (IOException ignored) {
+                        }
                     }
                 } else {
                     instance.connectedClients.remove(client);

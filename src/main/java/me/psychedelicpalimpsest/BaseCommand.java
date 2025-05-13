@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.psychedelicpalimpsest;
@@ -36,11 +36,14 @@ public interface BaseCommand {
     interface CallbackModView {
         void invoke(Map<CallbackManager.CallbackType, Boolean> callbacks);
     }
+
     interface LaterCallback {
         /* Allows you to both view and modify the callbacks map */
         void callbacksModView(CallbackModView callback);
+
         /* When something specific to this has occurred */
         void resultCallback(JsonObject result);
+
         /* Something general everybody should here */
         void generalCallback(JsonObject result);
     }
@@ -64,8 +67,7 @@ public interface BaseCommand {
             return new JsonPrimitive((Float) object);
         } else if (object instanceof JsonElement) {
             return (JsonElement) object;
-        } else if (object instanceof Map) {
-            Map map = (Map) object;
+        } else if (object instanceof Map map) {
             JsonObject jsonObject = new JsonObject();
             map.forEach((key, value) -> {
                 if (!(key instanceof String)) {
@@ -77,8 +79,7 @@ public interface BaseCommand {
 
             return jsonObject;
 
-        }
-        else if (object instanceof Collection) {
+        } else if (object instanceof Collection) {
             Collection<Object> collection = (Collection<Object>) object;
             JsonArray jsonArray = new JsonArray();
             for (Object o : collection) {
@@ -97,7 +98,7 @@ public interface BaseCommand {
         JsonObject jsonObject = new JsonObject();
         for (int i = 0; i < objects.length; i += 2) {
             Object key = objects[i];
-            Object value = objects[i+1];
+            Object value = objects[i + 1];
             if (!(key instanceof String)) {
                 throw new IllegalArgumentException("Key must be a string");
             }

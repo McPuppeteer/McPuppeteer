@@ -31,7 +31,7 @@ import net.minecraft.util.math.MathHelper;
 public class SetHotbarSlot implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(()-> {
+        MinecraftClient.getInstance().execute(() -> {
             MinecraftClient.getInstance().player.getInventory().selectedSlot
                     = MathHelper.clamp(request.get("slot").getAsInt(), 0, 8);
 

@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.psychedelicpalimpsest.commands.malilib;
@@ -48,7 +48,7 @@ public class GetConfigSettingsForMod implements BaseCommand {
         File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
         if (!config.exists()) {
             callback.resultCallback(BaseCommand.jsonOf(
-            "status", "error",
+                    "status", "error",
                     "type", "config file missing",
                     "message", "Config file does not exist"
             ));
@@ -56,7 +56,6 @@ public class GetConfigSettingsForMod implements BaseCommand {
         }
         try {
             FileReader reader = new FileReader(config);
-
 
 
             callback.resultCallback(BaseCommand.jsonOf(
@@ -69,9 +68,9 @@ public class GetConfigSettingsForMod implements BaseCommand {
             throw new RuntimeException(e);
         } catch (IOException e) {
             callback.resultCallback(BaseCommand.jsonOf(
-               "status", "error",
-               "type", "exception",
-               "message", e.getMessage()
+                    "status", "error",
+                    "type", "exception",
+                    "message", e.getMessage()
             ));
             LOGGER.error("IO exception in GetConfigSettingsForMod", e);
         }

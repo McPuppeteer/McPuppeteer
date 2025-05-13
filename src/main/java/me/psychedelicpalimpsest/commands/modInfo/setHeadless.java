@@ -31,17 +31,16 @@ import net.minecraft.client.MinecraftClient;
 public class setHeadless implements BaseCommand {
 
 
-
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
 
         MinecraftClient.getInstance().execute(() -> {
-           if (request.getAsJsonPrimitive("enabled").getAsBoolean()){
-               HeadlessMode.setHeadless();
-           }else{
-               HeadlessMode.disableHeadless();
-           }
-           callback.resultCallback(BaseCommand.jsonOf());
+            if (request.getAsJsonPrimitive("enabled").getAsBoolean()) {
+                HeadlessMode.setHeadless();
+            } else {
+                HeadlessMode.disableHeadless();
+            }
+            callback.resultCallback(BaseCommand.jsonOf());
         });
     }
 }

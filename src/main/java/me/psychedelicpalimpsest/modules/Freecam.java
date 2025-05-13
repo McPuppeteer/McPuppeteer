@@ -1,19 +1,19 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *     Copyright (C) 2025 - Tweekeroo developers (Mostly mesa)
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * Copyright (C) 2025 - Tweekeroo developers (Mostly mesa)
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 
@@ -55,11 +55,12 @@ public class Freecam {
         return true;
     }
 
-    public static boolean isFreecamActive(){
+    public static boolean isFreecamActive() {
         return isFreecam;
     }
 
     private static boolean oldViewBobSetting = false;
+
     private static void initializeFreecam() {
         MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Enabled freecam"), false);
         movementHandler = new FreecamMovementHandler();
@@ -72,6 +73,7 @@ public class Freecam {
         PuppeteerEffects.freecamEffect.isActive = true;
 
     }
+
     private static void deactivateFreecam() {
         MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Disabled freecam"), false);
 
@@ -86,7 +88,7 @@ public class Freecam {
         private Vec3d cameraMotion = new Vec3d(0.0, 0.0, 0.0);
         private boolean sprinting = false;
 
-        public void movementTick(){
+        public void movementTick() {
             GameOptions options = MinecraftClient.getInstance().options;
             if (options.sprintKey.isPressed())
                 sprinting = true;
@@ -96,7 +98,8 @@ public class Freecam {
             double forward = sprinting ? cameraMotion.x * 3 : cameraMotion.x;
             handleMotion(forward, cameraMotion.y, cameraMotion.z);
         }
-        private static double getMoveSpeed(){
+
+        private static double getMoveSpeed() {
             return 0.7d;
         }
 
@@ -164,9 +167,6 @@ public class Freecam {
 
             return current;
         }
-
-
-
 
 
     }

@@ -19,10 +19,9 @@ package me.psychedelicpalimpsest.commands.integration;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
+import fi.dy.masa.litematica.config.Configs;
+import fi.dy.masa.litematica.config.Hotkeys;
 import fi.dy.masa.malilib.config.IConfigBase;
-import fi.dy.masa.tweakeroo.config.Configs;
-import fi.dy.masa.tweakeroo.config.FeatureToggle;
-import fi.dy.masa.tweakeroo.config.Hotkeys;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
@@ -32,28 +31,22 @@ import java.util.Map;
 
 import static me.psychedelicpalimpsest.MesaConfigUtils.*;
 
+public class LitematicaIntegration {
+    // TODO: Add more litematica specific integration (Ex: editing schematics)
 
-public class TweakerooIntegration {
-
-    /*
-        See: https://github.com/sakura-ryoko/tweakeroo/blob/601acef5eb34bbf44d9b51585d676358d91efb7c/src/main/java/fi/dy/masa/tweakeroo/config/Configs.java#L551
-        Not sure how well the categories reflect what you see in the gui.
-     */
-
+    /* https://github.com/sakura-ryoko/litematica/blob/1.21.5/src/main/java/fi/dy/masa/litematica/config/Configs.java#L389 */
     private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
-            "Fixes", Configs.Fixes.OPTIONS,
+            "Colors", Configs.Colors.OPTIONS,
             "Generic", Configs.Generic.OPTIONS,
-            "GenericHotkeys", Hotkeys.HOTKEY_LIST,
-            "Internal", Configs.Internal.OPTIONS,
-            "Lists", Configs.Lists.OPTIONS,
-            "DisableToggles", Configs.Disable.OPTIONS,
-            "TweakToggles", FeatureToggle.VALUES
+            "Hotkeys", Hotkeys.HOTKEY_LIST,
+            "InfoOverlays", Configs.InfoOverlays.OPTIONS,
+            "Visuals", Configs.Visuals.OPTIONS
     );
 
 
     @PuppeteerCommand(
-            cmd = "dump tweakeroo config", description = "Dumps tweakeroos config", mod_requirements = "tweakeroo")
-    public static class DumpTweakeroo implements BaseCommand {
+            cmd = "dump litematica config", description = "Dumps litematicas config", mod_requirements = "litematica")
+    public static class DumpLitematica implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -62,8 +55,8 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "get tweakeroo config item", description = "Gets specific tweakeroo config item", mod_requirements = "tweakeroo")
-    public static class GetTweakerooItem implements BaseCommand {
+            cmd = "get litematica config item", description = "Gets specific litematica config item", mod_requirements = "litematica")
+    public static class GetLitematicaItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -72,8 +65,8 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "set tweakeroo config item", description = "Sets specific tweakeroo config item", mod_requirements = "tweakeroo")
-    public static class SetTweakerooItem implements BaseCommand {
+            cmd = "set litematica config item", description = "Sets specific litematica config item", mod_requirements = "litematica")
+    public static class SetLitematicaItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -82,14 +75,13 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "exec tweakeroo config item", description = "Executes specific tweakeroo hotkey config item", mod_requirements = "tweakeroo")
-    public static class ExecTweakerooItem implements BaseCommand {
+            cmd = "exec litematica config item", description = "Executes specific litematica hotkey config item", mod_requirements = "litematica")
+    public static class ExecLitematicaItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
             MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMalilibConfigRequest(config, request)));
         }
     }
-
 
 }

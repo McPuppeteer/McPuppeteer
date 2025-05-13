@@ -1,18 +1,18 @@
 /**
- *     Copyright (C) 2025 - PsychedelicPalimpsest
- *
- *     This program is free software: you can redistribute it and/or modify
- *     it under the terms of the GNU General Public License as published by
- *     the Free Software Foundation, either version 3 of the License, or
- *     (at your option) any later version.
- *
- *     This program is distributed in the hope that it will be useful,
- *     but WITHOUT ANY WARRANTY; without even the implied warranty of
- *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *     GNU General Public License for more details.
- *
- *     You should have received a copy of the GNU General Public License
- *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 package me.psychedelicpalimpsest.commands.input;
@@ -41,11 +41,10 @@ public class ForceInputStates implements BaseCommand {
         }
 
 
-
         if (request.has("remove") && request.isJsonArray()) {
-            request.getAsJsonArray().forEach((obj)->{
+            request.getAsJsonArray().forEach((obj) -> {
                 String remove = obj.getAsString();
-                if (!PuppeteerInput.validOptions.contains(remove)){
+                if (!PuppeteerInput.validOptions.contains(remove)) {
                     callback.resultCallback(BaseCommand.jsonOf(
                             "state", "error",
                             "type", "expected argument",
@@ -54,8 +53,7 @@ public class ForceInputStates implements BaseCommand {
                 }
 
 
-
-                MinecraftClient.getInstance().execute(()->PuppeteerInput.isForcePressed.remove(remove));
+                MinecraftClient.getInstance().execute(() -> PuppeteerInput.isForcePressed.remove(remove));
             });
         }
 

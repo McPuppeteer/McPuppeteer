@@ -20,9 +20,10 @@ package me.psychedelicpalimpsest.commands.integration;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
 import fi.dy.masa.malilib.config.IConfigBase;
-import fi.dy.masa.tweakeroo.config.Configs;
-import fi.dy.masa.tweakeroo.config.FeatureToggle;
-import fi.dy.masa.tweakeroo.config.Hotkeys;
+import fi.dy.masa.minihud.config.Configs;
+import fi.dy.masa.minihud.config.InfoToggle;
+import fi.dy.masa.minihud.config.RendererToggle;
+import fi.dy.masa.minihud.config.StructureToggle;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
@@ -32,28 +33,23 @@ import java.util.Map;
 
 import static me.psychedelicpalimpsest.MesaConfigUtils.*;
 
+public class MinihudIntegration {
 
-public class TweakerooIntegration {
-
-    /*
-        See: https://github.com/sakura-ryoko/tweakeroo/blob/601acef5eb34bbf44d9b51585d676358d91efb7c/src/main/java/fi/dy/masa/tweakeroo/config/Configs.java#L551
-        Not sure how well the categories reflect what you see in the gui.
-     */
-
+    /* https://github.com/sakura-ryoko/minihud/blob/1.21.5/src/main/java/fi/dy/masa/minihud/config/Configs.java#L360 */
     private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
-            "Fixes", Configs.Fixes.OPTIONS,
+            "Colors", Configs.Colors.OPTIONS,
             "Generic", Configs.Generic.OPTIONS,
-            "GenericHotkeys", Hotkeys.HOTKEY_LIST,
-            "Internal", Configs.Internal.OPTIONS,
-            "Lists", Configs.Lists.OPTIONS,
-            "DisableToggles", Configs.Disable.OPTIONS,
-            "TweakToggles", FeatureToggle.VALUES
+            "InfoTypeToggles", InfoToggle.VALUES,
+            "RendererToggles", RendererToggle.VALUES,
+            "StructureColors", StructureToggle.COLOR_CONFIGS,
+            "StructureHotkeys", StructureToggle.HOTKEY_CONFIGS,
+            "StructureToggles", StructureToggle.TOGGLE_CONFIGS
     );
 
 
     @PuppeteerCommand(
-            cmd = "dump tweakeroo config", description = "Dumps tweakeroos config", mod_requirements = "tweakeroo")
-    public static class DumpTweakeroo implements BaseCommand {
+            cmd = "dump minihud config", description = "Dumps minihuds config", mod_requirements = "minihud")
+    public static class DumpMinihud implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -62,8 +58,8 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "get tweakeroo config item", description = "Gets specific tweakeroo config item", mod_requirements = "tweakeroo")
-    public static class GetTweakerooItem implements BaseCommand {
+            cmd = "get minihud config item", description = "Gets specific minihud config item", mod_requirements = "minihud")
+    public static class GetMinihudItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -72,8 +68,8 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "set tweakeroo config item", description = "Sets specific tweakeroo config item", mod_requirements = "tweakeroo")
-    public static class SetTweakerooItem implements BaseCommand {
+            cmd = "set minihud config item", description = "Sets specific minihud config item", mod_requirements = "minihud")
+    public static class SetMinihudItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
@@ -82,14 +78,12 @@ public class TweakerooIntegration {
     }
 
     @PuppeteerCommand(
-            cmd = "exec tweakeroo config item", description = "Executes specific tweakeroo hotkey config item", mod_requirements = "tweakeroo")
-    public static class ExecTweakerooItem implements BaseCommand {
+            cmd = "exec minihud config item", description = "Executes specific minihud hotkey config item", mod_requirements = "minihud")
+    public static class ExecMinihudItem implements BaseCommand {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
             MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMalilibConfigRequest(config, request)));
         }
     }
-
-
 }

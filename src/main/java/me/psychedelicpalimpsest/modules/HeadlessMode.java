@@ -26,14 +26,12 @@ public class HeadlessMode {
     private static boolean activated = false;
 
 
-
-    public static boolean isHeadless(){
+    public static boolean isHeadless() {
         return activated;
     }
 
 
-
-    public static void setHeadless(){
+    public static void setHeadless() {
         if (activated) return;
 
         activated = true;
@@ -44,7 +42,7 @@ public class HeadlessMode {
 
     }
 
-    public static void disableHeadless(){
+    public static void disableHeadless() {
         if (!activated) return;
 
         activated = false;
@@ -52,7 +50,6 @@ public class HeadlessMode {
         GLFW.glfwShowWindow(win.getHandle());
 
     }
-
 
 
 }

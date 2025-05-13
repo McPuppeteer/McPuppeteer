@@ -32,9 +32,9 @@ public class IsHeadless implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
         MinecraftClient.getInstance().execute(() -> {
-           callback.resultCallback(BaseCommand.jsonOf(
-                   "is headless", HeadlessMode.isHeadless()
-           ));
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "is headless", HeadlessMode.isHeadless()
+            ));
         });
     }
 }
