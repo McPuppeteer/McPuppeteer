@@ -39,6 +39,7 @@ public class PuppeteerCommandRegistry {
         for (Class<?> aClass : annotated) {
             BaseCommand command = null;
 
+            /* We need to find a no argument constructor, then create an object with it */
             for (Constructor<?> constructor : aClass.getDeclaredConstructors()) {
                 if (constructor.getParameterCount() != 0) continue;
                 constructor.setAccessible(true);
@@ -53,7 +54,7 @@ public class PuppeteerCommandRegistry {
                 }
             }
             if (command == null) {
-                throw new RuntimeException("Error instantiating " + aClass.getName() + ", A puppeteer-command annotated class MUST have a no-arg constructor!");
+                LOGGER.error("Error instantiating " + aClass.getName() + ", A puppeteer-command annotated class MUST have a no-arg constructor!");
             }
             String commandName = aClass.getAnnotation(PuppeteerCommand.class).cmd();
             String commandDesc = aClass.getAnnotation(PuppeteerCommand.class).description();

@@ -32,6 +32,10 @@ import static me.psychedelicpalimpsest.PuppeteerConfig.WARN_ON_TWEAKEROO_FREECAM
 @Mixin(value = CameraEntity.class, remap = false)
 @Pseudo /* Ignore if not installed */
 public class TweekerooCameraMixin {
+
+
+    /* Scream at the user for using tweekeroo freecam */
+
     @Inject(at = @At("HEAD"), method = "setCameraState")
     private static void setCameraState(boolean enabled, CallbackInfo ci) {
         if (!WARN_ON_TWEAKEROO_FREECAM.getBooleanValue()) return;

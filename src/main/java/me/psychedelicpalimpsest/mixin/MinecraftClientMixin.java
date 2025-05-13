@@ -92,21 +92,26 @@ public abstract class MinecraftClientMixin {
         McPuppeteer.init();
     }
 
+
+    /*
+        Send UDP broadcats, run tickly tasks, and enforce forced player input when screens are open.
+    */
     @Inject(at = @At("TAIL"), method = "tick")
     private void tick(CallbackInfo info) {
-        if (!PuppeteerConfig.SEND_BROADCASTS.getBooleanValue()) return;
-        long interval_millis = (long) (PuppeteerConfig.UDP_BROADCAST_INTERVAL.getFloatValue() * 1000f);
+        if (PuppeteerConfig.SEND_BROADCASTS.getBooleanValue()) {
+            long interval_millis = (long) (PuppeteerConfig.UDP_BROADCAST_INTERVAL.getFloatValue() * 1000f);
 
-        long time = System.currentTimeMillis();
-        if (time - McPuppeteer.lastBroadcast > interval_millis) {
-            McPuppeteer.lastBroadcast = time;
-            new Thread(() -> {
-                try {
-                    broadcastState();
-                } catch (IOException e) {
-                    LOGGER.error("Error trying to broadcast state", e);
-                }
-            }).start();
+            long time = System.currentTimeMillis();
+            if (time - McPuppeteer.lastBroadcast > interval_millis) {
+                McPuppeteer.lastBroadcast = time;
+                new Thread(() -> {
+                    try {
+                        broadcastState();
+                    } catch (IOException e) {
+                        LOGGER.error("Error trying to broadcast state", e);
+                    }
+                }).start();
+            }
         }
 
 
@@ -154,7 +159,7 @@ public abstract class MinecraftClientMixin {
             McPuppeteer.tasks.peek().kill();
     }
 
-
+    /* Enforce forced attack state */
     @ModifyVariable(at = @At("HEAD"), method = "handleBlockBreaking", ordinal = 0, argsOnly = true)
     boolean handleBlockBreaking(boolean breaking) {
         if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK))
@@ -164,6 +169,7 @@ public abstract class MinecraftClientMixin {
         return PuppeteerInput.isForcePressed.get(PuppeteerInput.ATTACK);
     }
 
+    /* Enforce forced use state */
     @Inject(at = @At("HEAD"), method = "doItemUse", cancellable = true)
     void doItemUse(CallbackInfo ci) {
         if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.USE)) return;

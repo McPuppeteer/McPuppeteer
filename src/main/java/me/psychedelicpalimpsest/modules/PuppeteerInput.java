@@ -39,6 +39,7 @@ import java.util.Set;
 public class PuppeteerInput extends Input {
     public static Map<String, Boolean> isForcePressed = new HashMap<>();
 
+    /* Typical minecraft inputs we can easily override */
     public static final String FORWARDS = "forwards";
     public static final String BACKWARDS = "backwards";
     public static final String LEFT = "left";
@@ -47,6 +48,8 @@ public class PuppeteerInput extends Input {
     public static final String SNEAK = "sneak";
     public static final String SPRINT = "sprint";
 
+
+    /* See MinecraftClientMixin.java for implementation */
     public static final String USE = "use";
     public static final String ATTACK = "attack";
 
@@ -93,8 +96,8 @@ public class PuppeteerInput extends Input {
     public void tick(boolean slowDown, float slowDownFactor) {
         regenInput();
         if (isDirectionalMovement) {
+            /* Adjust for minecrafts strange yaw system (Why is yaw not clamped????) */
             float realDir = direction - (MinecraftClient.getInstance().player.getYaw() % 360f);
-
 
             float directionForward = (float) Math.sin(Math.toRadians(realDir));
             float directionBackward = (float) Math.cos(Math.toRadians(realDir));
@@ -103,6 +106,8 @@ public class PuppeteerInput extends Input {
                 In exchange for making you move at inconsistent speeds,
                 when the player is looking perpendicular to where they are walking,
                 can move (best case) of sqrt(2) times faster!
+
+                This is why speed runners walk diagonally MATH
              */
             if (smartDirectionalScaling) {
                 float largest = Math.max(Math.abs(directionForward), Math.abs(directionBackward));
@@ -126,6 +131,9 @@ public class PuppeteerInput extends Input {
     }
 
 
+    /*
+        Called from KeyBindingMixin.java
+     */
     public static boolean onKeyPressed(KeyBinding keyBinding) {
         GameOptions opts = MinecraftClient.getInstance().options;
         boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
@@ -136,7 +144,9 @@ public class PuppeteerInput extends Input {
 
         return !allowUserInputAndNotFreecam;
     }
-
+    /*
+        Called from KeyBindingMixin.java
+     */
     public static boolean setPressed(KeyBinding keyBinding) {
         GameOptions opts = MinecraftClient.getInstance().options;
         boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();

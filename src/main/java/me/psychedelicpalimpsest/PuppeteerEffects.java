@@ -30,7 +30,7 @@ public class PuppeteerEffects {
     public static PuppeteerEffect freecamEffect = new PuppeteerEffect(Identifier.of(MOD_ID, "textures/freecam.png"));
 
 
-    /* Just some simple potion effect like icons */
+    /* Just some simple potion effect like icons, drawn in InGameHudMixin.java */
     public static final List<PuppeteerEffect> effects = ImmutableList.of(
             freecamEffect,
             noRotationEffect,
