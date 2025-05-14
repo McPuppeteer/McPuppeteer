@@ -1,0 +1,50 @@
+/**
+ * Copyright (C) 2025 - PsychedelicPalimpsest
+ * <p>
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * <p>
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * <p>
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+package me.psychedelicpalimpsest.commands.world;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import me.psychedelicpalimpsest.BaseCommand;
+import me.psychedelicpalimpsest.PuppeteerCommand;
+import net.minecraft.client.MinecraftClient;
+
+@PuppeteerCommand(
+        cmd = "list loaded chunks",
+        description = "Lists what chunks are loaded for the player. Multiply these by 16 to get the 'real' coordinates"
+)
+public class ListLoadedChunks implements BaseCommand {
+    @Override
+    public void onRequest(JsonObject request, LaterCallback callback) {
+        JsonArray chunks = new JsonArray(MinecraftClient.getInstance().worldRenderer.getBuiltChunks().size());
+
+        MinecraftClient.getInstance().worldRenderer.getBuiltChunks().forEach((item) -> {
+            JsonArray array = new JsonArray(3);
+            array.add(item.getOrigin().getX() >> 4);
+            array.add(item.getOrigin().getY() >> 4);
+            array.add(item.getOrigin().getZ() >> 4);
+
+            chunks.add(array);
+        });
+
+
+        callback.resultCallback(BaseCommand.jsonOf(
+                "chunks", chunks
+        ));
+
+    }
+}

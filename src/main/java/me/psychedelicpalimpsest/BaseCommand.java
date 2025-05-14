@@ -27,6 +27,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.minecraft.nbt.NbtElement;
 
 import java.util.Collection;
 import java.util.Map;
@@ -46,6 +47,11 @@ public interface BaseCommand {
 
         /* Something general everybody should here */
         void generalCallback(JsonObject result);
+
+
+        void packetResultCallback(byte[] result);
+
+        void nbtResultCallback(NbtElement result);
     }
 
 

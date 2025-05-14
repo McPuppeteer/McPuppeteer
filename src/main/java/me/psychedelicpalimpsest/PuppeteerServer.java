@@ -20,8 +20,13 @@ package me.psychedelicpalimpsest;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import io.netty.buffer.ByteBuf;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.PacketByteBuf;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
@@ -52,7 +57,7 @@ import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_REQUIREM
         - This enables instantaneous callbacks and commands.
 
     * All packets must follow this format:
-        [1 byte for data type: 'j' (JSON) or 'n' (NBT)]
+        [1 byte for data type: 'j' (JSON), 'b' (Binary) or 'n' (NBT)]
         [32-bit network-endian length of data]
         [data]
 
@@ -77,9 +82,9 @@ import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_REQUIREM
              "message": "Usually only present on error",
              ...additional command-specific fields}
 
-    * For some commands, the server may respond with NBT data. In this case,
+    * For some commands, the server may respond with Binary or NBT data. In this case,
       the packet format is:
-        ['n']
+        ['n' or 'b']
         [32-bit network-endian length of data]
         [data]
         [16-bit network-endian length of id]
@@ -336,12 +341,8 @@ public class PuppeteerServer implements Runnable {
                         if (!result.has("status"))
                             result.addProperty("status", "ok");
                         result.addProperty("id", id);
-                        try {
 
-                            writeJsonPacket(client, result, false);
-                        } catch (IOException e) {
-                            LOGGER.error("Error in resultCallback()", e);
-                        }
+                        writeJsonPacket(client, result, false);
                     }
 
                     @Override
@@ -349,12 +350,21 @@ public class PuppeteerServer implements Runnable {
 
                         result.addProperty("callback", true);
 
-                        try {
-                            writeJsonPacket(client, result, false);
-                        } catch (IOException e) {
-                            LOGGER.error("Error in generalCallback()", e);
-                        }
+                        writeJsonPacket(client, result, false);
                     }
+
+                    @Override
+                    public void packetResultCallback(byte[] result) {
+                        writeBinaryStyleData(client, (byte) 'b', result, id, false);
+                    }
+
+                    @Override
+                    public void nbtResultCallback(NbtElement result) {
+                        PacketByteBuf pb = PacketByteBufs.create();
+                        pb.writeNbt(result);
+                        writeBinaryStyleData(client, (byte) 'n', pb.array(), id, false);
+                    }
+
                 });
 
             } else if (type == 'n') {
@@ -371,16 +381,7 @@ public class PuppeteerServer implements Runnable {
     }
 
 
-    private void writeJsonPacket(SocketChannel client, JsonObject packet, boolean isOnServerThread) throws IOException {
-        String jsond = packet.toString();
-        byte[] byteData = jsond.getBytes();
-
-        ByteBuffer respBuffer = ByteBuffer.allocate(1 + 4 + byteData.length);
-        respBuffer.put((byte) 'j');
-        respBuffer.putInt(byteData.length);
-        respBuffer.put(byteData);
-        respBuffer.flip();
-
+    private void writeByteBufferRaw(SocketChannel client, ByteBuffer respBuffer, boolean isOnServerThread){
         Runnable run = (() -> {
             ClientAttachment attachment = (ClientAttachment)
                     client.keyFor(selector).attachment();
@@ -395,6 +396,37 @@ public class PuppeteerServer implements Runnable {
             run.run();
         else
             scheduleSelectorTask(run);
+    }
+
+
+    private void writeBinaryStyleData(SocketChannel client, byte format, byte[] data, @Nullable String id, boolean isOnServerThread) {
+        byte[] idBytes = id == null ? new byte[0] : id.getBytes(StandardCharsets.UTF_8);
+
+        ByteBuffer respBuffer = ByteBuffer.allocate(1 + 4 + 2 + data.length + idBytes.length);
+        respBuffer.put((byte) format);
+
+        respBuffer.putInt(data.length);
+        respBuffer.put(data);
+
+        respBuffer.putShort((short) idBytes.length);
+        respBuffer.put(idBytes);
+        respBuffer.flip();
+
+        writeByteBufferRaw(client, respBuffer, isOnServerThread);
+    }
+
+
+    private void writeJsonPacket(SocketChannel client, JsonObject packet, boolean isOnServerThread) {
+        String jsond = packet.toString();
+        byte[] byteData = jsond.getBytes();
+
+        ByteBuffer respBuffer = ByteBuffer.allocate(1 + 4 + byteData.length);
+        respBuffer.put((byte) 'j');
+        respBuffer.putInt(byteData.length);
+        respBuffer.put(byteData);
+        respBuffer.flip();
+
+        writeByteBufferRaw(client, respBuffer, isOnServerThread);
     }
 
     public static void broadcastJsonPacket(CallbackManager.CallbackType type, JsonObject packet) {
@@ -420,16 +452,7 @@ public class PuppeteerServer implements Runnable {
                         continue;
 
 
-                    try {
-                        instance.writeJsonPacket(client, packet, true);
-                    } catch (IOException e) {
-                        // Optionally remove client on error
-                        instance.connectedClients.remove(client);
-                        try {
-                            client.close();
-                        } catch (IOException ignored) {
-                        }
-                    }
+                    instance.writeJsonPacket(client, packet, true);
                 } else {
                     instance.connectedClients.remove(client);
                 }

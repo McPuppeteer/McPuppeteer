@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.commands.worldAndServers;
+package me.psychedelicpalimpsest.commands.currentWorld;
 
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
