@@ -15,12 +15,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest;
+package me.psychedelicpalimpsest.utils;
 
 import fi.dy.masa.malilib.config.HudAlignment;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.minihud.config.Configs;
 import fi.dy.masa.minihud.event.RenderHandler;
+import me.psychedelicpalimpsest.McPuppeteer;
 
 import java.lang.reflect.Field;
 import java.util.List;

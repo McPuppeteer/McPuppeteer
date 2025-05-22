@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest;
+package me.psychedelicpalimpsest.utils;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
@@ -25,6 +25,7 @@ import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IHotkeyCallback;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.hotkeys.KeybindMulti;
+import me.psychedelicpalimpsest.BaseCommand;
 
 import java.util.List;
 import java.util.Map;
