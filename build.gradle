@@ -1,3 +1,5 @@
+
+
 plugins {
 	id 'fabric-loom' version '1.10-SNAPSHOT'
 	id 'maven-publish'
@@ -104,3 +106,45 @@ publishing {
 loom {
 	accessWidenerPath = file("src/main/resources/puppeteer.accesswidener")
 }
+
+
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+
+def generatedDir = "$buildDir/generated/sources/constants"
+
+task generateBuildConstants {
+    doLast {
+        def gitHash = 'git rev-parse HEAD'.execute().text.trim()
+        def licenseFile = file('LICENSE')
+        def licenseContent = licenseFile.text
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\r", "")
+            .replace("\n", "\\n")
+
+		def buildDate = ZonedDateTime.now().format(
+            DateTimeFormatter.ISO_OFFSET_DATE_TIME
+        )
+        def packageName = 'me.psychedelicpalimpsest.constants' // Change as needed
+        def className = 'BuildConstants'
+
+        def outputDir = file("$generatedDir/${packageName.replace('.', '/')}")
+        outputDir.mkdirs()
+
+        def javaFile = new File(outputDir, "${className}.java")
+        javaFile.text = """
+            package ${packageName};
+
+            public class ${className} {
+                public static final String GIT_HASH = "${gitHash}";
+                public static final String LICENSE = "${licenseContent}";
+				
+				public static final String BUILD_DATE = "${buildDate}";
+            }
+        """.stripIndent()
+    }
+}
+
+sourceSets.main.java.srcDir generatedDir
+compileJava.dependsOn generateBuildConstants
