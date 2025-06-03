@@ -9,12 +9,15 @@
 	],
 	"contact": {
 		"homepage": "https://github.com/PsychedelicPalimpsest/McPuppeteer",
-		"sources": "https://github.com/PsychedelicPalimpsest/McPuppeteer"
+		"sources": "https://github.com/PsychedelicPalimpsest/McPuppeteer",
+		"issues": "https://github.com/PsychedelicPalimpsest/McPuppeteer/issues"
 	},
-	"license": "GPL-V3 only",
+	"license": "AGPL-V3 only",
 	"icon": "assets/mc-puppeteer/icon.png",
 	"environment": "client",
-	"entrypoints": {},
+	"entrypoints": {
+		"modmenu": ["me.psychedelicpalimpsest.ModMenuImpl"]
+	},
 	"mixins": [
 		"mc-puppeteer.mixins.json"
 	],

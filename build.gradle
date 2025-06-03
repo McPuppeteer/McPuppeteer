@@ -19,8 +19,7 @@ repositories {
 	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
 	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
 	// for more information about repositories.
-
-	// I'll be honest, im stealing this from litematica
+	maven { url = 'https://maven.terraformersmc.com/releases/' }
 	maven { url = 'https://masa.dy.fi/maven' }
 	maven { url = 'https://maven.fallenbreath.me/releases' }
 	maven { url = 'https://maven.terraformersmc.com/releases/' }
@@ -49,6 +48,9 @@ dependencies {
 	modCompileOnly "tweakeroo-fabric:tweakeroo-fabric:${project.tweakeroo_version}"
 	modCompileOnly "litematica-fabric:litematica-fabric:${project.litematica_version}"
 	modCompileOnly "itemscroller-fabric:itemscroller-fabric:${project.itemscroller_version}"
+
+	// Integration with mod_menu
+	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
 	implementation 'org.reflections:reflections:0.10.2'
 
@@ -126,7 +128,7 @@ task generateBuildConstants {
 		def buildDate = ZonedDateTime.now().format(
             DateTimeFormatter.ISO_OFFSET_DATE_TIME
         )
-        def packageName = 'me.psychedelicpalimpsest.constants' // Change as needed
+        def packageName = 'me.psychedelicpalimpsest.constants'
         def className = 'BuildConstants'
 
         def outputDir = file("$generatedDir/${packageName.replace('.', '/')}")
