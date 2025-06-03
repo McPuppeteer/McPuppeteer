@@ -26,7 +26,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "clear force input",
-        description = "No longer forces an input state"
+        description = "No longer forces an input state",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class ClearForcedInputs implements BaseCommand {
     @Override

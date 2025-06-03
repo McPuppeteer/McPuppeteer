@@ -25,7 +25,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "set freecam",
-        description = "Enable/disable freecam"
+        description = "Enable/disable freecam",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class SetFreecam implements BaseCommand {
     @Override

@@ -26,7 +26,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "set nowalk",
-        description = "Enable/disable nowalk"
+        description = "Enable/disable nowalk",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class SetNowalk implements BaseCommand {
     @Override

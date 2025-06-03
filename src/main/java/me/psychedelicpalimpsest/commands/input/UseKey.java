@@ -25,7 +25,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "use key click",
-        description = "Simulate a single click of the use key"
+        description = "Simulate a single click of the use key",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class UseKey implements BaseCommand {
     @Override

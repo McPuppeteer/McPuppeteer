@@ -31,7 +31,8 @@ import static me.psychedelicpalimpsest.PuppeteerTask.baritoneTask;
 
 @PuppeteerCommand(
         cmd = "baritone goto", mod_requirements = {"baritone"},
-        description = "Tell baritone to go somewhere"
+        description = "Tell baritone to go somewhere",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class BaritoneGoto implements BaseCommand {
     @Override

@@ -31,7 +31,7 @@ import java.util.Optional;
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
 
 @PuppeteerCommand(
-        cmd = "client info",
+        cmd = "get client info",
         description = "Returns information about the client itself"
 )
 public class GetClientInfo implements BaseCommand {

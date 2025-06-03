@@ -25,7 +25,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "set directional movement degree",
-        description = "Make the player move a certain direction, in degrees, globally independent of the players rotation."
+        description = "Make the player move a certain direction, in degrees, globally independent of the players rotation.",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class SetDirectionalMovement implements BaseCommand {
     @Override

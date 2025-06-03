@@ -27,7 +27,8 @@ import net.minecraft.text.Text;
 
 @PuppeteerCommand(
         cmd = "display chat message",
-        description = "Shows a message to the client (does NOT send it in public)"
+        description = "Shows a message to the client (does NOT send it in public)",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class DisplayMessage implements BaseCommand {
     @Override

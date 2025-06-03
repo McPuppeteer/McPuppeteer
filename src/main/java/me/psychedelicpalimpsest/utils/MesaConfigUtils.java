@@ -77,10 +77,10 @@ public class MesaConfigUtils {
         );
     }
 
-    public static JsonElement getValueForMasaConfig(Map<String, List<? extends IConfigBase>> config, String catagory, String name) {
-        if (!config.containsKey(catagory))
+    public static JsonElement getValueForMasaConfig(Map<String, List<? extends IConfigBase>> config, String category, String name) {
+        if (!config.containsKey(category))
             return JsonNull.INSTANCE;
-        for (IConfigBase configItem : config.get(catagory)) {
+        for (IConfigBase configItem : config.get(category)) {
             if (!configItem.getName().equals(name)) continue;
             return configItem.getAsJsonElement();
         }
@@ -126,7 +126,7 @@ public class MesaConfigUtils {
     }
 
 
-    public static JsonObject handleExecMalilibConfigRequest(Map<String, List<? extends IConfigBase>> config, JsonObject request) {
+    public static JsonObject handleExecMesaConfigRequest(Map<String, List<? extends IConfigBase>> config, JsonObject request) {
         if (!request.has("category") || !request.has("name")) {
             return BaseCommand.jsonOf(
                     "status", "error",

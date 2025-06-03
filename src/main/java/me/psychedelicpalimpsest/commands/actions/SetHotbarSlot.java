@@ -26,7 +26,8 @@ import net.minecraft.util.math.MathHelper;
 
 @PuppeteerCommand(
         cmd = "set hotbar slot",
-        description = "Set the current hotbar slot. The parameter is 'slot' and is 0-8"
+        description = "Set the current hotbar slot. The parameter is 'slot' and is 0-8",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class SetHotbarSlot implements BaseCommand {
     @Override

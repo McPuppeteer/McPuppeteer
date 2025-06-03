@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Represents a single task managed by the Puppeteer system.
  */
-public final class PuppeteerTask {
+public class PuppeteerTask {
 
     /**
      * The type of task.
@@ -47,10 +47,10 @@ public final class PuppeteerTask {
     }
 
     private final TaskType type;
-    private final TaskEvent onStart;
-    private final TaskEvent onBaritoneFinish;
-    private final TaskEvent onTick;
-    private final TaskFailureEvent onFailure;
+    protected TaskEvent onStart;
+    protected TaskEvent onBaritoneFinish;
+    protected TaskEvent onTick;
+    protected TaskFailureEvent onFailure;
 
     private volatile Thread thread = null;
     private volatile TaskState state = TaskState.NOT_STARTED;
@@ -81,7 +81,7 @@ public final class PuppeteerTask {
         void invoke();
     }
 
-    private PuppeteerTask(
+    protected PuppeteerTask(
             TaskType type,
             TaskEvent onStart,
             @Nullable TaskEvent onBaritoneFinish,
@@ -159,7 +159,8 @@ public final class PuppeteerTask {
             thread.start();
         } else {
             try {
-                onStart.invoke(this, this::end);
+                if (onStart != null)
+                    onStart.invoke(this, this::end);
             } catch (Exception e) {
                 handleFailure(e);
                 end();

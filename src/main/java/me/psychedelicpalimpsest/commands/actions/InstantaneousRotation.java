@@ -24,7 +24,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "instantaneous rotation",
-        description = "Immediately set the players rotation, no interpolation, just speed!"
+        description = "Immediately set the players rotation, no interpolation, just speed!",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class InstantaneousRotation implements BaseCommand {
     @Override

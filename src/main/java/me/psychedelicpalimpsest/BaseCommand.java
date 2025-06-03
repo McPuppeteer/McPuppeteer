@@ -54,46 +54,64 @@ public interface BaseCommand {
         void nbtResultCallback(NbtElement result);
     }
 
+    enum CommandContext {
+        ANY,
+
+        /* Before the world has loaded */
+        PRE_PLAY,
+
+        /* Must be in world */
+        PLAY,
+
+        /* Must be in world, and the player can move (Ex. Not in a bed) */
+        PLAY_WITH_MOVEMENT,
+    }
 
     /* You can request a packet be sent immediately */
     void onRequest(JsonObject request, LaterCallback callback);
 
 
     static JsonElement jsonObjectOf(Object object) {
-
-        if (object instanceof String) {
-            return new JsonPrimitive((String) object);
-        } else if (object instanceof Integer) {
-            return new JsonPrimitive((Integer) object);
-        } else if (object instanceof Double) {
-            return new JsonPrimitive((Double) object);
-        } else if (object instanceof Boolean) {
-            return new JsonPrimitive((Boolean) object);
-        } else if (object instanceof Float) {
-            return new JsonPrimitive((Float) object);
-        } else if (object instanceof JsonElement) {
-            return (JsonElement) object;
-        } else if (object instanceof Map map) {
-            JsonObject jsonObject = new JsonObject();
-            map.forEach((key, value) -> {
-                if (!(key instanceof String)) {
-                    throw new IllegalArgumentException("Unknown map key type: " + key.getClass());
-                }
-                jsonObject.add((String) key, jsonObjectOf(value));
-            });
-
-
-            return jsonObject;
-
-        } else if (object instanceof Collection) {
-            Collection<Object> collection = (Collection<Object>) object;
-            JsonArray jsonArray = new JsonArray();
-            for (Object o : collection) {
-                jsonArray.add(jsonObjectOf(o));
+        switch (object) {
+            case String s -> {
+                return new JsonPrimitive(s);
             }
-            return jsonArray;
-        } else {
-            throw new IllegalArgumentException("Unknown value type: " + object.getClass());
+            case Integer i -> {
+                return new JsonPrimitive(i);
+            }
+            case Double v -> {
+                return new JsonPrimitive(v);
+            }
+            case Boolean b -> {
+                return new JsonPrimitive(b);
+            }
+            case Float v -> {
+                return new JsonPrimitive(v);
+            }
+            case JsonElement jsonElement -> {
+                return jsonElement;
+            }
+            case Map map -> {
+                JsonObject jsonObject = new JsonObject();
+                map.forEach((key, value) -> {
+                    if (!(key instanceof String)) {
+                        throw new IllegalArgumentException("Unknown map key type: " + key.getClass());
+                    }
+                    jsonObject.add((String) key, jsonObjectOf(value));
+                });
+
+
+                return jsonObject;
+            }
+            case Collection ignored -> {
+                Collection<Object> collection = (Collection<Object>) object;
+                JsonArray jsonArray = new JsonArray();
+                for (Object o : collection) {
+                    jsonArray.add(jsonObjectOf(o));
+                }
+                return jsonArray;
+            }
+            case null, default -> throw new IllegalArgumentException("Unknown value type: " + object.getClass());
         }
     }
 

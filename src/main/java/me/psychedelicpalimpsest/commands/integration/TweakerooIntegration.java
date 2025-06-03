@@ -30,7 +30,7 @@ import net.minecraft.client.MinecraftClient;
 import java.util.List;
 import java.util.Map;
 
-import static me.psychedelicpalimpsest.MesaConfigUtils.*;
+import static me.psychedelicpalimpsest.utils.MesaConfigUtils.*;
 
 
 public class TweakerooIntegration {
@@ -87,7 +87,7 @@ public class TweakerooIntegration {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMalilibConfigRequest(config, request)));
+            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
         }
     }
 

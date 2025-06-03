@@ -24,7 +24,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "attack key click",
-        description = "Simulate a single click of the attack key"
+        description = "Simulate a single click of the attack key",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class AttackKey implements BaseCommand {
     @Override

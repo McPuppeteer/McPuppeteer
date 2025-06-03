@@ -26,7 +26,7 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "is headless",
-        description = ""
+        description = "Check if the minecraft window is in headless mode"
 )
 public class IsHeadless implements BaseCommand {
     @Override

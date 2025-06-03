@@ -37,12 +37,6 @@ public class ClientPlayerEntityMixin {
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void tickMovement(CallbackInfo ci) {
 
-
-//        if (this.input.getClass().getPackage().getName().equals("baritone")) return;
-
-
-
-
         /* This allows other inputs, such as baritone, to still function (Looking at you tweakeroo) */
         if (this.input.getClass() == KeyboardInput.class) {
             this.input = McPuppeteer.puppeteerInput;

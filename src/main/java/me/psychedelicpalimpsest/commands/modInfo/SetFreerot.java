@@ -25,7 +25,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "set freerot",
-        description = "Enable/disable freerot"
+        description = "Enable/disable freerot",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class SetFreerot implements BaseCommand {
     @Override

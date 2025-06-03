@@ -45,7 +45,8 @@ import java.util.*;
 
 @PuppeteerCommand(
         cmd="get chunk",
-        description = "Gets a **binary** pelleted version of a chunk."
+        description = "Gets a **binary** pelleted version of a chunk.",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class GetChunk implements BaseCommand {
 

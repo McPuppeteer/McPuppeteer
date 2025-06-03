@@ -25,7 +25,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "force inputs",
-        description = "Takes an 'inputs' parameter identical to 'get forced input's parameter. Also takes an array of strings 'remove' which will remove forced values"
+        description = "Takes an 'inputs' parameter identical to 'get forced input's parameter. Also takes an array of strings 'remove' which will remove forced values",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class ForceInputStates implements BaseCommand {
     @Override

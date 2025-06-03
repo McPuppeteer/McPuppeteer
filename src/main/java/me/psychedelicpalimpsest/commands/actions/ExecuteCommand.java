@@ -24,7 +24,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "execute command",
-        description = "Sends a chat command. The command here does NOT include the /"
+        description = "Sends a chat command. The command here does NOT include the /",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class ExecuteCommand implements BaseCommand {
     @Override

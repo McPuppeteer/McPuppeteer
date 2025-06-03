@@ -38,8 +38,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
-import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_MAP;
-import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_REQUIREMENTS_MAP;
+import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.*;
 
 
 
@@ -96,7 +95,7 @@ import static me.psychedelicpalimpsest.PuppeteerCommandRegistry.COMMAND_REQUIREM
 
 
 public class PuppeteerServer implements Runnable {
-
+    /* I just asked google for a random number */
     private static final int BROADCAST_PORT = 43842;
     private static final String SERVER_HOST = "0.0.0.0";
 
@@ -104,6 +103,22 @@ public class PuppeteerServer implements Runnable {
         this.uuid = UUID.randomUUID();
     }
 
+    public static boolean validateContext(BaseCommand.CommandContext context) {
+        return switch (context) {
+            case ANY -> true;
+            case PLAY -> MinecraftClient.getInstance().player != null;
+            case PLAY_WITH_MOVEMENT -> {
+                if (MinecraftClient.getInstance().player == null)
+                    yield false;
+                yield !MinecraftClient.getInstance().player.isSleeping();
+            }
+            case PRE_PLAY -> MinecraftClient.getInstance().player == null;
+            default -> {
+                LOGGER.warn("Invalid command context: " + context);
+                yield false;
+            }
+        };
+    }
 
     public static void broadcastState() throws IOException {
         UUID uid = MinecraftClient.getInstance().getSession().getUuidOrNull();
@@ -281,51 +296,61 @@ public class PuppeteerServer implements Runnable {
     }
 
     private void processData(SocketChannel client, byte type, byte[] data) {
-        try {
+        if (type == 'j') {
+            JsonElement elem = JsonParser.parseString(new String(data, StandardCharsets.UTF_8));
+            JsonObject request = elem.getAsJsonObject();
 
-            if (type == 'j') {
-                JsonElement elem = JsonParser.parseString(new String(data, StandardCharsets.UTF_8));
-                JsonObject request = elem.getAsJsonObject();
+            if (!request.has("cmd") || !request.has("id")) {
 
-                if (!request.has("cmd") || !request.has("id")) {
-                    JsonObject response = new JsonObject();
+                JsonObject response = BaseCommand.jsonOf(
+                    "status", "error",
+                        "type", "format",
+                        "message", "invalid request"
+                );
+                if (request.has("id"))
+                    response.add("id", request.get("id"));
 
-                    response.addProperty("status", "error");
-                    response.addProperty("type", "format");
-                    response.addProperty("message", "invalid request");
-                    if (request.has("id"))
-                        response.add("id", request.get("id"));
+                writeJsonPacket(client, response, true);
+                return;
+            }
 
-                    writeJsonPacket(client, response, true);
-                    return;
-                }
+            String cmd = request.get("cmd").getAsString();
+            String id = request.get("id").getAsString();
 
-                String cmd = request.get("cmd").getAsString();
-                String id = request.get("id").getAsString();
-
-                if (!COMMAND_MAP.containsKey(cmd)) {
-                    JsonObject response = new JsonObject();
-                    response.addProperty("status", "error");
-                    response.addProperty("type", "format");
-                    response.addProperty("message", "unknown command");
-                    response.addProperty("id", id);
-                    writeJsonPacket(client, response, true);
-                    return;
-                }
-
-
-                for (String r : COMMAND_REQUIREMENTS_MAP.get(cmd)) {
-                    if (McPuppeteer.installedMods.contains(r)) continue;
-                    JsonObject response = new JsonObject();
-                    response.addProperty("status", "error");
-                    response.addProperty("type", "mod requirement");
-                    response.addProperty("message", r + " not installed");
-                    response.addProperty("id", id);
-                    writeJsonPacket(client, response, true);
-                    return;
-                }
+            if (!COMMAND_MAP.containsKey(cmd)) {
+                writeJsonPacket(client, BaseCommand.jsonOf(
+                        "status", "error",
+                        "type", "format",
+                        "message", "unknown command",
+                        "id", id
+                ), true);
+                return;
+            }
 
 
+            for (String r : COMMAND_REQUIREMENTS_MAP.get(cmd)) {
+                if (McPuppeteer.installedMods.contains(r)) continue;
+                writeJsonPacket(client, BaseCommand.jsonOf(
+                    "status", "error",
+                    "type", "mod requirement",
+                    "message", r + " not installed",
+                    "id", id
+                ), true);
+                return;
+            }
+            BaseCommand.CommandContext ctx = COMMAND_CONTEXT_MAP.get(cmd);
+            if (!validateContext(ctx)) {
+                writeJsonPacket(client, BaseCommand.jsonOf(
+                        "status", "error",
+                        "type", "context error",
+                        "message", "The player is not in the expected context, meaning they cannot complete the requested action. Expected context: " + ctx,
+                        "id", id
+                ), true);
+                return;
+            }
+
+
+            try {
                 COMMAND_MAP.get(cmd).onRequest(request, new BaseCommand.LaterCallback() {
                     @Override
                     public void callbacksModView(BaseCommand.CallbackModView callback) {
@@ -366,18 +391,25 @@ public class PuppeteerServer implements Runnable {
                     }
 
                 });
-
-            } else if (type == 'n') {
-                /* TODO: THIS */
-            } else {
-
-                LOGGER.warn("Unknown data type: " + (char) type);
+            } catch (Exception e) {
+                LOGGER.error("Error in processData()", e);
+                writeJsonPacket(client, BaseCommand.jsonOf(
+                        "status", "error",
+                        "type", "exception",
+                        "message", "An exception occurred while processing this request: " + e.toString(),
+                        "id", id
+                ), false);
             }
 
+        } else if (type == 'n') {
+            /* TODO: THIS */
+        } else {
 
-        } catch (Exception e) {
-            LOGGER.error("Error in processData()", e);
+            LOGGER.warn("Unknown data type: " + (char) type);
         }
+
+
+
     }
 
 

@@ -26,9 +26,9 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "set headless",
-        description = "Disabled game rendering, and hides the game window."
+        description = "Disabled game rendering, and hides the game window. During this time it will be like Minecraft is not even open"
 )
-public class setHeadless implements BaseCommand {
+public class SetHeadless implements BaseCommand {
 
 
     @Override

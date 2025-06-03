@@ -26,7 +26,8 @@ import net.minecraft.text.Text;
 
 @PuppeteerCommand(
         cmd = "overview message",
-        description = "Show a message to the player"
+        description = "Show a message to the player",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class OverlayMessage implements BaseCommand {
     @Override

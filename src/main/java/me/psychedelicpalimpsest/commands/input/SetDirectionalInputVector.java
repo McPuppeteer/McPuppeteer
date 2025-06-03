@@ -26,7 +26,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "set directional movement vector",
-        description = ""
+        description = "Makes the player walk in a certain direction. This is equivalent 'set directional movement degree' with atan(z, x); meaning that the vector will be normalized",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class SetDirectionalInputVector implements BaseCommand {
     @Override

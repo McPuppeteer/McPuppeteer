@@ -38,4 +38,6 @@ public @interface PuppeteerCommand {
 
     @Nullable
     String[] mod_requirements() default {};
+
+    BaseCommand.CommandContext cmd_context() default BaseCommand.CommandContext.ANY;
 }

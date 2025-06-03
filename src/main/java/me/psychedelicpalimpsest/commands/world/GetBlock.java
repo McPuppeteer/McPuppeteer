@@ -29,7 +29,8 @@ import net.minecraft.util.math.BlockPos;
 
 @PuppeteerCommand(
         cmd = "get block",
-        description = "Get the **nbt** data for a block"
+        description = "Get the **nbt** data for a block",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class GetBlock implements BaseCommand {
     @Override

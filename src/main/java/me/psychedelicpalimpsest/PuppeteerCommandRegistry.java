@@ -29,6 +29,7 @@ public class PuppeteerCommandRegistry {
     public static final Map<String, BaseCommand> COMMAND_MAP = new HashMap<>();
     public static final Map<String, String> COMMAND_DESC_MAP = new HashMap<>();
     public static final Map<String, String[]> COMMAND_REQUIREMENTS_MAP = new HashMap<>();
+    public static final Map<String, BaseCommand.CommandContext> COMMAND_CONTEXT_MAP = new HashMap<>();
     public static final List<BaseCommand> COMMANDS = new ArrayList<>();
 
 
@@ -58,11 +59,13 @@ public class PuppeteerCommandRegistry {
             }
             String commandName = aClass.getAnnotation(PuppeteerCommand.class).cmd();
             String commandDesc = aClass.getAnnotation(PuppeteerCommand.class).description();
+            BaseCommand.CommandContext commandContext = aClass.getAnnotation(PuppeteerCommand.class).cmd_context();
             String[] requirements = aClass.getAnnotation(PuppeteerCommand.class).mod_requirements();
 
             COMMAND_MAP.put(commandName, command);
             COMMAND_REQUIREMENTS_MAP.put(commandName, requirements);
             COMMAND_DESC_MAP.put(commandName, commandDesc);
+            COMMAND_CONTEXT_MAP.put(commandName, commandContext);
             COMMANDS.add(command);
         }
     }

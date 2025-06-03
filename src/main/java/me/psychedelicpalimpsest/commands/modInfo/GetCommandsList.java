@@ -46,7 +46,8 @@ public class GetCommandsList implements BaseCommand {
             ret.add(BaseCommand.jsonOf(
                     "cmd", commandName,
                     "desc", commandDesc,
-                    "requirements", Arrays.stream(COMMAND_REQUIREMENTS_MAP.get(commandName)).toList()
+                    "requirements", Arrays.stream(COMMAND_REQUIREMENTS_MAP.get(commandName)).toList(),
+                    "context", COMMAND_CONTEXT_MAP.get(commandName).toString()
             ));
         });
         return ret;

@@ -19,7 +19,6 @@ package me.psychedelicpalimpsest.commands.actions;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonObject;
-import fi.dy.masa.malilib.util.game.BlockUtils;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerCommand;
@@ -28,19 +27,15 @@ import me.psychedelicpalimpsest.utils.EventBasedTask;
 import me.psychedelicpalimpsest.utils.Rotation;
 import me.psychedelicpalimpsest.utils.RotationUtils;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.RaycastContext;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -50,9 +45,18 @@ import static me.psychedelicpalimpsest.utils.RotationUtils.calcRotationFromVec3d
 
 
 @PuppeteerCommand(
-        cmd = "instant use", description = ""
+        cmd = "auto use", description = "",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
-public class InstantaneousUse implements BaseCommand {
+public class AutoUse implements BaseCommand {
+    public interface UseOnError {
+        void invoke(JsonObject error);
+    }
+    public interface UseOnSuccess {
+        void invoke();
+    }
+
+
     final static Map<String, Direction> directionMap = ImmutableMap.of(
             "north", Direction.NORTH,
             "south", Direction.SOUTH,
@@ -76,20 +80,20 @@ public class InstantaneousUse implements BaseCommand {
 
 
         return new Vec3d(
-                minX + (maxX - minX) / 2,
-                minY + (maxY - minY) / 2,
-                minZ + (maxZ - minZ) / 2
+                (maxX + minX) / 2,
+                (maxY + minY) / 2,
+                (maxZ + minZ) / 2
         );
     }
 
 
     @Nullable
-    public static Vec3d handleAndGetPositionForRequest(JsonObject request, LaterCallback callback) {
+    public static Vec3d handleAndGetPositionForRequest(int x, int y, int z, @Nullable String direction, UseOnError onError) {
         ClientWorld world = MinecraftClient.getInstance().world;
         ClientPlayerEntity p = MinecraftClient.getInstance().player;
 
         BlockPos bp = new BlockPos(
-                request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt()
+                x, y, z
         );
 
 
@@ -97,17 +101,17 @@ public class InstantaneousUse implements BaseCommand {
 
         VoxelShape shape = bs.getOutlineShape(world, bp).offset(bp.getX(), bp.getY(), bp.getZ());
         if (shape.isEmpty()){
-            callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "block surface"));
+            onError.invoke(BaseCommand.jsonOf("status", "error", "type", "block surface"));
             return null;
         }
 
         Vec3d point;
 
 
-        if (request.has("direction")) {
-            Direction direction = directionMap.get(request.get("direction").getAsString());
-            if (direction == null){
-                callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "expected argument", "message", "Invalid direction"));
+        if (direction != null) {
+            Direction dirr = directionMap.get(direction);
+            if (dirr == null){
+                onError.invoke(BaseCommand.jsonOf("status", "error", "type", "expected argument", "message", "Invalid direction"));
                 return null;
             }
 
@@ -118,7 +122,7 @@ public class InstantaneousUse implements BaseCommand {
                 But it does seem to work.
              */
 
-            point = getCenter(shape).add(Vec3d.of(direction.getVector()).multiply(2));
+            point = getCenter(shape).add(Vec3d.of(dirr.getVector()).multiply(2));
             point = RotationUtils.getCenterOfClosestFace(shape, point).get();
         }else{
             point = RotationUtils.getCenterOfClosestFace(shape, p.getEyePos()).get();
@@ -127,71 +131,89 @@ public class InstantaneousUse implements BaseCommand {
         return point;
     }
 
+    public static void AutomaticallyUse(
+            int x, int y, int z, float degreesPerTick, String method, @Nullable String direction, UseOnError onError, UseOnSuccess onSuccess) {
+        ClientPlayerEntity p = MinecraftClient.getInstance().player;
+
+        BlockPos bp = new BlockPos(
+                x, y, z
+        );
+
+
+        final Vec3d point = handleAndGetPositionForRequest(x, y, z, direction, onError);
+        if (point == null) return;
+
+
+        double range = p.getBlockInteractionRange();
+        if (p.squaredDistanceTo(point) > range * range) {
+            onError.invoke(
+                    BaseCommand.jsonOf("status", "error", "type", "block range")
+            );
+            return;
+        }
+
+        PuppeteerTask.TaskEvent useEvent = (self, onCompletion) -> {
+            if (p.squaredDistanceTo(point) > range * range) {
+                onError.invoke(
+                        BaseCommand.jsonOf("status", "error", "type", "block range")
+                );
+                return;
+            }
+
+
+            MinecraftClient.getInstance().interactionManager.interactBlock(
+                    p,
+                    Hand.MAIN_HAND,
+                    new BlockHitResult(
+                            point,
+                            direction != null
+                                    ? directionMap.get(direction)
+                                    : Direction.getFacing(point.subtract(Vec3d.of(bp))),
+                            bp,
+                            false
+
+                    )
+            );
+            onSuccess.invoke();
+        };
+        final Rotation rot = calcRotationFromVec3d(
+                p.getEyePos(),
+                point,
+                new Rotation(p.getYaw(), p.getPitch())
+        );
+
+        if (method.equals("instant")){
+            McPuppeteer.tasks.add(new EventBasedTask(List.of(
+                    (self, onCompletion) -> {
+                        p.setYaw(rot.getYaw());
+                        p.setPitch(rot.getPitch());
+                    },
+                    useEvent
+            )));
+        } else {
+            AlgorithmicRotation.AlgorithmiclyRotate(
+                    rot.getPitch(), rot.getYaw(), degreesPerTick, method,
+                    (AlgorithmicRotation.RotOnError) onError,
+                    ()-> MinecraftClient.getInstance().execute( () -> useEvent.invoke(null, null) )
+            );
+
+        }
+    }
+
 
 
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-
-        ClientPlayerEntity p = MinecraftClient.getInstance().player;
-
-        BlockPos bp = new BlockPos(
-                request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt()
+        AutomaticallyUse(
+                request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt(),
+                request.has("degrees per tick")
+                        ? request.get("degrees per tick").getAsFloat()
+                        : 4.0f,
+                request.has("method") ? request.get("method").getAsString() : "linear",
+                request.has("direction") ? request.get("direction").getAsString() : null,
+                callback::resultCallback,
+                () -> callback.resultCallback(BaseCommand.jsonOf())
         );
-
-
-        GameRenderer
-
-        final Vec3d point = handleAndGetPositionForRequest(request, callback);
-        if (point == null) return;
-
-
-
-        if (p.squaredDistanceTo(point) > 1){}
-
-
-
-        McPuppeteer.tasks.add(new EventBasedTask(List.of(
-                (self, onCompletion) -> {
-                    Rotation rot = calcRotationFromVec3d(
-                            p.getEyePos(),
-                            point,
-                            new Rotation(p.getYaw(), p.getPitch())
-                    );
-                    p.setYaw(rot.getYaw());
-                    p.setPitch(rot.getPitch());
-                },
-                (self, onCompletion) -> {
-                    MinecraftClient.getInstance().interactionManager.interactBlock(
-                            p,
-                            Hand.MAIN_HAND,
-                            new BlockHitResult(
-                                    point,
-                                    request.has("direction")
-                                            ? directionMap.get(request.get("direction").getAsString())
-                                            : Direction.getFacing(point.subtract(Vec3d.of(bp))),
-                                    bp,
-                                    false
-
-                            )
-                    );
-                }
-        )));
-
-
-
-
-
-//         Vec3d closet = shape.getClosestPointTo(p.getEyePos()).get();
-
-
-
-
-
-
-
-
-
-
 
 
 

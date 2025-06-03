@@ -26,7 +26,8 @@ import net.minecraft.client.network.ClientPlayerEntity;
 
 @PuppeteerCommand(
         cmd = "get player info",
-        description = "Gets a bunch of info about the player"
+        description = "Gets a bunch of info about the player",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class GetPlayerInfo implements BaseCommand {
     @Override

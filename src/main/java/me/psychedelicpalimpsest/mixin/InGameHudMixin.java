@@ -18,7 +18,7 @@
 package me.psychedelicpalimpsest.mixin;
 
 import me.psychedelicpalimpsest.McPuppeteer;
-import me.psychedelicpalimpsest.MinihudUtils;
+import me.psychedelicpalimpsest.utils.MinihudUtils;
 import me.psychedelicpalimpsest.PuppeteerEffects;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;

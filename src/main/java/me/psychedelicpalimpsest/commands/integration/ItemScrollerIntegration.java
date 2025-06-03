@@ -29,7 +29,7 @@ import net.minecraft.client.MinecraftClient;
 import java.util.List;
 import java.util.Map;
 
-import static me.psychedelicpalimpsest.MesaConfigUtils.*;
+import static me.psychedelicpalimpsest.utils.MesaConfigUtils.*;
 
 public class ItemScrollerIntegration {
 
@@ -43,7 +43,7 @@ public class ItemScrollerIntegration {
     );
 
     @PuppeteerCommand(
-            cmd = "dump itemscroller config", description = "Dumps itemscrollers config", mod_requirements = "itemscroller")
+            cmd = "dump itemscroller config", description = "Dumps itemscrollers' config", mod_requirements = "itemscroller")
     public static class DumpItemscroller implements BaseCommand {
 
         @Override
@@ -78,7 +78,7 @@ public class ItemScrollerIntegration {
 
         @Override
         public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMalilibConfigRequest(config, request)));
+            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
         }
     }
 }

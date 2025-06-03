@@ -31,7 +31,8 @@ import java.util.Map;
 
 @PuppeteerCommand(
         cmd = "algorithmic rotation",
-        description = "Smoothly rotates the player to the specified pitch and yaw using an optional interpolation method and degrees per tick. Usage: {pitch: float, yaw: float, [interpolation: string], [degrees per tick: float]}"
+        description = "Smoothly rotates the player to the specified pitch and yaw using an optional interpolation method and degrees per tick. Usage: {pitch: float, yaw: float, [interpolation: string], [degrees per tick: float]}",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class AlgorithmicRotation implements BaseCommand {
     // percentage of time -> percentage toward target
@@ -41,17 +42,13 @@ public class AlgorithmicRotation implements BaseCommand {
     }
 
 
-    private static final InterpolationMethod linearInterpolation =
-            (percentage -> percentage);
-
-
     public static final Map<String, InterpolationMethod> interpolationMethods;
 
     static {
         // Yes, this is a lot, but i like variety >:}
 
         Map<String, InterpolationMethod> map = new HashMap<>();
-        map.put("linear", linearInterpolation);
+        map.put("linear", percentage -> percentage);
         map.put("sine", percentage -> (float) Math.sin(percentage * (Math.PI / 2f)));
         map.put("quadraticIn", percentage -> percentage * percentage);
         map.put("cubicIn", percentage -> percentage * percentage * percentage);
@@ -95,17 +92,18 @@ public class AlgorithmicRotation implements BaseCommand {
         return n < 0 ? n + 360f : n;
     }
 
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
+
+    public interface RotOnError {
+        void invoke(JsonObject error);
+    }
+    public interface RotOnSuccess {
+        void invoke();
+    }
+
+    public static void AlgorithmiclyRotate(float target_pitch, float target_yaw, float degrees_per_tick, String methodStr, RotOnError onError, RotOnSuccess onSuccess){
         ClientPlayerEntity mc = MinecraftClient.getInstance().player;
         float current_pitch = mc.getPitch();
         float current_yaw = mc.getYaw();
-
-        float target_pitch = request.get("pitch").getAsFloat();
-        float target_yaw = request.get("yaw").getAsFloat();
-        float degrees_per_tick = request.has("degrees per tick")
-                ? request.get("degrees per tick").getAsFloat()
-                : 1.0f; // default speed
 
         // Pitch difference
         float pitch_total_diff = target_pitch - current_pitch;
@@ -120,13 +118,11 @@ public class AlgorithmicRotation implements BaseCommand {
         int total_ticks = Math.max(1, Math.max(pitch_ticks, yaw_ticks));
 
         final int[] count = {0};
-        InterpolationMethod method = interpolationMethods.get(
-                request.has("interpolation") ? request.get("interpolation").getAsString() : "linear"
-        );
+        InterpolationMethod method = interpolationMethods.get(methodStr);
 
 
         if (method == null) {
-            callback.resultCallback(BaseCommand.jsonOf(
+            onError.invoke(BaseCommand.jsonOf(
                     "status", "error",
                     "unexpected argument",
                     "message", "Unknown interpolation method"
@@ -179,7 +175,7 @@ public class AlgorithmicRotation implements BaseCommand {
 
                         // Two degrees of error are accepted
                         if (Math.abs(end_pitch_diff) > 2f || Math.abs(end_yaw_diff) > 2f) {
-                            callback.resultCallback(BaseCommand.jsonOf(
+                            onError.invoke(BaseCommand.jsonOf(
                                     "status", "error",
                                     "type", "rotation error",
                                     "message", "An issue has occurred during algorithmic rotation. "
@@ -193,10 +189,26 @@ public class AlgorithmicRotation implements BaseCommand {
                         mc.setPitch(target_pitch);
                         mc.setYaw(target_yaw);
 
+                        onSuccess.invoke();
 
-                        callback.resultCallback(BaseCommand.jsonOf("message", "rotation complete"));
                     }
                 }
         ));
+    }
+
+    @Override
+    public void onRequest(JsonObject request, LaterCallback callback) {
+        float target_pitch = request.get("pitch").getAsFloat();
+        float target_yaw = request.get("yaw").getAsFloat();
+        float degrees_per_tick = request.has("degrees per tick")
+                ? request.get("degrees per tick").getAsFloat()
+                : 4.0f; // default speed
+        String method = request.has("interpolation") ? request.get("interpolation").getAsString() : "linear";
+
+        AlgorithmiclyRotate(
+                target_pitch, target_yaw, degrees_per_tick, method,
+                callback::resultCallback,
+                () -> callback.resultCallback(BaseCommand.jsonOf("message", "rotation complete"))
+        );
     }
 }

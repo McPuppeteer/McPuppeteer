@@ -26,7 +26,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "get forced input",
-        description = "Reports the state of if certain input methods are forced. An key not being present indicates that no input is being forced. If a key is set to false, it is being forced up. And if a key is set to true, it is forced down."
+        description = "Reports the state of if certain input methods are forced. An key not being present indicates that no input is being forced. If a key is set to false, it is being forced up. And if a key is set to true, it is forced down.",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class GetInputState implements BaseCommand {
     @Override

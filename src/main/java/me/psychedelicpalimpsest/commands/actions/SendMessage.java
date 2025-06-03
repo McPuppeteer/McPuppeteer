@@ -24,7 +24,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "send chat message",
-        description = "Sends a PUBLIC chat message."
+        description = "Sends a PUBLIC chat message.",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class SendMessage implements BaseCommand {
     @Override

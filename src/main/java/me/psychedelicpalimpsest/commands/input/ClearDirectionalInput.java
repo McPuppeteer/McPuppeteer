@@ -25,7 +25,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "clear directional movement",
-        description = "Clears the directional movement"
+        description = "Clears the directional movement",
+        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
 )
 public class ClearDirectionalInput implements BaseCommand {
     @Override

@@ -25,7 +25,8 @@ import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
         cmd = "list loaded chunks",
-        description = "Lists what chunks are loaded for the player. Multiply these by 16 to get the 'real' coordinates"
+        description = "Lists what chunks are loaded for the player. Multiply these by 16 to get the 'real' coordinates",
+        cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class ListLoadedChunks implements BaseCommand {
     @Override

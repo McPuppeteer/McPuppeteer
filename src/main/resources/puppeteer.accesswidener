@@ -24,6 +24,3 @@ accessible field net/minecraft/client/MinecraftClient windowProvider Lnet/minecr
 accessible method net/minecraft/client/MinecraftClient getWindowTitle ()Ljava/lang/String;
 accessible field net/minecraft/client/MinecraftClient window Lnet/minecraft/client/util/Window;
 accessible field net/minecraft/client/MinecraftClient thread Ljava/lang/Thread;
-
-
-accessible field net/minecraft/world/chunk/Chunk pos Lnet/minecraft/util/math/ChunkPos;
