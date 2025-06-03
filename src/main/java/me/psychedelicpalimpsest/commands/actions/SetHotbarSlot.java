@@ -26,7 +26,7 @@ import net.minecraft.util.math.MathHelper;
 
 @PuppeteerCommand(
         cmd = "set hotbar slot",
-        description = "Set the current hotbar slot. The parameter is 'slot' and is 0-8",
+        description = "Set the current hotbar slot. The parameter is 'slot' and is [1, 9]",
         cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class SetHotbarSlot implements BaseCommand {
@@ -34,7 +34,7 @@ public class SetHotbarSlot implements BaseCommand {
     public void onRequest(JsonObject request, LaterCallback callback) {
         MinecraftClient.getInstance().execute(() -> {
             MinecraftClient.getInstance().player.getInventory().selectedSlot
-                    = MathHelper.clamp(request.get("slot").getAsInt(), 0, 8);
+                    = MathHelper.clamp(request.get("slot").getAsInt() - 1, 0, 8);
 
             callback.resultCallback(BaseCommand.jsonOf());
         });

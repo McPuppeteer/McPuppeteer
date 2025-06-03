@@ -51,7 +51,7 @@ public class GetPlayerInfo implements BaseCommand {
                 "is creative", p.isCreative(),
                 "is spectator", p.isSpectator(),
 
-                "hotbar slot", p.getInventory().selectedSlot,
+                "hotbar slot", p.getInventory().selectedSlot + 1,
 
                 "is holding onto ladder", p.isHoldingOntoLadder(),
                 "is using item", p.isUsingItem(),
