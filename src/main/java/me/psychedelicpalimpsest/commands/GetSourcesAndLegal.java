@@ -40,7 +40,7 @@ public class GetSourcesAndLegal implements BaseCommand {
                 "git commit hash", BuildConstants.GIT_HASH,
                         "github source code", !contacts.containsKey("sources")
                                                 ? "UNKNOWN"
-                                                : contacts.get("sources") + "/commit/" + BuildConstants.GIT_HASH,
+                                                : contacts.get("sources") + "/tree/" + BuildConstants.GIT_HASH,
                         "build date", BuildConstants.BUILD_DATE,
                         "legal license", BuildConstants.LICENSE
         ));
