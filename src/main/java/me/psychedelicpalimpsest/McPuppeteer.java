@@ -47,7 +47,7 @@ public class McPuppeteer {
     public static final String MOD_ID = "mc-puppeteer";
     public static long lastBroadcast = 0;
     public static Set<String> installedMods = null;
-    public static SerializationTester serializationTester = new SerializationTester();
+//    public static SerializationTester serializationTester = new SerializationTester();
 
 
     public static PuppeteerInput puppeteerInput = new PuppeteerInput();

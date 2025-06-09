@@ -42,24 +42,26 @@ package me.psychedelicpalimpsest.mixin;
 public class ClientConnectionMixin {
    @Inject(method="handlePacket", at=@At("HEAD"))
    private static void handlePacket(Packet<?> packet, PacketListener listener, CallbackInfo ci) {
-        String id = packet.getPacketId().toString();
 
-        if (packet instanceof ChunkDataS2CPacket) return;
-        try {
-            Field f = packet.getClass().getDeclaredField("CODEC");
-            f.setAccessible(true);
-
-            ByteBuf buf = ByteBufAllocator.DEFAULT.buffer();
-            RegistryByteBuf regBuf = new RegistryByteBuf(buf, MinecraftClient.getInstance().getNetworkHandler().getRegistryManager());
-
-            PacketCodec<RegistryByteBuf, Packet<?>> codec = (PacketCodec<RegistryByteBuf, Packet<?>>) f.get(packet);
-            regBuf.encodeAsJson(codec, packet);
-
-
-//            McPuppeteer.serializationTester.enqueue(packet);
-        } catch (StackOverflowError e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            /* Ignored */
+   /* TODO: REFLECTION */
+//        String id = packet.getPacketId().toString();
+//
+//        if (packet instanceof ChunkDataS2CPacket) return;
+//        try {
+//            Field f = packet.getClass().getDeclaredField("CODEC");
+//            f.setAccessible(true);
+//
+//            ByteBuf buf = ByteBufAllocator.DEFAULT.buffer();
+//            RegistryByteBuf regBuf = new RegistryByteBuf(buf, MinecraftClient.getInstance().getNetworkHandler().getRegistryManager());
+//
+//            PacketCodec<RegistryByteBuf, Packet<?>> codec = (PacketCodec<RegistryByteBuf, Packet<?>>) f.get(packet);
+//            regBuf.encodeAsJson(codec, packet);
+//
+//
+////            McPuppeteer.serializationTester.enqueue(packet);
+//        } catch (StackOverflowError e) {
+//            e.printStackTrace();
+//        } catch (IllegalAccessException | NoSuchFieldException e) {
+//            /* Ignored */
         }
 }
