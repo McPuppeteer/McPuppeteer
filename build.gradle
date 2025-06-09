@@ -150,3 +150,13 @@ task generateBuildConstants {
 
 sourceSets.main.java.srcDir generatedDir
 compileJava.dependsOn generateBuildConstants
+
+afterEvaluate {
+    task extractMappings(type: Copy) {
+        from loom.mappingConfiguration.tinyMappings
+        into "${buildDir}/resources/main/assets/mc-puppeteer/"
+    }
+
+
+	processResources.dependsOn extractMappings
+}

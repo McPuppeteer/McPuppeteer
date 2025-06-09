@@ -16,5 +16,8 @@
     "LivingEntityMixin",
     "MinecraftClientMixin",
     "TweekerooCameraMixin"
+  ],
+  "mixins": [
+    "ClientConnectionMixin"
   ]
 }

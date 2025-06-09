@@ -40,7 +40,6 @@ public class PuppeteerCommandRegistry {
 
         for (Class<?> aClass : annotated) {
             BaseCommand command = null;
-
             /* We need to find a no argument constructor, then create an object with it */
             for (Constructor<?> constructor : aClass.getDeclaredConstructors()) {
                 if (constructor.getParameterCount() != 0) continue;

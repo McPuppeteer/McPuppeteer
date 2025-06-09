@@ -18,11 +18,13 @@
 
 package me.psychedelicpalimpsest;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.state.PlayStateFactories;
+import net.minecraft.registry.Registries;
 
-public class CallbackManager {
+import java.util.*;
+
+ public class CallbackManager {
     public enum CallbackType {
         FORCED,
 
@@ -37,9 +39,12 @@ public class CallbackManager {
         CHAT,
     }
 
+
+
     public static final Map<CallbackType, String> CALLBACK_TYPE_STRING_MAP;
     public static final Map<String, CallbackType> CALLBACK_STRING_TYPE_MAP;
 
+    public static final Set<String> PACKET_LIST = new HashSet<>();
     static {
         Map<CallbackType, String> map = new HashMap<>(CallbackType.values().length);
 
@@ -59,7 +64,17 @@ public class CallbackManager {
         Map<String, CallbackType> map2 = new HashMap<>(map.size());
         map.forEach((k, v) -> map2.put(v, k));
         CALLBACK_STRING_TYPE_MAP = Collections.unmodifiableMap(map2);
+
+        PlayStateFactories.S2C.forEachPacketType((type, packet) -> {
+            PACKET_LIST.add(type.toString());
+        });
+        PlayStateFactories.C2S.forEachPacketType((type, packet) -> {
+            PACKET_LIST.add(type.toString());
+        });
     }
+
+
+
 
 
 }

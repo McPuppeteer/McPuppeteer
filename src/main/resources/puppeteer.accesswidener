@@ -24,3 +24,16 @@ accessible field net/minecraft/client/MinecraftClient windowProvider Lnet/minecr
 accessible method net/minecraft/client/MinecraftClient getWindowTitle ()Ljava/lang/String;
 accessible field net/minecraft/client/MinecraftClient window Lnet/minecraft/client/util/Window;
 accessible field net/minecraft/client/MinecraftClient thread Ljava/lang/Thread;
+
+
+accessible field net/minecraft/registry/BuiltinRegistries REGISTRY_BUILDER Lnet/minecraft/registry/RegistryBuilder;
+
+# NOTE: The following might be bad, it is in a helper class, and only implmented to stop errors.
+accessible field net/minecraft/registry/entry/RegistryEntry$Reference tags Ljava/util/Set;
+accessible field net/minecraft/registry/entry/RegistryEntry$Reference referenceType Lnet/minecraft/registry/entry/RegistryEntry$Reference$Type;
+accessible field net/minecraft/registry/entry/RegistryEntry$Reference registryKey Lnet/minecraft/registry/RegistryKey;
+accessible field net/minecraft/registry/entry/RegistryEntry$Reference value Ljava/lang/Object;
+
+
+accessible field net/minecraft/recipe/Ingredient entries Lnet/minecraft/registry/entry/RegistryEntryList;
+accessible field net/minecraft/recipe/SingleStackRecipe result Lnet/minecraft/item/ItemStack;

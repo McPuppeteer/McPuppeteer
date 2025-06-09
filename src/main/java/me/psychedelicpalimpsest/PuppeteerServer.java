@@ -357,7 +357,7 @@ public class PuppeteerServer implements Runnable {
                     public void callbacksModView(BaseCommand.CallbackModView callback) {
                         scheduleSelectorTask(() -> {
                             ClientAttachment attachment = (ClientAttachment) client.keyFor(instance.selector).attachment();
-                            callback.invoke(attachment.allowedCallbacks);
+                            callback.invoke(attachment.allowedCallbacks, attachment.packetCallbacks);
                         });
                     }
 
@@ -516,6 +516,7 @@ public class PuppeteerServer implements Runnable {
         byte dataType = 0;
 
         Map<CallbackManager.CallbackType, Boolean> allowedCallbacks = new HashMap<>();
+        Map<String, Boolean> packetCallbacks = new HashMap<>();
     }
 
 

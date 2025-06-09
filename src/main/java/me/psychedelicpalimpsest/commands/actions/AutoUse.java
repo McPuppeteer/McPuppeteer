@@ -58,7 +58,7 @@ public class AutoUse implements BaseCommand {
     }
 
 
-    final static Map<String, Direction> directionMap = ImmutableMap.of(
+    public final static Map<String, Direction> directionMap = ImmutableMap.of(
             "north", Direction.NORTH,
             "south", Direction.SOUTH,
 
@@ -67,6 +67,16 @@ public class AutoUse implements BaseCommand {
 
             "up", Direction.UP,
             "down", Direction.DOWN
+    );
+    public final static Map<Direction, String> fromDirectionMap = ImmutableMap.of(
+             Direction.NORTH, "north",
+             Direction.SOUTH, "south",
+
+             Direction.EAST, "east",
+             Direction.WEST,  "west",
+
+            Direction.UP,"up",
+            Direction.DOWN, "down"
     );
 
     private static Vec3d getCenter(VoxelShape shape) {
@@ -194,7 +204,7 @@ public class AutoUse implements BaseCommand {
         } else {
             AlgorithmicRotation.AlgorithmiclyRotate(
                     rot.getPitch(), rot.getYaw(), degreesPerTick, method,
-                    (AlgorithmicRotation.RotOnError) onError,
+                    onError::invoke,
                     ()-> MinecraftClient.getInstance().execute( () -> useEvent.invoke(null, null) )
             );
 

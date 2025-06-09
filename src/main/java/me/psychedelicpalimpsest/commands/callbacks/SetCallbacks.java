@@ -25,8 +25,9 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-@PuppeteerCommand(
+ @PuppeteerCommand(
         cmd = "set callbacks",
         description = ""
 )
@@ -36,7 +37,35 @@ public class SetCallbacks implements BaseCommand {
         JsonObject userCallbacks = request.getAsJsonObject("callbacks");
 
 
-        final List<Map.Entry<CallbackManager.CallbackType, Boolean>> entries = userCallbacks.entrySet().stream().map(
+
+        var typicalCallbacks = userCallbacks.entrySet().stream()
+               .filter(entry ->  CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey()));
+
+        final var packetCallbacks = userCallbacks.entrySet().stream()
+                .filter(entry ->  !CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey()))
+                .map((entry -> Map.entry(entry.getKey(), entry.getValue().getAsBoolean())))
+                .toList();
+
+
+        if (packetCallbacks.stream().anyMatch((entry)->!CallbackManager.PACKET_LIST.contains(entry.getKey()))){
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "status", "error",
+                    "type", "unknown callback",
+                    "message", "Unknown packet callback"
+            ));
+            return;
+        }
+        if (typicalCallbacks.anyMatch(entry->null==entry.getKey())){
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "status", "error",
+                    "type", "unknown callback",
+                    "message", "Unknown callback"
+            ));
+            return;
+        }
+
+
+        final var entries = typicalCallbacks.map(
                 (entry) -> Map.entry(
                         CallbackManager.CALLBACK_STRING_TYPE_MAP.get(entry.getKey()),
                         entry.getValue().getAsBoolean()
@@ -44,11 +73,10 @@ public class SetCallbacks implements BaseCommand {
         ).toList();
 
 
-        callback.callbacksModView((callbackMap) -> {
-            entries.forEach(entry -> {
-                callbackMap.remove(entry.getKey());
-                callbackMap.put(entry.getKey(), entry.getValue());
-            });
+        callback.callbacksModView((callbackMap, packetMap) -> {
+            entries.forEach(entry -> callbackMap.put(entry.getKey(), entry.getValue()));
+            packetCallbacks.forEach(entry -> packetMap.put(entry.getKey(), entry.getValue()));
+
             callback.resultCallback(new JsonObject());
         });
     }

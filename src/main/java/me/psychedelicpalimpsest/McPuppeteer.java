@@ -24,6 +24,8 @@ import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
+import me.psychedelicpalimpsest.reflection.SerializationTester;
+import me.psychedelicpalimpsest.reflection.YarnMapping;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
@@ -45,14 +47,11 @@ public class McPuppeteer {
     public static final String MOD_ID = "mc-puppeteer";
     public static long lastBroadcast = 0;
     public static Set<String> installedMods = null;
+    public static SerializationTester serializationTester = new SerializationTester();
 
 
     public static PuppeteerInput puppeteerInput = new PuppeteerInput();
 
-
-    // This logger is used to write text to the console and the log file.
-    // It is considered best practice to use your mod id as the logger's name.
-    // That way, it's clear which mod wrote info, warnings, and errors.
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
 
@@ -82,7 +81,7 @@ public class McPuppeteer {
             baritoneInit();
         }
 
-
+        YarnMapping.createMapping();
     }
 
 
@@ -103,4 +102,6 @@ public class McPuppeteer {
         Text.Serializer serializer = new Text.Serializer(DynamicRegistryManager.of(Registries.REGISTRIES));
         return new GsonBuilder().registerTypeHierarchyAdapter(Text.class, serializer).create();
     }
+
+
 }
