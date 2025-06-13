@@ -46,6 +46,8 @@ package me.psychedelicpalimpsest.reflection;
  import java.util.*;
  import java.util.stream.Collectors;
 
+ import static me.psychedelicpalimpsest.reflection.YarnMapping.serializeUnknownEnum;
+
  public class McReflector {
      public static List<Field> getAllFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
@@ -57,33 +59,7 @@ package me.psychedelicpalimpsest.reflection;
     }
 
 
-     public static String serializeUnknownEnum(Object obj){
-         assert obj.getClass().isEnum();
-         Optional<Field> origin = Arrays.stream(obj.getClass().getDeclaredFields())
-                 .filter(field -> Modifier.isStatic(field.getModifiers()))
-                 .filter((field -> {
-                     field.setAccessible(true);
 
-                     try {
-                         return field.get(obj).equals(obj);
-                     } catch (IllegalAccessException e) {
-                         return false;
-                     }
-                 })
-         ).findFirst();
-
-         if (origin.isEmpty())
-             return "unknown/invalid enum value";
-
-         Field real_origin = origin.get();
-         return YarnMapping.getInstance().unmapFieldName(
-                 YarnMapping.Namespace.NAMED,
-
-                 real_origin.getDeclaringClass().getName(),
-                 real_origin.getName(),
-                 Type.getDescriptor(real_origin.getType())
-         );
-     }
 
     public static JsonArray listToJsonArray(List<JsonElement> element){
         JsonArray jarr = new JsonArray(element.size());

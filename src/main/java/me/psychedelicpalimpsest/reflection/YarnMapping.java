@@ -29,6 +29,7 @@ import net.fabricmc.loader.impl.lib.mappingio.tree.MappingTree;
 import net.fabricmc.loader.impl.lib.mappingio.tree.MemoryMappingTree;
 import net.fabricmc.loader.impl.util.mappings.FilteringMappingVisitor;
 import org.jetbrains.annotations.Nullable;
+import org.objectweb.asm.Type;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,8 +38,11 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
  public class YarnMapping {
     private MappingTree tree;
@@ -137,7 +141,33 @@ import java.util.Map;
     }
 
 
+     public static String serializeUnknownEnum(Object obj){
+         assert obj.getClass().isEnum();
+         Optional<Field> origin = Arrays.stream(obj.getClass().getDeclaredFields())
+                 .filter(field -> Modifier.isStatic(field.getModifiers()))
+                 .filter((field -> {
+                             field.setAccessible(true);
 
+                             try {
+                                 return field.get(obj).equals(obj);
+                             } catch (IllegalAccessException e) {
+                                 return false;
+                             }
+                         })
+                 ).findFirst();
+
+         if (origin.isEmpty())
+             return "unknown/invalid enum value";
+
+         Field real_origin = origin.get();
+         return YarnMapping.getInstance().unmapFieldName(
+                 YarnMapping.Namespace.NAMED,
+
+                 real_origin.getDeclaringClass().getName(),
+                 real_origin.getName(),
+                 Type.getDescriptor(real_origin.getType())
+         );
+     }
     @Nullable
     MappingTree.ClassMapping mapClass(Namespace namespace, String className){
         className = className.replace('.', '/');
