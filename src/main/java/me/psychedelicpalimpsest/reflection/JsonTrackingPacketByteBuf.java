@@ -11,9 +11,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketEncoder;
-import net.minecraft.registry.BuiltinRegistries;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import org.apache.commons.codec.binary.Base64;
@@ -25,7 +24,6 @@ import java.nio.charset.Charset;
 import java.security.PublicKey;
 import java.time.Instant;
 import java.util.*;
-import net.minecraft.registry.Registries;
 
 public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
     private final JsonArray rootJsonArray;
@@ -33,17 +31,14 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
     private boolean isWriting;
 
 
-
     /* Sometimes you need a registry, no matter what */
-    public static DynamicRegistryManager getSomethingAsARegistry(){
-         var networkHandler = MinecraftClient.getInstance().getNetworkHandler();
-         if (networkHandler != null)
-             return networkHandler.getRegistryManager();
-         else
+    public static DynamicRegistryManager getSomethingAsARegistry() {
+        var networkHandler = MinecraftClient.getInstance().getNetworkHandler();
+        if (networkHandler != null)
+            return networkHandler.getRegistryManager();
+        else
             return DynamicRegistryManager.of(Registries.REGISTRIES);
     }
-
-
 
 
     public JsonTrackingPacketByteBuf(ByteBuf parent, DynamicRegistryManager drm) {
@@ -53,6 +48,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
         this.jsonStack.push(rootJsonArray);
         this.isWriting = false;
     }
+
     public JsonTrackingPacketByteBuf(ByteBuf parent) {
         this(parent, getSomethingAsARegistry());
     }
@@ -398,7 +394,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
         jsonObject.addProperty("y", vector3f.y);
         jsonObject.addProperty("z", vector3f.z);
         appendToJson(wrapWithType("Vector3f", jsonObject));
-        withWriting(()->super.writeVector3f(vector3f));
+        withWriting(() -> super.writeVector3f(vector3f));
     }
 
     @Override
@@ -407,7 +403,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
         jsonObject.addProperty("x", vec.x);
         jsonObject.addProperty("y", vec.y);
         jsonObject.addProperty("z", vec.z);
-        withWriting(()->{
+        withWriting(() -> {
             appendToJson(wrapWithType("Vec3d", jsonObject));
             super.writeVec3d(vec);
         });
@@ -421,13 +417,13 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
         jsonObject.addProperty("z", quaternionf.z);
         jsonObject.addProperty("w", quaternionf.w);
         appendToJson(wrapWithType("Quaternionf", jsonObject));
-        withWriting(()-> super.writeQuaternionf(quaternionf));
+        withWriting(() -> super.writeQuaternionf(quaternionf));
     }
 
     @Override
     public PacketByteBuf writePublicKey(PublicKey publicKey) {
         appendToJson(wrapWithType("PublicKey", new JsonPrimitive(Base64.encodeBase64String(publicKey.getEncoded()))));
-        withWriting(()->super.writePublicKey(publicKey));
+        withWriting(() -> super.writePublicKey(publicKey));
         return this;
     }
 
@@ -438,7 +434,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
         jsonObject.addProperty("y", pos.getY());
         jsonObject.addProperty("z", pos.getZ());
         appendToJson(wrapWithType("ChunkSectionPos", jsonObject));
-        withWriting(()->super.writeChunkSectionPos(pos));
+        withWriting(() -> super.writeChunkSectionPos(pos));
 
         return this;
     }

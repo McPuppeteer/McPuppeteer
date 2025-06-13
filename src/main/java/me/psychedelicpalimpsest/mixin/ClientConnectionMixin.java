@@ -17,7 +17,6 @@
 
 package me.psychedelicpalimpsest.mixin;
 
-import me.psychedelicpalimpsest.reflection.PacketJsonEncoder;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.Packet;

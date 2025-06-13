@@ -1,16 +1,16 @@
- /**
+/**
  * Copyright (C) 2025 - PsychedelicPalimpsest
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -19,8 +19,6 @@
 package me.psychedelicpalimpsest.commands.world;
 
 import com.google.gson.JsonObject;
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -32,20 +30,15 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.chunk.ChunkSection;
-import net.minecraft.world.chunk.ChunkStatus;
 import net.minecraft.world.chunk.WorldChunk;
 
-import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.HashMap;
 
 
 @PuppeteerCommand(
-        cmd="get chunk",
+        cmd = "get chunk",
         description = "Gets a **binary** pelleted version of a chunk.",
         cmd_context = BaseCommand.CommandContext.PLAY
 )
@@ -66,16 +59,16 @@ public class GetChunk implements BaseCommand {
         NbtList nbtList = new NbtList();
 
         /* Build the palette */
-        for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) for (int y = 0; y < 16; y++) {
-            BlockState bs = section.getBlockState(x, y, z);
-            int rawId = Block.getRawIdFromState(bs);
-            if (!bsMap.containsKey(rawId)) {
-                bsMap.put(rawId, id++);
-                nbtList.add(NbtHelper.fromBlockState(bs));
-            }
-        }
-
-
+        for (int x = 0; x < 16; x++)
+            for (int z = 0; z < 16; z++)
+                for (int y = 0; y < 16; y++) {
+                    BlockState bs = section.getBlockState(x, y, z);
+                    int rawId = Block.getRawIdFromState(bs);
+                    if (!bsMap.containsKey(rawId)) {
+                        bsMap.put(rawId, id++);
+                        nbtList.add(NbtHelper.fromBlockState(bs));
+                    }
+                }
 
 
         int bitSize = Math.max(1, MathHelper.ceilLog2(bsMap.size()));
@@ -89,20 +82,22 @@ public class GetChunk implements BaseCommand {
         long[] blocks = new long[dataSize];
         blocks[0] = 0;
 
-        for (int x = 0; x < 16; x++) for (int z = 0; z < 16; z++) for (int y = 0; y < 16; y++) {
-            BlockState bs = section.getBlockState(x, y, z);
-            long rawId = (long) bsMap.get(Block.getRawIdFromState(bs));
+        for (int x = 0; x < 16; x++)
+            for (int z = 0; z < 16; z++)
+                for (int y = 0; y < 16; y++) {
+                    BlockState bs = section.getBlockState(x, y, z);
+                    long rawId = (long) bsMap.get(Block.getRawIdFromState(bs));
 
-            blocks[clong] |= rawId << bit;
+                    blocks[clong] |= rawId << bit;
 
-            bit += bitSize;
-            if (bit > 64){
-                bit -= 64;
-                clong++;
+                    bit += bitSize;
+                    if (bit > 64) {
+                        bit -= 64;
+                        clong++;
 
-                blocks[clong] = rawId >> bit;
-            }
-        }
+                        blocks[clong] = rawId >> bit;
+                    }
+                }
 
         buf.writeShort(bitSize);
         buf.writeInt(dataSize);
@@ -129,8 +124,6 @@ public class GetChunk implements BaseCommand {
         }
 
 
-
-
         PacketByteBuf buf = PacketByteBufs.create();
         NbtList nbtList = new NbtList();
         c.getBlockEntities().forEach(((blockPos, blockEntity) -> {
@@ -138,7 +131,6 @@ public class GetChunk implements BaseCommand {
             tag.putInt("x", blockPos.getX());
             tag.putInt("y", blockPos.getY());
             tag.putInt("z", blockPos.getZ());
-
 
 
             tag.put("data", blockEntity.createNbt(world.getRegistryManager()));

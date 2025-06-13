@@ -1,16 +1,16 @@
- /**
+/**
  * Copyright (C) 2025 - PsychedelicPalimpsest
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -18,13 +18,11 @@
 
 package me.psychedelicpalimpsest;
 
-import net.minecraft.network.packet.Packet;
 import net.minecraft.network.state.PlayStateFactories;
-import net.minecraft.registry.Registries;
 
 import java.util.*;
 
- public class CallbackManager {
+public class CallbackManager {
     public enum CallbackType {
         FORCED,
 
@@ -40,11 +38,11 @@ import java.util.*;
     }
 
 
-
     public static final Map<CallbackType, String> CALLBACK_TYPE_STRING_MAP;
     public static final Map<String, CallbackType> CALLBACK_STRING_TYPE_MAP;
 
     public static final Set<String> PACKET_LIST = new HashSet<>();
+
     static {
         Map<CallbackType, String> map = new HashMap<>(CallbackType.values().length);
 
@@ -72,9 +70,6 @@ import java.util.*;
             PACKET_LIST.add(type.toString());
         });
     }
-
-
-
 
 
 }

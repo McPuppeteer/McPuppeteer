@@ -1,16 +1,16 @@
- /**
+/**
  * Copyright (C) 2025 - PsychedelicPalimpsest
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Affero General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
@@ -53,6 +53,7 @@ public class AutoUse implements BaseCommand {
     public interface UseOnError {
         void invoke(JsonObject error);
     }
+
     public interface UseOnSuccess {
         void invoke();
     }
@@ -69,13 +70,13 @@ public class AutoUse implements BaseCommand {
             "down", Direction.DOWN
     );
     public final static Map<Direction, String> fromDirectionMap = ImmutableMap.of(
-             Direction.NORTH, "north",
-             Direction.SOUTH, "south",
+            Direction.NORTH, "north",
+            Direction.SOUTH, "south",
 
-             Direction.EAST, "east",
-             Direction.WEST,  "west",
+            Direction.EAST, "east",
+            Direction.WEST, "west",
 
-            Direction.UP,"up",
+            Direction.UP, "up",
             Direction.DOWN, "down"
     );
 
@@ -87,7 +88,6 @@ public class AutoUse implements BaseCommand {
         double maxX = shape.getMax(Direction.Axis.X);
         double maxY = shape.getMax(Direction.Axis.Y);
         double maxZ = shape.getMax(Direction.Axis.Z);
-
 
 
         return new Vec3d(
@@ -108,10 +108,10 @@ public class AutoUse implements BaseCommand {
         );
 
 
-        BlockState bs =  world.getBlockState(bp);
+        BlockState bs = world.getBlockState(bp);
 
         VoxelShape shape = bs.getOutlineShape(world, bp).offset(bp.getX(), bp.getY(), bp.getZ());
-        if (shape.isEmpty()){
+        if (shape.isEmpty()) {
             onError.invoke(BaseCommand.jsonOf("status", "error", "type", "block surface"));
             return null;
         }
@@ -121,7 +121,7 @@ public class AutoUse implements BaseCommand {
 
         if (direction != null) {
             Direction dirr = directionMap.get(direction);
-            if (dirr == null){
+            if (dirr == null) {
                 onError.invoke(BaseCommand.jsonOf("status", "error", "type", "expected argument", "message", "Invalid direction"));
                 return null;
             }
@@ -135,7 +135,7 @@ public class AutoUse implements BaseCommand {
 
             point = getCenter(shape).add(Vec3d.of(dirr.getVector()).multiply(2));
             point = RotationUtils.getCenterOfClosestFace(shape, point).get();
-        }else{
+        } else {
             point = RotationUtils.getCenterOfClosestFace(shape, p.getEyePos()).get();
         }
 
@@ -193,7 +193,7 @@ public class AutoUse implements BaseCommand {
                 new Rotation(p.getYaw(), p.getPitch())
         );
 
-        if (method.equals("instant")){
+        if (method.equals("instant")) {
             McPuppeteer.tasks.add(new EventBasedTask(List.of(
                     (self, onCompletion) -> {
                         p.setYaw(rot.getYaw());
@@ -205,12 +205,11 @@ public class AutoUse implements BaseCommand {
             AlgorithmicRotation.AlgorithmiclyRotate(
                     rot.getPitch(), rot.getYaw(), degreesPerTick, method,
                     onError::invoke,
-                    ()-> MinecraftClient.getInstance().execute( () -> useEvent.invoke(null, null) )
+                    () -> MinecraftClient.getInstance().execute(() -> useEvent.invoke(null, null))
             );
 
         }
     }
-
 
 
     @Override
@@ -225,7 +224,6 @@ public class AutoUse implements BaseCommand {
                 callback::resultCallback,
                 () -> callback.resultCallback(BaseCommand.jsonOf())
         );
-
 
 
     }

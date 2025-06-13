@@ -15,9 +15,7 @@
     "KeyBindingMixin",
     "LivingEntityMixin",
     "MinecraftClientMixin",
-    "TweekerooCameraMixin"
-  ],
-  "mixins": [
+    "TweekerooCameraMixin",
     "ClientConnectionMixin"
   ]
 }

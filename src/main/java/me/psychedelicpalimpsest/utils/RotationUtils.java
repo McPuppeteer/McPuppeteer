@@ -40,15 +40,14 @@ public final class RotationUtils {
     }
 
 
-
-
     /**
      * Returns the center of the face (of any box in the shape) closest to the target point.
-     * @param shape The VoxelShape to search.
+     *
+     * @param shape  The VoxelShape to search.
      * @param target The target point.
      * @return Optional containing the center of the closest face, or empty if shape is empty.
-     *
-     *
+     * <p>
+     * <p>
      * Chatgpt made this, therefore public domain
      */
     public static Optional<Vec3d> getCenterOfClosestFace(VoxelShape shape, Vec3d target) {
@@ -61,7 +60,7 @@ public final class RotationUtils {
 
         shape.forEachBox((minX, minY, minZ, maxX, maxY, maxZ) -> {
             // All 6 face centers
-            Vec3d[] faceCenters = new Vec3d[] {
+            Vec3d[] faceCenters = new Vec3d[]{
                     // minX face
                     new Vec3d(minX, (minY + maxY) / 2.0, (minZ + maxZ) / 2.0),
                     // maxX face
