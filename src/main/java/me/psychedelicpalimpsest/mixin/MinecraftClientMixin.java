@@ -24,6 +24,8 @@ import me.psychedelicpalimpsest.PuppeteerServer;
 import me.psychedelicpalimpsest.PuppeteerTask;
 import me.psychedelicpalimpsest.modules.HeadlessMode;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
+import me.psychedelicpalimpsest.utils.KeyboardOverride;
+import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.gui.screen.SplashOverlay;
@@ -35,12 +37,14 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.util.thread.ThreadExecutor;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Options;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -93,6 +97,15 @@ public abstract class MinecraftClientMixin {
         McPuppeteer.init();
     }
 
+    @Redirect(
+            method = "<init>",
+            at = @At(value = "NEW", target = "net/minecraft/client/Keyboard")
+    )
+    private Keyboard redirectKeyboard(MinecraftClient client) {
+        return new KeyboardOverride(client);
+    }
+
+
 
     /*
         Send UDP broadcats, run tickly tasks, and enforce forced player input when screens are open.
@@ -142,7 +155,6 @@ public abstract class MinecraftClientMixin {
         if (PuppeteerInput.isForcePressed.getOrDefault(PuppeteerInput.USE, false) && this.itemUseCooldown == 0 && !this.player.isUsingItem())
             MinecraftClient.getInstance().doItemUse();
 
-
     }
 
 
@@ -188,43 +200,41 @@ public abstract class MinecraftClientMixin {
 
     @Inject(at = @At("HEAD"), method = "render", cancellable = true)
     void onRender(boolean tick, CallbackInfo ci) {
-        if (HeadlessMode.isHeadless()) {
-            ci.cancel();
+        if (!HeadlessMode.isHeadless()) return;
+        ci.cancel();
 
-            /* This is all the stuff that 'looked' necessary */
+        /* This is all the stuff that 'looked' necessary */
 
-            if (!HeadlessMode.isHeadless() && this.getWindow().shouldClose()) {
-                this.scheduleStop();
-            }
-            if (this.resourceReloadFuture != null && !(this.overlay instanceof SplashOverlay)) {
-                CompletableFuture<Void> completableFuture = this.resourceReloadFuture;
-                this.resourceReloadFuture = null;
-                this.reloadResources().thenRun(() -> completableFuture.complete(null));
-            }
+        if (!HeadlessMode.isHeadless() && this.getWindow().shouldClose()) {
+            this.scheduleStop();
+        }
+        if (this.resourceReloadFuture != null && !(this.overlay instanceof SplashOverlay)) {
+            CompletableFuture<Void> completableFuture = this.resourceReloadFuture;
+            this.resourceReloadFuture = null;
+            this.reloadResources().thenRun(() -> completableFuture.complete(null));
+        }
 
 
-            Runnable runnable;
-            while ((runnable = this.renderTaskQueue.poll()) != null) {
-                runnable.run();
-            }
+        Runnable runnable;
+        while ((runnable = this.renderTaskQueue.poll()) != null) {
+            runnable.run();
+        }
 
-            int i = this.renderTickCounter.beginRenderTick(Util.getMeasuringTimeMs(), tick);
-            Profiler profiler = Profilers.get();
-            if (tick) {
-                profiler.push("scheduledExecutables");
+        int i = this.renderTickCounter.beginRenderTick(Util.getMeasuringTimeMs(), tick);
+        Profiler profiler = Profilers.get();
+        if (tick) {
+            profiler.push("scheduledExecutables");
 
-                ((ThreadExecutor<Runnable>) (Object) this).runTask();
-                profiler.pop();
-                profiler.push("tick");
+            ((ThreadExecutor<Runnable>) (Object) this).runTask();
+            profiler.pop();
+            profiler.push("tick");
 
-                for (int j = 0; j < Math.min(10, i); j++) {
-                    profiler.visit("clientTick");
-                    this.tick();
-                }
-
-                profiler.pop();
+            for (int j = 0; j < Math.min(10, i); j++) {
+                profiler.visit("clientTick");
+                this.tick();
             }
 
+            profiler.pop();
         }
     }
 

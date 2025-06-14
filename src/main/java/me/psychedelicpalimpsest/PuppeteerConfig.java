@@ -31,6 +31,7 @@ import fi.dy.masa.malilib.event.InputEventHandler;
 import fi.dy.masa.malilib.hotkeys.IHotkey;
 import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
+import fi.dy.masa.malilib.interfaces.IValueChangeCallback;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import me.psychedelicpalimpsest.modules.Freecam;
@@ -38,6 +39,7 @@ import me.psychedelicpalimpsest.modules.Freerot;
 import me.psychedelicpalimpsest.modules.NoWalk;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
+import org.lwjgl.glfw.GLFW;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,11 +62,13 @@ public class PuppeteerConfig implements IConfigHandler {
 
     /** See: TweekerooCameraMixin.java */
     public static ConfigBoolean WARN_ON_TWEAKEROO_FREECAM = new ConfigBoolean("Warn on tweakeroo freecam", true, "Gives a warning message if the user attempts to use the freecam module on tweakeroo");
+    public static ConfigBoolean SWAP_CAPSLOCK_AND_ESCAPE = new ConfigBoolean("Swap escape and capslock key", false, "The average player doesn't need this, but me, a vim user, does.");
 
     public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
             UDP_BROADCAST_INTERVAL,
             SEND_BROADCASTS,
-            WARN_ON_TWEAKEROO_FREECAM
+            WARN_ON_TWEAKEROO_FREECAM,
+            SWAP_CAPSLOCK_AND_ESCAPE
     );
 
 
@@ -161,6 +165,7 @@ public class PuppeteerConfig implements IConfigHandler {
                     /* Specifically force the client to interpret as error */
                     "callback", false
             ));
+
 
             return true;
         });

@@ -8,14 +8,15 @@
   "client": [
     "CameraMixin",
     "ChatHubMixin",
+    "ClientConnectionMixin",
     "ClientPlayerEntityMixin",
+    "ClientPlayNetworkHandlerMixin",
     "EntityMixin",
     "HiddenServerAccessor",
     "InGameHudMixin",
     "KeyBindingMixin",
     "LivingEntityMixin",
     "MinecraftClientMixin",
-    "TweekerooCameraMixin",
-    "ClientConnectionMixin"
+    "TweekerooCameraMixin"
   ]
 }

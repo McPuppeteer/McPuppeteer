@@ -128,7 +128,7 @@ public class McReflector {
         if (!stack.canPush(obj)) {
             return BaseCommand.jsonOf(
                     "_TYPE", stringifyClassName(obj.getClass().getName()),
-                    "circular reference", 0//stack.getCircularRefLevel(obj)
+                    "circular reference", stack.getCircularRefLevel(obj)
             );
         }
         if (stack.size() > 50) {
@@ -185,8 +185,11 @@ public class McReflector {
                 return typeWrap(obj, serializeObject(((BlockItem) obj).getBlock(), stack));
             else if (obj instanceof Item)
                 return typeWrap(obj, new JsonPrimitive(Registries.ITEM.getId((Item) obj).toString()));
-            else if (obj instanceof ItemStack)
-                return typeWrap(obj, serializeObject(((ItemStack) obj).toNbt(getSomethingAsARegistry())));
+            else if (obj instanceof ItemStack itemStack)
+                return typeWrap(obj,
+                        itemStack.isEmpty()
+                            ? new JsonPrimitive("empty stack")
+                            :serializeObject((itemStack).toNbt(getSomethingAsARegistry())));
             else if (obj instanceof SingleStackRecipe)
                 return BaseCommand.jsonOf(
                         "_TYPE", stringifyClassName(obj.getClass().getName()),

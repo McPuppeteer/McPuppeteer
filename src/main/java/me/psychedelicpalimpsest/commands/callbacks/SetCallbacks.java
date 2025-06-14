@@ -36,7 +36,7 @@ public class SetCallbacks implements BaseCommand {
 
 
         var typicalCallbacks = userCallbacks.entrySet().stream()
-                .filter(entry -> CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey()));
+                .filter(entry -> CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey())).toList();
 
         final var packetCallbacks = userCallbacks.entrySet().stream()
                 .filter(entry -> !CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey()))
@@ -52,7 +52,7 @@ public class SetCallbacks implements BaseCommand {
             ));
             return;
         }
-        if (typicalCallbacks.anyMatch(entry -> null == entry.getKey())) {
+        if (typicalCallbacks.stream().anyMatch(entry -> null == entry.getKey())) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "type", "unknown callback",
@@ -62,7 +62,7 @@ public class SetCallbacks implements BaseCommand {
         }
 
 
-        final var entries = typicalCallbacks.map(
+        final var entries = typicalCallbacks.stream().map(
                 (entry) -> Map.entry(
                         CallbackManager.CALLBACK_STRING_TYPE_MAP.get(entry.getKey()),
                         entry.getValue().getAsBoolean()

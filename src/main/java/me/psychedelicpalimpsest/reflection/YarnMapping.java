@@ -131,7 +131,7 @@ public class YarnMapping {
 
     }
 
-    enum Namespace {
+    public enum Namespace {
         INTERMEDIARY,
         NAMED,
     }
@@ -174,19 +174,19 @@ public class YarnMapping {
     }
 
     @Nullable
-    MappingTree.ClassMapping mapClass(Namespace namespace, String className) {
+    public MappingTree.ClassMapping mapClass(Namespace namespace, String className) {
         className = className.replace('.', '/');
         return nsToMap(namespace).get(className);
     }
 
     @Nullable
-    MappingTree.ClassMapping unmapClass(String className) {
+    public MappingTree.ClassMapping unmapClass(String className) {
         String inter = resolver.unmapClassName("intermediary", className.replace('/', '.')).replace('.', '/');
         return intermediaryToClass.get(inter);
     }
 
     @Nullable
-    MappingTree.ClassMapping unmapClass_builtin(String className) {
+    public MappingTree.ClassMapping unmapClass_builtin(String className) {
         String inter = resolver.unmapClassName("intermediary", className.replace('/', '.')).replace('.', '/');
         return fabricTree.getClass(inter, fabricTree.getNamespaceId("intermediary"));
     }
@@ -201,7 +201,7 @@ public class YarnMapping {
      * @return the mapped class name, or null if no such mapping is present
      */
     @Nullable
-    String mapClassName(Namespace namespace, String className) {
+    public String mapClassName(Namespace namespace, String className) {
         var cls = mapClass(namespace, className);
         if (cls == null) return null;
         String inter = cls.getName(intermediaryIdx);
@@ -215,7 +215,7 @@ public class YarnMapping {
      * @param className the provided binary class name of the mapping form currently used at runtime
      * @return the mapped class name, or {@code className} if no such mapping is present
      */
-    String unmapClassName(Namespace targetNamespace, String className) {
+    public String unmapClassName(Namespace targetNamespace, String className) {
         var cls = unmapClass(className);
         if (cls == null) return null;
 
@@ -233,9 +233,20 @@ public class YarnMapping {
      * @param descriptor the descriptor of the field
      * @return the mapped field name, or {@code name} if no such mapping is present
      */
-    String mapFieldName(Namespace namespace, String owner, String name, String descriptor) {
-        resolver.mapFieldName("intermediary", owner, name, descriptor);
-        return null;
+    public String mapFieldName(Namespace namespace, String owner, String name, String descriptor) {
+        System.err.println(descriptor);
+        var cls = mapClass(namespace, owner.replace('/', '.'));
+        if (cls == null) return null;
+
+        var field = cls.getField(name, descriptor, nsToIdx(namespace));
+        if (field == null) return null;
+
+        return fabricTree.getField(
+                cls.getName(intermediaryIdx),
+                field.getName(intermediaryIdx),
+                descriptor,
+                fabricTree.getNamespaceId("intermediary")
+        ).getName(resolver.getCurrentRuntimeNamespace());
     }
 
     /**
@@ -247,7 +258,7 @@ public class YarnMapping {
      * @param descriptor the descriptor of the field
      * @return the mapped field name, or {@code name} if no such mapping is present
      */
-    String unmapFieldName(Namespace targetNamespace, String owner, String name, String descriptor) {
+    public String unmapFieldName(Namespace targetNamespace, String owner, String name, String descriptor) {
         var cls = unmapClass(owner);
         var clsF = unmapClass_builtin(owner);
         if (cls == null || clsF == null) return null;

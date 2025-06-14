@@ -25,7 +25,9 @@ import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import me.psychedelicpalimpsest.reflection.YarnMapping;
+import me.psychedelicpalimpsest.utils.KeyboardOverride;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Keyboard;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Style;
@@ -81,6 +83,7 @@ public class McPuppeteer {
         }
 
         YarnMapping.createMapping();
+//        KeyboardOverride.init();
     }
 
 

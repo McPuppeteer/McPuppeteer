@@ -35,6 +35,9 @@ public class CallbackManager {
         PLAYER_DEATH,
         PLAYER_INVENTORY,
         CHAT,
+
+        INVENTORY,
+        CLOSE_INVENTORY,
     }
 
 
@@ -46,15 +49,10 @@ public class CallbackManager {
     static {
         Map<CallbackType, String> map = new HashMap<>(CallbackType.values().length);
 
-        map.put(CallbackType.BARITONE, "BARITONE");
-
-        map.put(CallbackType.PLAYER_POSITION, "PLAYER_POSITION");
-        map.put(CallbackType.PLAYER_YAW, "PLAYER_YAW");
-        map.put(CallbackType.PLAYER_PITCH, "PLAYER_PITCH");
-        map.put(CallbackType.PLAYER_DAMAGE, "PLAYER_DAMAGE");
-        map.put(CallbackType.PLAYER_DEATH, "PLAYER_DEATH");
-        map.put(CallbackType.PLAYER_INVENTORY, "PLAYER_INVENTORY");
-        map.put(CallbackType.CHAT, "CHAT");
+        /* Assume we are not obfuscating shit in our own mod */
+        for (CallbackType type : CallbackType.values()) {
+            map.put(type, type.name());
+        }
 
 
         CALLBACK_TYPE_STRING_MAP = Collections.unmodifiableMap(map);
