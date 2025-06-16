@@ -157,7 +157,7 @@ public class PuppeteerConfig implements IConfigHandler {
             PuppeteerInput.isDirectionalMovement = false;
 
 
-            PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, BaseCommand.jsonOf(
+            PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, ()->BaseCommand.jsonOf(
                     "status", "error",
                     "type", "panic",
                     "message", "The user has pressed that panic button",

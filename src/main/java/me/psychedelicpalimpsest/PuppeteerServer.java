@@ -459,34 +459,41 @@ public class PuppeteerServer implements Runnable {
 
         writeByteBufferRaw(client, respBuffer, isOnServerThread);
     }
+    public interface ServerToClientCallback {
+        JsonObject invoke();
+    }
 
-    public static void broadcastJsonPacket(CallbackManager.CallbackType type, JsonObject packet) {
+
+    public static void broadcastJsonPacket(CallbackManager.CallbackType type, ServerToClientCallback callback) {
         String type_name = CallbackManager.CALLBACK_TYPE_STRING_MAP.getOrDefault(type, "UNKNOWN");
-
-        if (!packet.has("callback"))
-            packet.addProperty("callback", true);
-        if (!packet.has("status"))
-            packet.addProperty("status", "ok");
-        packet.addProperty("type", type_name);
 
         /* No broadcasts :< */
         if (getInstance() == null) return;
 
         getInstance().scheduleSelectorTask(() -> {
+            JsonObject packet = null;
+
             Selector s = instance.selector;
             for (SocketChannel client : instance.connectedClients) {
-                if (client.isOpen()) {
-                    ClientAttachment attachment = (ClientAttachment)
-                            client.keyFor(s).attachment();
-
-                    if (type != CallbackManager.CallbackType.FORCED && !attachment.allowedCallbacks.getOrDefault(type, false))
-                        continue;
-
-
-                    instance.writeJsonPacket(client, packet, true);
-                } else {
+                if (!client.isOpen()) {
                     instance.connectedClients.remove(client);
+                    continue;
                 }
+                ClientAttachment attachment = (ClientAttachment)
+                        client.keyFor(s).attachment();
+
+                if (type != CallbackManager.CallbackType.FORCED && !attachment.allowedCallbacks.getOrDefault(type, false))
+                    continue;
+
+                if (packet == null) {
+                    packet = callback.invoke();
+                    if (!packet.has("callback"))
+                        packet.addProperty("callback", true);
+                    if (!packet.has("status"))
+                        packet.addProperty("status", "ok");
+                    packet.addProperty("type", type_name);
+                }
+                instance.writeJsonPacket(client, packet, true);
             }
         });
     }

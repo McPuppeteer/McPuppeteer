@@ -36,8 +36,11 @@ public class CallbackManager {
         PLAYER_INVENTORY,
         CHAT,
 
-        INVENTORY,
-        CLOSE_INVENTORY,
+        OPEN_SCREEN,
+        SET_CONTAINER_CONTENTS,
+        SET_CONTAINER_PROPERTIES,
+        CLOSE_CONTAINER,
+        SET_CURSOR_ITEM,
     }
 
 

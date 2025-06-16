@@ -57,7 +57,7 @@ public abstract class LivingEntityMixin {
         Gson ser = createTextJsonSerializer();
         Text msg = source.getDeathMessage((LivingEntity) (Object) this);
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DAMAGE, BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DAMAGE, ()->BaseCommand.jsonOf(
                 "amount", amount,
                 "health", this.getHealth(),
                 "would be death message", textToString(msg),
@@ -73,7 +73,7 @@ public abstract class LivingEntityMixin {
         Gson ser = createTextJsonSerializer();
         Text msg = damageSource.getDeathMessage((LivingEntity) (Object) this);
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH, BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH, ()->BaseCommand.jsonOf(
                 "death message", textToString(msg),
                 "death message json", ser.toJsonTree(msg)
         ));

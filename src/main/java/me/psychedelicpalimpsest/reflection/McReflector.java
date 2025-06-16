@@ -34,6 +34,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.context.ContextParameterMap;
@@ -203,7 +204,11 @@ public class McReflector {
                         "ingredient", serializeObject(entry.input().entries, stack),
                         "recipe display", serializeObject(entry.recipe().optionDisplay().getStacks(new ContextParameterMap.Builder().build(new ContextType.Builder().build())), stack)
                 );
-
+            else if (obj instanceof ScreenHandlerType<?> type)
+                return BaseCommand.jsonOf(
+                        "_TYPE", stringifyClassName(obj.getClass().getName()),
+                        "id", Registries.SCREEN_HANDLER.getId(type).toString()
+                );
             else if (obj instanceof NbtElement)
                 return typeWrap(obj, new JsonPrimitive(((NbtElement) obj).asString()));
 

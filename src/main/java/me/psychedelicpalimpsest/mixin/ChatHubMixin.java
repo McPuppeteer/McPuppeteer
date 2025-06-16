@@ -35,13 +35,10 @@ import java.util.List;
 
 @Mixin(ChatHud.class)
 public class ChatHubMixin {
-    @Shadow
-    @Final
-    private List<ChatHudLine> messages;
 
     @Inject(method = "addMessage(Lnet/minecraft/client/gui/hud/ChatHudLine;)V", at = @At("HEAD"))
     void onAddMessage(ChatHudLine message, CallbackInfo ci) {
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CHAT, BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CHAT, ()->BaseCommand.jsonOf(
                 "message", McPuppeteer.textToString(message.content()),
                 "message json", McPuppeteer.createTextJsonSerializer().toJsonTree(message.content())
         ));
