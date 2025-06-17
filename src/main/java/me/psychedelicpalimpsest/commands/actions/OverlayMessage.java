@@ -36,12 +36,7 @@ public class OverlayMessage implements BaseCommand {
         JsonElement element = request.get("message");
 
 
-        Text text;
-        if (element.isJsonObject())
-            text = McPuppeteer.createTextJsonSerializer().fromJson(element, Text.class);
-        else
-            text = Text.of(element.getAsString());
-
+        Text text = Text.of(element.getAsString());
 
         MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().inGameHud.setOverlayMessage(text, false));
         callback.resultCallback(new JsonObject());

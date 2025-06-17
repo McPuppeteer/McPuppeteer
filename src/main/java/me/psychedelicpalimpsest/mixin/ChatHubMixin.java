@@ -40,7 +40,7 @@ public class ChatHubMixin {
     void onAddMessage(ChatHudLine message, CallbackInfo ci) {
         PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CHAT, ()->BaseCommand.jsonOf(
                 "message", McPuppeteer.textToString(message.content()),
-                "message json", McPuppeteer.createTextJsonSerializer().toJsonTree(message.content())
+                "message json", message.content().getString()
         ));
     }
 

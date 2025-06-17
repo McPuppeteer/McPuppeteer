@@ -18,10 +18,12 @@
 package me.psychedelicpalimpsest.reflection;
 
 import com.google.gson.*;
+import com.mojang.brigadier.Message;
 import io.netty.buffer.ByteBuf;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.McPuppeteer;
 import net.minecraft.block.Block;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.argument.serialize.ArgumentSerializer;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -35,6 +37,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.context.ContextParameterMap;
@@ -111,13 +114,7 @@ public class McReflector {
         return serializeObject(o, new CircularRefHandler());
     }
 
-    public static RegistryWrapper.WrapperLookup getSomethingAsARegistry() {
-//         var networkHandler = MinecraftClient.getInstance().getNetworkHandler();
-//         if (networkHandler != null)
-//             return BuiltinRegistries.REGISTRY_BUILDER.createWrapperLookup(networkHandler.getRegistryManager());
-//         else
-        return BuiltinRegistries.createWrapperLookup();
-    }
+
 
     private static final Gson gson = new Gson();
 
@@ -190,7 +187,8 @@ public class McReflector {
                 return typeWrap(obj,
                         itemStack.isEmpty()
                             ? new JsonPrimitive("empty stack")
-                            :serializeObject((itemStack).toNbt(getSomethingAsARegistry())));
+                            :serializeObject((itemStack).toNbt(MinecraftClient.getInstance().world.getRegistryManager()), stack)
+                );
             else if (obj instanceof SingleStackRecipe)
                 return BaseCommand.jsonOf(
                         "_TYPE", stringifyClassName(obj.getClass().getName()),
@@ -257,6 +255,14 @@ public class McReflector {
                 return typeWrap(obj, json);
             } else if (obj instanceof ByteBuf)
                 return typeWrap(obj, new JsonPrimitive(Base64.getEncoder().encodeToString(obj.toString().getBytes())));
+
+            else if (obj instanceof TranslatableTextContent)
+                return typeWrap(obj, new JsonPrimitive(((TranslatableTextContent) obj).getKey()));
+            else if (obj instanceof Message /* Includes Text */)
+                return typeWrap(obj, new JsonPrimitive(((Message) obj).getString()));
+
+
+
             else if (obj.getClass().getPackageName().startsWith("net.minecraft"))
                 return serializeGenericObject(obj, stack);
             else {
@@ -304,10 +310,6 @@ public class McReflector {
                 Object obj = field.get(inputObj);
 
 
-                if (obj instanceof CuttingRecipeDisplay<?>) {
-                    System.out.println("CuttingRecipeDisplay");
-                }
-
                 String trueName = YarnMapping.getInstance().unmapFieldName(
                         YarnMapping.Namespace.NAMED,
 
@@ -316,17 +318,12 @@ public class McReflector {
                         field.getName(),
                         Type.getDescriptor(field.getType())
                 );
-                if (trueName == null) {
-                    // trueName = field.getType().getName();
 
-                    /* Likely an injected field */
-                    continue;
-                }
 
-                JsonObject fieldObject = new JsonObject();
-                fieldObject.addProperty("type", stringifyClassName(field.getType().getCanonicalName()));
-                fieldObject.add("data", serializeObject(obj, stack));
-                object.add(trueName, fieldObject);
+                if (trueName == null) /* Likely an injected field */ continue;
+
+
+                object.add(trueName, serializeObject(obj, stack));
 
             }
         } catch (IllegalAccessException e) {

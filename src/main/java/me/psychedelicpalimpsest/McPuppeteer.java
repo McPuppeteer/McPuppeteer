@@ -100,10 +100,8 @@ public class McPuppeteer {
         return builder.toString();
     }
 
-    public static Gson createTextJsonSerializer() {
-        Text.Serializer serializer = new Text.Serializer(DynamicRegistryManager.of(Registries.REGISTRIES));
-        return new GsonBuilder().registerTypeHierarchyAdapter(Text.class, serializer).create();
-    }
+
+
 
 
 }

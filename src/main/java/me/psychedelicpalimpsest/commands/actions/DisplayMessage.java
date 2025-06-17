@@ -35,14 +35,9 @@ public class DisplayMessage implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
         JsonElement element = request.get("message");
-        if (element.isJsonObject()) {
-            Text text = McPuppeteer.createTextJsonSerializer().fromJson(element, Text.class);
-            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(text);
-        } else {
-            MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
-                    Text.of(element.getAsString())
-            );
-        }
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
+                Text.of(element.getAsString())
+        );
         callback.resultCallback(new JsonObject());
     }
 }

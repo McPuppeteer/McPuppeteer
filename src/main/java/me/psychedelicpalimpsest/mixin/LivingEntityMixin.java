@@ -35,7 +35,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static me.psychedelicpalimpsest.McPuppeteer.createTextJsonSerializer;
 import static me.psychedelicpalimpsest.McPuppeteer.textToString;
 
 @Mixin(LivingEntity.class)
@@ -54,14 +53,13 @@ public abstract class LivingEntityMixin {
         if (!asEntity.isPlayer()) return;
 
 
-        Gson ser = createTextJsonSerializer();
         Text msg = source.getDeathMessage((LivingEntity) (Object) this);
 
         PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DAMAGE, ()->BaseCommand.jsonOf(
                 "amount", amount,
                 "health", this.getHealth(),
                 "would be death message", textToString(msg),
-                "would be death message json", ser.toJsonTree(msg)
+                "would be death message json", msg.getString()
         ));
     }
 
@@ -70,12 +68,11 @@ public abstract class LivingEntityMixin {
         Entity asEntity = (Entity) (Object) this;
         if (!asEntity.isPlayer()) return;
 
-        Gson ser = createTextJsonSerializer();
         Text msg = damageSource.getDeathMessage((LivingEntity) (Object) this);
 
         PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH, ()->BaseCommand.jsonOf(
                 "death message", textToString(msg),
-                "death message json", ser.toJsonTree(msg)
+                "death message json", msg.getString()
         ));
     }
 }
