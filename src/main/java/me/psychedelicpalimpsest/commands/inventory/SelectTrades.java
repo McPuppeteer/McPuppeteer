@@ -15,34 +15,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.inventory;
+package me.psychedelicpalimpsest.commands.inventory;
 
  import com.google.gson.JsonObject;
  import me.psychedelicpalimpsest.BaseCommand;
  import me.psychedelicpalimpsest.PuppeteerCommand;
  import net.minecraft.client.MinecraftClient;
+ import net.minecraft.client.gui.screen.ingame.MerchantScreen;
+ import net.minecraft.network.packet.c2s.play.SelectMerchantTradeC2SPacket;
+
 
  @PuppeteerCommand(
-         cmd = "click inventory button", description = "Simulates clicking an inventory button",
+         cmd="select trade", description = "Selects a trade from a merchant menu",
          cmd_context = BaseCommand.CommandContext.PLAY
  )
- public class ClickInventoryButton implements BaseCommand {
+ public class SelectTrades implements BaseCommand {
      @Override
      public void onRequest(JsonObject request, LaterCallback callback) {
-         if (MinecraftClient.getInstance().currentScreen == null) {
+         if ( !(MinecraftClient.getInstance().currentScreen instanceof MerchantScreen) ) {
              callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "unexpected screen",
-                    "message", "No screen is open"
+                     "status", "error",
+                     "type", "unexpected screen",
+                     "message", "No MerchantScreen is open"
              ));
              return;
          }
 
-         MinecraftClient.getInstance().interactionManager.clickButton(
-                 MinecraftClient.getInstance().player.currentScreenHandler.syncId,
-                 request.get("button").getAsInt()
+         MinecraftClient.getInstance().getNetworkHandler().sendPacket(
+                 new SelectMerchantTradeC2SPacket(request.get("index").getAsInt())
          );
-
-         callback.resultCallback(new JsonObject());
      }
  }

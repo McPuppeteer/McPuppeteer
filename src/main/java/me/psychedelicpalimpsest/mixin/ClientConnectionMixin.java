@@ -34,6 +34,9 @@ public class ClientConnectionMixin {
         String id = packet.getPacketType().id().toString();
 
         if (packet instanceof ChunkDataS2CPacket) return;
+
+
+        /* TODO: Proper packet callbacks */
 //        new Thread(()->
 //            System.out.println(PacketJsonEncoder.encode(packet))
 //        ).start();

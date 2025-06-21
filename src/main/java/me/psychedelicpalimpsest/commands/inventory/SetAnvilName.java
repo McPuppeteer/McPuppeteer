@@ -15,34 +15,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.inventory;
+package me.psychedelicpalimpsest.commands.inventory;
 
  import com.google.gson.JsonObject;
  import me.psychedelicpalimpsest.BaseCommand;
  import me.psychedelicpalimpsest.PuppeteerCommand;
  import net.minecraft.client.MinecraftClient;
- import net.minecraft.client.gui.screen.ingame.MerchantScreen;
- import net.minecraft.network.packet.c2s.play.SelectMerchantTradeC2SPacket;
-
+ import net.minecraft.client.gui.screen.Screen;
+ import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 
  @PuppeteerCommand(
-         cmd="select trade", description = "Selects a trade from a merchant menu",
+         cmd = "set anvil name", description = "Sets the name field of an open anvil screen",
          cmd_context = BaseCommand.CommandContext.PLAY
  )
- public class SelectTrades implements BaseCommand {
+ public class SetAnvilName implements BaseCommand {
      @Override
      public void onRequest(JsonObject request, LaterCallback callback) {
-         if ( !(MinecraftClient.getInstance().currentScreen instanceof MerchantScreen) ) {
-             callback.resultCallback(BaseCommand.jsonOf(
-                     "status", "error",
-                     "type", "unexpected screen",
-                     "message", "No MerchantScreen is open"
-             ));
-             return;
-         }
+        String name = request.get("name").getAsString();
+        Screen screen = MinecraftClient.getInstance().currentScreen;
+        if (!(screen instanceof AnvilScreen anvilScreen)){
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "status", "error",
+                    "type", "unexpected screen",
+                    "message", "Anvil screen is not open"
+            ));
+            return;
+        }
+        anvilScreen.nameField.setText(name);
+        callback.resultCallback(new JsonObject());
 
-         MinecraftClient.getInstance().getNetworkHandler().sendPacket(
-                 new SelectMerchantTradeC2SPacket(request.get("index").getAsInt())
-         );
      }
  }

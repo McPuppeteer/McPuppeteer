@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.inventory;
+package me.psychedelicpalimpsest.commands.inventory;
 
  import com.google.gson.JsonArray;
  import com.google.gson.JsonNull;

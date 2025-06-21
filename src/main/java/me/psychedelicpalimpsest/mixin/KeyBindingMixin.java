@@ -33,7 +33,6 @@ public class KeyBindingMixin {
     private static void onKeyPressed(InputUtil.Key key, CallbackInfo ci) {
         KeyBinding binding = KeyBinding.KEY_TO_BINDINGS.get(key);
 
-        System.err.println((binding == null ? "null" : binding.toString()) + "\t" + key.getTranslationKey());
         if (binding == null) return;
 
         if (PuppeteerInput.onKeyPressed(binding))

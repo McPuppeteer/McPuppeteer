@@ -15,7 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.inventory;
+package me.psychedelicpalimpsest.commands.inventory;
 
  import com.google.gson.JsonArray;
  import com.google.gson.JsonObject;
@@ -25,7 +25,6 @@ package me.psychedelicpalimpsest.inventory;
  import net.minecraft.client.MinecraftClient;
  import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
  import net.minecraft.client.gui.screen.ingame.HandledScreen;
- import net.minecraft.client.gui.screen.ingame.HorseScreen;
  import net.minecraft.client.gui.screen.ingame.InventoryScreen;
  import net.minecraft.registry.Registries;
  import net.minecraft.screen.HorseScreenHandler;

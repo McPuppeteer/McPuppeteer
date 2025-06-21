@@ -15,34 +15,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.psychedelicpalimpsest.inventory;
+package me.psychedelicpalimpsest.commands.inventory;
 
  import com.google.gson.JsonObject;
  import me.psychedelicpalimpsest.BaseCommand;
  import me.psychedelicpalimpsest.PuppeteerCommand;
  import net.minecraft.client.MinecraftClient;
- import net.minecraft.client.gui.screen.Screen;
- import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 
  @PuppeteerCommand(
-         cmd = "set anvil name", description = "Sets the name field of an open anvil screen",
+         cmd = "click inventory button", description = "Simulates clicking an inventory button",
          cmd_context = BaseCommand.CommandContext.PLAY
  )
- public class SetAnvilName implements BaseCommand {
+ public class ClickInventoryButton implements BaseCommand {
      @Override
      public void onRequest(JsonObject request, LaterCallback callback) {
-        String name = request.get("name").getAsString();
-        Screen screen = MinecraftClient.getInstance().currentScreen;
-        if (!(screen instanceof AnvilScreen anvilScreen)){
-            callback.resultCallback(BaseCommand.jsonOf(
+         if (MinecraftClient.getInstance().currentScreen == null) {
+             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
                     "type", "unexpected screen",
-                    "message", "Anvil screen is not open"
-            ));
-            return;
-        }
-        anvilScreen.nameField.setText(name);
-        callback.resultCallback(new JsonObject());
+                    "message", "No screen is open"
+             ));
+             return;
+         }
 
+         MinecraftClient.getInstance().interactionManager.clickButton(
+                 MinecraftClient.getInstance().player.currentScreenHandler.syncId,
+                 request.get("button").getAsInt()
+         );
+
+         callback.resultCallback(new JsonObject());
      }
  }

@@ -119,17 +119,14 @@ public class PuppeteerInput extends Input {
                 directionBackward *= scalar;
             }
 
-            this.movementVector = new Vec2f(directionForward * directionalSpeed, directionBackward * directionalSpeed);
+            this.movementVector = new Vec2f(directionBackward * directionalSpeed, directionForward * directionalSpeed);
 
         } else {
-            this.movementVector = new Vec2f(
-                    KeyboardInput.getMovementMultiplier(this.playerInput.forward(), this.playerInput.backward()),
-                    KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right())
-            );
+
+            float f = KeyboardInput.getMovementMultiplier(this.playerInput.forward(), this.playerInput.backward());
+            float g = KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right());
+            this.movementVector = new Vec2f(g, f).normalize();
         }
-        // TODO: Do I need to reimplement this somehow?
-//         if (slowDown)
-//            this.movementVector = this.movementVector.multiply(slowDownFactor);
     }
 
 

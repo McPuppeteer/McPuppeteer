@@ -200,7 +200,7 @@ public class AutoUse implements BaseCommand {
                         p.setPitch(rot.getPitch());
                     },
                     useEvent
-            )));
+            ), 1));
         } else {
             AlgorithmicRotation.AlgorithmiclyRotate(
                     rot.getPitch(), rot.getYaw(), degreesPerTick, method,

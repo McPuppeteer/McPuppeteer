@@ -31,10 +31,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.recipe.SingleStackRecipe;
 import net.minecraft.recipe.display.CuttingRecipeDisplay;
-import net.minecraft.registry.BuiltinRegistries;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.text.TranslatableTextContent;
@@ -50,7 +48,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static me.psychedelicpalimpsest.reflection.YarnMapping.serializeUnknownEnum;
+import static me.psychedelicpalimpsest.reflection.YarnMapping.serializeEnum;
 
 public class McReflector {
     public static List<Field> getAllFields(Class<?> clazz) {
@@ -187,7 +185,7 @@ public class McReflector {
                 return typeWrap(obj,
                         itemStack.isEmpty()
                             ? new JsonPrimitive("empty stack")
-                            :serializeObject((itemStack).toNbt(MinecraftClient.getInstance().world.getRegistryManager()), stack)
+                            :serializeObject(itemStack.toNbt(MinecraftClient.getInstance().world.getRegistryManager()), stack)
                 );
             else if (obj instanceof SingleStackRecipe)
                 return BaseCommand.jsonOf(
@@ -208,8 +206,7 @@ public class McReflector {
                         "id", Registries.SCREEN_HANDLER.getId(type).toString()
                 );
             else if (obj instanceof NbtElement)
-                return typeWrap(obj, new JsonPrimitive(((NbtElement) obj).asString().get()
-                ));
+                return typeWrap(obj, new JsonPrimitive(obj.toString()));
 
 
             else if (obj instanceof RegistryKey<?>)
@@ -217,7 +214,7 @@ public class McReflector {
             else if (obj instanceof StringIdentifiable /* Covers most enums */)
                 return typeWrap(obj, new JsonPrimitive(((StringIdentifiable) obj).asString()));
             else if (obj.getClass().isEnum())
-                return new JsonPrimitive(serializeUnknownEnum(obj));
+                return new JsonPrimitive(serializeEnum((Enum<?>) obj));
 
             else if (obj instanceof RegistryEntry<?>) {
                 return typeWrap(obj, new JsonPrimitive(((RegistryEntry<?>) obj).getIdAsString()));

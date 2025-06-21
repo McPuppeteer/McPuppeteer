@@ -144,9 +144,28 @@ public class YarnMapping {
         return namespace == Namespace.INTERMEDIARY ? intermediaryToClass : namedToClass;
     }
 
+    @SuppressWarnings({"unchecked"})
+    public static <T extends Enum<T>> Optional<T> deserializeEnum(Class<T> cls, String str){
+        assert cls.isEnum();
+        String mapped = YarnMapping.getInstance().mapFieldName(
+                Namespace.NAMED,
+                cls.getName(),
+                str,
+                null
+        );
+        if (mapped == null) return Optional.empty();
 
-    public static String serializeUnknownEnum(Object obj) {
-        assert obj.getClass().isEnum();
+        try {
+            Field f =  cls.getDeclaredField(mapped);
+            f.setAccessible(true);
+            return Optional.of((T) f.get(null));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            return Optional.empty();
+        }
+    }
+
+    @Nullable
+    public static <T extends Enum<T>> String serializeEnum(Enum<T> obj) {
         Optional<Field> origin = Arrays.stream(obj.getClass().getDeclaredFields())
                 .filter(field -> Modifier.isStatic(field.getModifiers()))
                 .filter((field -> {
@@ -160,8 +179,9 @@ public class YarnMapping {
                         })
                 ).findFirst();
 
+        /* This can only trigger if shit has gone crazy, i.e. memory corruption */
         if (origin.isEmpty())
-            return "unknown/invalid enum value";
+            return null;
 
         Field real_origin = origin.get();
         return YarnMapping.getInstance().unmapFieldName(
@@ -172,6 +192,16 @@ public class YarnMapping {
                 Type.getDescriptor(real_origin.getType())
         );
     }
+    public static <T extends Enum<T>> String[] serializedValues(Class<T> type) {
+        if (!type.isEnum()) {
+            throw new IllegalArgumentException(type + " is not an enum");
+        }
+
+        return Arrays.stream(type.getEnumConstants())
+                .map(YarnMapping::serializeEnum)
+                .toArray(String[]::new);
+    }
+
 
     @Nullable
     public MappingTree.ClassMapping mapClass(Namespace namespace, String className) {
@@ -234,7 +264,6 @@ public class YarnMapping {
      * @return the mapped field name, or {@code name} if no such mapping is present
      */
     public String mapFieldName(Namespace namespace, String owner, String name, String descriptor) {
-        System.err.println(descriptor);
         var cls = mapClass(namespace, owner.replace('/', '.'));
         if (cls == null) return null;
 

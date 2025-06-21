@@ -343,7 +343,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
                 YarnMapping.Namespace.NAMED,
                 instance.getClass().getName()
         ));
-        jsonObject.addProperty("value", YarnMapping.serializeUnknownEnum(instance));
+        jsonObject.addProperty("value", YarnMapping.serializeEnum(instance));
         return jsonObject;
     }
 

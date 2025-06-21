@@ -28,8 +28,10 @@ import java.util.Queue;
 public class EventBasedTask extends PuppeteerTask implements PuppeteerTask.TaskEvent {
 
     private final Queue<PuppeteerTask.TaskEvent> taskEvents;
+    private final int delay;
+    private int counter = 0;
 
-    public EventBasedTask(List<PuppeteerTask.TaskEvent> tasks) {
+    public EventBasedTask(List<PuppeteerTask.TaskEvent> tasks, int delay) {
         super(
                 TaskType.TICKLY,
                 null,
@@ -38,6 +40,7 @@ public class EventBasedTask extends PuppeteerTask implements PuppeteerTask.TaskE
                 null
         );
         this.onTick = this;
+        this.delay = delay;
 
         taskEvents = new LinkedList<>(tasks);
     }
@@ -47,8 +50,11 @@ public class EventBasedTask extends PuppeteerTask implements PuppeteerTask.TaskE
     public void invoke(PuppeteerTask self, @Nullable PuppeteerTask.ThreadStyleCompletion onCompletion) {
         PuppeteerTask.TaskEvent event = taskEvents.poll();
 
-        if (event != null)
+        this.counter++;
+        if (event != null && this.counter >= this.delay) {
             event.invoke(self, onCompletion);
+            this.counter = 0;
+        }
 
         if (taskEvents.isEmpty())
             onCompletion.invoke();
