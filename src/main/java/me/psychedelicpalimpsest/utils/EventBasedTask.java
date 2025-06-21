@@ -48,12 +48,14 @@ public class EventBasedTask extends PuppeteerTask implements PuppeteerTask.TaskE
 
     @Override
     public void invoke(PuppeteerTask self, @Nullable PuppeteerTask.ThreadStyleCompletion onCompletion) {
-        PuppeteerTask.TaskEvent event = taskEvents.poll();
+        PuppeteerTask.TaskEvent event = taskEvents.peek();
 
         this.counter++;
         if (event != null && this.counter >= this.delay) {
             event.invoke(self, onCompletion);
             this.counter = 0;
+
+            taskEvents.remove();
         }
 
         if (taskEvents.isEmpty())

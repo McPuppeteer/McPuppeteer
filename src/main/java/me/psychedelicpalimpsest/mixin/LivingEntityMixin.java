@@ -19,7 +19,6 @@
 package me.psychedelicpalimpsest.mixin;
 
 
-import com.google.gson.Gson;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.CallbackManager;
 import me.psychedelicpalimpsest.PuppeteerServer;
@@ -55,7 +54,7 @@ public abstract class LivingEntityMixin {
 
         Text msg = source.getDeathMessage((LivingEntity) (Object) this);
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DAMAGE, ()->BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DAMAGE, () -> BaseCommand.jsonOf(
                 "amount", amount,
                 "health", this.getHealth(),
                 "would be death message", textToString(msg),
@@ -70,7 +69,7 @@ public abstract class LivingEntityMixin {
 
         Text msg = damageSource.getDeathMessage((LivingEntity) (Object) this);
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH, ()->BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH, () -> BaseCommand.jsonOf(
                 "death message", textToString(msg),
                 "death message json", msg.getString()
         ));

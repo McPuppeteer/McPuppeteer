@@ -145,7 +145,7 @@ public class YarnMapping {
     }
 
     @SuppressWarnings({"unchecked"})
-    public static <T extends Enum<T>> Optional<T> deserializeEnum(Class<T> cls, String str){
+    public static <T extends Enum<T>> Optional<T> deserializeEnum(Class<T> cls, String str) {
         assert cls.isEnum();
         String mapped = YarnMapping.getInstance().mapFieldName(
                 Namespace.NAMED,
@@ -156,7 +156,7 @@ public class YarnMapping {
         if (mapped == null) return Optional.empty();
 
         try {
-            Field f =  cls.getDeclaredField(mapped);
+            Field f = cls.getDeclaredField(mapped);
             f.setAccessible(true);
             return Optional.of((T) f.get(null));
         } catch (NoSuchFieldException | IllegalAccessException e) {
@@ -192,6 +192,7 @@ public class YarnMapping {
                 Type.getDescriptor(real_origin.getType())
         );
     }
+
     public static <T extends Enum<T>> String[] serializedValues(Class<T> type) {
         if (!type.isEnum()) {
             throw new IllegalArgumentException(type + " is not an enum");
@@ -225,7 +226,6 @@ public class YarnMapping {
     /**
      * Map a class name to the mapping currently used at runtime.
      *
-     *
      * @param namespace the namespace of the provided class name
      * @param className the provided binary class name
      * @return the mapped class name, or null if no such mapping is present
@@ -242,7 +242,7 @@ public class YarnMapping {
      * Unmap a class name to the mapping currently used at runtime.
      *
      * @param targetNamespace The target namespace for unmapping.
-     * @param className the provided binary class name of the mapping form currently used at runtime
+     * @param className       the provided binary class name of the mapping form currently used at runtime
      * @return the mapped class name, or {@code className} if no such mapping is present
      */
     public String unmapClassName(Namespace targetNamespace, String className) {
@@ -257,9 +257,9 @@ public class YarnMapping {
     /**
      * Map a field name to the mapping currently used at runtime.
      *
-     * @param namespace the namespace of the provided field name and descriptor
-     * @param owner the binary name of the owner class of the field
-     * @param name the name of the field
+     * @param namespace  the namespace of the provided field name and descriptor
+     * @param owner      the binary name of the owner class of the field
+     * @param name       the name of the field
      * @param descriptor the descriptor of the field
      * @return the mapped field name, or {@code name} if no such mapping is present
      */
@@ -282,9 +282,9 @@ public class YarnMapping {
      * Unmap a field name to the mapping currently used at runtime.
      *
      * @param targetNamespace the target namespace for unmapping
-     * @param owner the binary name of the owner class of the field
-     * @param name the name of the field
-     * @param descriptor the descriptor of the field
+     * @param owner           the binary name of the owner class of the field
+     * @param name            the name of the field
+     * @param descriptor      the descriptor of the field
      * @return the mapped field name, or {@code name} if no such mapping is present
      */
     public String unmapFieldName(Namespace targetNamespace, String owner, String name, String descriptor) {
@@ -308,9 +308,9 @@ public class YarnMapping {
     /**
      * Map a method name to the mapping currently used at runtime.
      *
-     * @param namespace the namespace of the provided method name and descriptor
-     * @param owner the binary name of the owner class of the method
-     * @param name the name of the method
+     * @param namespace  the namespace of the provided method name and descriptor
+     * @param owner      the binary name of the owner class of the method
+     * @param name       the name of the method
      * @param descriptor the descriptor of the method
      * @return the mapped method name, or {@code name} if no such mapping is present
      */

@@ -36,7 +36,7 @@ public class SetHotbarSlot implements BaseCommand {
         MinecraftClient.getInstance().execute(() -> {
 
             MinecraftClient.getInstance().player.getInventory().setSelectedSlot(
-                     MathHelper.clamp(request.get("slot").getAsInt() - 1, 0, 8)
+                    MathHelper.clamp(request.get("slot").getAsInt() - 1, 0, 8)
             );
 
             callback.resultCallback(BaseCommand.jsonOf());

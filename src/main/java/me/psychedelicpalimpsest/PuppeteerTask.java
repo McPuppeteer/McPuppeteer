@@ -30,11 +30,17 @@ public class PuppeteerTask {
      * The type of task.
      */
     public enum TaskType {
-        /** Runs in a dedicated thread. */
+        /**
+         * Runs in a dedicated thread.
+         */
         THREAD,
-        /** Called each tick, ends via callback. */
+        /**
+         * Called each tick, ends via callback.
+         */
         TICKLY,
-        /** Runs in Baritone; see BaritoneListener for completion. */
+        /**
+         * Runs in Baritone; see BaritoneListener for completion.
+         */
         BARITONE
     }
 
@@ -62,7 +68,8 @@ public class PuppeteerTask {
     public interface TaskEvent {
         /**
          * Invoked for a task event.
-         * @param self The current task
+         *
+         * @param self         The current task
          * @param onCompletion Only used for TICKLY tasks; call to end the task
          */
         void invoke(PuppeteerTask self, @Nullable ThreadStyleCompletion onCompletion);
@@ -139,6 +146,7 @@ public class PuppeteerTask {
 
     /**
      * Starts the task.
+     *
      * @throws IllegalStateException if already started or ended
      */
     public void start() {

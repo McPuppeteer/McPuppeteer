@@ -18,18 +18,12 @@
 
 package me.psychedelicpalimpsest;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import me.psychedelicpalimpsest.reflection.YarnMapping;
-import me.psychedelicpalimpsest.utils.KeyboardOverride;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.Keyboard;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
@@ -99,9 +93,6 @@ public class McPuppeteer {
         }, Style.EMPTY);
         return builder.toString();
     }
-
-
-
 
 
 }

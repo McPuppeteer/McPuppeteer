@@ -459,6 +459,7 @@ public class PuppeteerServer implements Runnable {
 
         writeByteBufferRaw(client, respBuffer, isOnServerThread);
     }
+
     public interface ServerToClientCallback {
         JsonObject invoke();
     }

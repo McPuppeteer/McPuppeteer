@@ -18,6 +18,7 @@
 
 package me.psychedelicpalimpsest;
 
+import net.fabricmc.loader.api.FabricLoader;
 import org.reflections.Reflections;
 
 import java.lang.reflect.Constructor;
@@ -38,29 +39,44 @@ public class PuppeteerCommandRegistry {
         Reflections reflections = new Reflections("me.psychedelicpalimpsest");
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(PuppeteerCommand.class);
 
+
+
+
         for (Class<?> aClass : annotated) {
             BaseCommand command = null;
-            /* We need to find a no argument constructor, then create an object with it */
-            for (Constructor<?> constructor : aClass.getDeclaredConstructors()) {
-                if (constructor.getParameterCount() != 0) continue;
-                constructor.setAccessible(true);
 
-                try {
-                    Object instance = constructor.newInstance();
-                    command = (BaseCommand) instance;
 
-                    break;
-                } catch (Exception e) {
-                    LOGGER.error("Error instantiating " + aClass.getName() + ", are you sure it implements baseCommand?", e);
-                }
-            }
-            if (command == null) {
-                LOGGER.error("Error instantiating " + aClass.getName() + ", A puppeteer-command annotated class MUST have a no-arg constructor!");
-            }
             String commandName = aClass.getAnnotation(PuppeteerCommand.class).cmd();
             String commandDesc = aClass.getAnnotation(PuppeteerCommand.class).description();
             BaseCommand.CommandContext commandContext = aClass.getAnnotation(PuppeteerCommand.class).cmd_context();
             String[] requirements = aClass.getAnnotation(PuppeteerCommand.class).mod_requirements();
+
+            boolean canRun = true;
+            for (String r : requirements)
+               canRun &= FabricLoader.getInstance().getModContainer(r).isPresent();
+
+
+
+
+            /* We need to find a no argument constructor, then create an object with it */
+            if (canRun)
+                for (Constructor<?> constructor : aClass.getDeclaredConstructors()) {
+                    if (constructor.getParameterCount() != 0) continue;
+                    constructor.setAccessible(true);
+
+                    try {
+                        Object instance = constructor.newInstance();
+                        command = (BaseCommand) instance;
+
+                        break;
+                    } catch (Exception e) {
+                        LOGGER.error("Error instantiating " + aClass.getName() + ", are you sure it implements baseCommand?", e);
+                    }
+                }
+            if (command == null && canRun) {
+                LOGGER.error("Error instantiating " + aClass.getName() + ", A puppeteer-command annotated class MUST have a no-arg constructor!");
+            }
+
 
             COMMAND_MAP.put(commandName, command);
             COMMAND_REQUIREMENTS_MAP.put(commandName, requirements);

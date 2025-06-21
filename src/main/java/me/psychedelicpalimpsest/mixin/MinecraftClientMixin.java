@@ -24,8 +24,6 @@ import me.psychedelicpalimpsest.PuppeteerServer;
 import me.psychedelicpalimpsest.PuppeteerTask;
 import me.psychedelicpalimpsest.modules.HeadlessMode;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
-import me.psychedelicpalimpsest.utils.KeyboardOverride;
-import net.minecraft.client.Keyboard;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Overlay;
 import net.minecraft.client.gui.screen.SplashOverlay;
@@ -37,14 +35,12 @@ import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.util.thread.ThreadExecutor;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Options;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -96,15 +92,6 @@ public abstract class MinecraftClientMixin {
     private void init(CallbackInfo info) {
         McPuppeteer.init();
     }
-
-    @Redirect(
-            method = "<init>",
-            at = @At(value = "NEW", target = "net/minecraft/client/Keyboard")
-    )
-    private Keyboard redirectKeyboard(MinecraftClient client) {
-        return new KeyboardOverride(client);
-    }
-
 
 
     /*

@@ -47,7 +47,7 @@ public class BaritoneListener implements AbstractGameEventListener {
     @Override
     public void onPathEvent(PathEvent pathEvent) {
         /* Seems something somebody might want */
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.BARITONE, ()->BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.BARITONE, () -> BaseCommand.jsonOf(
                 "type", "baritone event",
                 "path state", pathEvent.name()
         ));

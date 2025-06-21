@@ -74,7 +74,7 @@ public abstract class EntityMixin {
         /* Since this method sets the position, this check tells us if the player actually moved */
         if (getPos().equals(new Vec3d(x, y, z))) return;
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_POSITION, ()->BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_POSITION, () -> BaseCommand.jsonOf(
                 "x", x,
                 "y", y,
                 "z", z
@@ -85,7 +85,7 @@ public abstract class EntityMixin {
     void onSetYaw(float yaw, CallbackInfo ci) {
         if (!this.isPlayer()) return;
         if (getYaw() == yaw) return;
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_YAW, ()->BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_YAW, () -> BaseCommand.jsonOf(
                 "yaw", yaw
         ));
     }
@@ -94,7 +94,7 @@ public abstract class EntityMixin {
     void onSetPitch(float pitch, CallbackInfo ci) {
         if (!this.isPlayer()) return;
         if (getPitch() == pitch) return;
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_PITCH, ()->BaseCommand.jsonOf(
+        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_PITCH, () -> BaseCommand.jsonOf(
                 "pitch", pitch
         ));
     }

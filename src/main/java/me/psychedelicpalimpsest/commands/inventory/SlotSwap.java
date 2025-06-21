@@ -74,6 +74,6 @@ public class SlotSwap implements BaseCommand {
                     );
                     callback.resultCallback(new JsonObject());
                 }
-        ), 1));
+        ), request.has("delay") ? request.get("delay").getAsInt() : 4));
     }
 }

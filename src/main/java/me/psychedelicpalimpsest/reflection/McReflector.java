@@ -113,7 +113,6 @@ public class McReflector {
     }
 
 
-
     private static final Gson gson = new Gson();
 
     @SuppressWarnings({"unchecked"})
@@ -184,8 +183,8 @@ public class McReflector {
             else if (obj instanceof ItemStack itemStack)
                 return typeWrap(obj,
                         itemStack.isEmpty()
-                            ? new JsonPrimitive("empty stack")
-                            :serializeObject(itemStack.toNbt(MinecraftClient.getInstance().world.getRegistryManager()), stack)
+                                ? new JsonPrimitive("empty stack")
+                                : serializeObject(itemStack.toNbt(MinecraftClient.getInstance().world.getRegistryManager()), stack)
                 );
             else if (obj instanceof SingleStackRecipe)
                 return BaseCommand.jsonOf(
@@ -258,7 +257,6 @@ public class McReflector {
                 return typeWrap(obj, new JsonPrimitive(((TranslatableTextContent) obj).getKey()));
             else if (obj instanceof Message /* Includes Text */)
                 return typeWrap(obj, new JsonPrimitive(((Message) obj).getString()));
-
 
 
             else if (obj.getClass().getPackageName().startsWith("net.minecraft"))

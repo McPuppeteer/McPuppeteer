@@ -52,7 +52,11 @@ dependencies {
 	// Integration with mod_menu
 	modCompileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
 
-	implementation 'org.reflections:reflections:0.10.2'
+	modImplementation("org.reflections:reflections:0.10.2")
+	include("org.reflections:reflections:0.10.2")
+
+    modImplementation("org.javassist:javassist:3.29.2-GA")
+    include("org.javassist:javassist:3.29.2-GA")
 
 }
 
