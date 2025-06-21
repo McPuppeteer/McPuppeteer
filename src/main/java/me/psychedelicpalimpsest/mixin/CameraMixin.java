@@ -49,9 +49,9 @@ public class CameraMixin {
             ci.cancel();
 
             MinecraftClient.getInstance().gameRenderer.getCamera().setPos(
-                    MathHelper.lerp(tickDelta, focusedEntity.prevX, focusedEntity.getX()),
-                    MathHelper.lerp(tickDelta, focusedEntity.prevY, focusedEntity.getY()) + MathHelper.lerp(tickDelta, this.lastCameraY, this.cameraY),
-                    MathHelper.lerp(tickDelta, focusedEntity.prevZ, focusedEntity.getZ())
+                    MathHelper.lerp(tickDelta, focusedEntity.getX(), focusedEntity.getX()),
+                    MathHelper.lerp(tickDelta, focusedEntity.getY(), focusedEntity.getY()) + MathHelper.lerp(tickDelta, this.lastCameraY, this.cameraY),
+                    MathHelper.lerp(tickDelta, focusedEntity.getZ(), focusedEntity.getZ())
             );
         }
 

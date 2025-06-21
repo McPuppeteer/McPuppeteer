@@ -64,10 +64,10 @@ public class CallbackManager {
         map.forEach((k, v) -> map2.put(v, k));
         CALLBACK_STRING_TYPE_MAP = Collections.unmodifiableMap(map2);
 
-        PlayStateFactories.S2C.forEachPacketType((type, packet) -> {
+        PlayStateFactories.S2C.buildUnbound().forEachPacketType((type, packet) -> {
             PACKET_LIST.add(type.toString());
         });
-        PlayStateFactories.C2S.forEachPacketType((type, packet) -> {
+        PlayStateFactories.C2S.buildUnbound().forEachPacketType((type, packet) -> {
             PACKET_LIST.add(type.toString());
         });
     }

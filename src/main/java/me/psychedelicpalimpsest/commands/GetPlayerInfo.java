@@ -52,7 +52,7 @@ public class GetPlayerInfo implements BaseCommand {
                 "is creative", p.isCreative(),
                 "is spectator", p.isSpectator(),
 
-                "hotbar slot", p.getInventory().selectedSlot + 1,
+                "hotbar slot", p.getInventory().getSelectedSlot() + 1,
 
                 "is holding onto ladder", p.isHoldingOntoLadder(),
                 "is using item", p.isUsingItem(),
@@ -77,7 +77,6 @@ public class GetPlayerInfo implements BaseCommand {
                 "is auto jump enabled", p.isAutoJumpEnabled(),
                 "is swimming", p.isSwimming(),
                 "is touching water or rain", p.isTouchingWaterOrRain(),
-                "is wet", p.isWet(),
                 "is in wall", p.isInsideWall(),
 
                 "username", MinecraftClient.getInstance().getSession().getUsername(),

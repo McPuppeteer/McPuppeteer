@@ -31,8 +31,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class ClientConnectionMixin {
     @Inject(method = "handlePacket", at = @At("HEAD"))
     private static void handlePacket(Packet<?> packet, PacketListener listener, CallbackInfo ci) {
-
-        String id = packet.getPacketId().toString();
+        String id = packet.getPacketType().id().toString();
 
         if (packet instanceof ChunkDataS2CPacket) return;
 //        new Thread(()->

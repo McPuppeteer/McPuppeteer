@@ -24,6 +24,7 @@ import net.minecraft.client.input.KeyboardInput;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.util.PlayerInput;
+import net.minecraft.util.math.Vec2f;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -94,7 +95,7 @@ public class PuppeteerInput extends Input {
 
 
     @Override
-    public void tick(boolean slowDown, float slowDownFactor) {
+    public void tick() {
         regenInput();
         if (isDirectionalMovement) {
             /* Adjust for minecrafts strange yaw system (Why is yaw not clamped????) */
@@ -118,17 +119,17 @@ public class PuppeteerInput extends Input {
                 directionBackward *= scalar;
             }
 
-            this.movementForward = directionForward * directionalSpeed;
-            this.movementSideways = directionBackward * directionalSpeed;
+            this.movementVector = new Vec2f(directionForward * directionalSpeed, directionBackward * directionalSpeed);
 
         } else {
-            this.movementForward = KeyboardInput.getMovementMultiplier(this.playerInput.forward(), this.playerInput.backward());
-            this.movementSideways = KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right());
+            this.movementVector = new Vec2f(
+                    KeyboardInput.getMovementMultiplier(this.playerInput.forward(), this.playerInput.backward()),
+                    KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right())
+            );
         }
-        if (slowDown) {
-            this.movementSideways *= slowDownFactor;
-            this.movementForward *= slowDownFactor;
-        }
+        // TODO: Do I need to reimplement this somehow?
+//         if (slowDown)
+//            this.movementVector = this.movementVector.multiply(slowDownFactor);
     }
 
 

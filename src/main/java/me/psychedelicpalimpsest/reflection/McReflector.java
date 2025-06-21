@@ -208,7 +208,8 @@ public class McReflector {
                         "id", Registries.SCREEN_HANDLER.getId(type).toString()
                 );
             else if (obj instanceof NbtElement)
-                return typeWrap(obj, new JsonPrimitive(((NbtElement) obj).asString()));
+                return typeWrap(obj, new JsonPrimitive(((NbtElement) obj).asString().get()
+                ));
 
 
             else if (obj instanceof RegistryKey<?>)

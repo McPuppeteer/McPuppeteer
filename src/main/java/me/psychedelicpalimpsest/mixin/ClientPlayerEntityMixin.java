@@ -45,7 +45,7 @@ public class ClientPlayerEntityMixin {
 
 
         if (Freecam.isFreecamActive()) {
-            this.input.tick(false, 0f);
+            this.input.tick();
 
             Freecam.movementHandler.movementTick();
         }
