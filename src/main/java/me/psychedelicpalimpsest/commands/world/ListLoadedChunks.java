@@ -42,7 +42,7 @@ public class ListLoadedChunks implements BaseCommand {
             JsonArray array = new JsonArray(2);
             WorldChunk chunk = map.get(i);
             if (chunk == null) continue;
-            
+
             array.add(chunk.getPos().x);
             array.add(chunk.getPos().z);
             chunks.add(array);

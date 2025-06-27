@@ -40,8 +40,6 @@ public class PuppeteerCommandRegistry {
         Set<Class<?>> annotated = reflections.getTypesAnnotatedWith(PuppeteerCommand.class);
 
 
-
-
         for (Class<?> aClass : annotated) {
             BaseCommand command = null;
 
@@ -53,7 +51,7 @@ public class PuppeteerCommandRegistry {
 
             boolean canRun = true;
             for (String r : requirements)
-               canRun &= FabricLoader.getInstance().getModContainer(r).isPresent();
+                canRun &= FabricLoader.getInstance().getModContainer(r).isPresent();
 
 
 

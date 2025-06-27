@@ -37,7 +37,6 @@ import me.psychedelicpalimpsest.commands.Panic;
 import me.psychedelicpalimpsest.modules.Freecam;
 import me.psychedelicpalimpsest.modules.Freerot;
 import me.psychedelicpalimpsest.modules.NoWalk;
-import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 
 import java.nio.file.Files;

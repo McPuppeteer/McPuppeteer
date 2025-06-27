@@ -113,7 +113,7 @@ public class GetChunk implements BaseCommand {
     public void onRequest(JsonObject request, LaterCallback callback) {
         ClientWorld world = MinecraftClient.getInstance().world;
 
-        new Thread(()-> {
+        new Thread(() -> {
             WorldChunk c = MinecraftClient.getInstance().world.getChunk(request.get("cx").getAsInt(), request.get("cz").getAsInt());
             if (c == null) {
                 callback.resultCallback(BaseCommand.jsonOf(
