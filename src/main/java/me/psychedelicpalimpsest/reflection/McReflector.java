@@ -23,12 +23,14 @@ import io.netty.buffer.ByteBuf;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.McPuppeteer;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.argument.serialize.ArgumentSerializer;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtHelper;
 import net.minecraft.recipe.SingleStackRecipe;
 import net.minecraft.recipe.display.CuttingRecipeDisplay;
 import net.minecraft.registry.Registries;
@@ -257,6 +259,8 @@ public class McReflector {
                 return typeWrap(obj, new JsonPrimitive(((TranslatableTextContent) obj).getKey()));
             else if (obj instanceof Message /* Includes Text */)
                 return typeWrap(obj, new JsonPrimitive(((Message) obj).getString()));
+            else if (obj instanceof BlockState bs)
+                return typeWrap(obj, new JsonPrimitive(NbtHelper.fromBlockState(bs).toString()));
 
 
             else if (obj.getClass().getPackageName().startsWith("net.minecraft"))

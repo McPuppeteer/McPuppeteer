@@ -33,6 +33,7 @@ import fi.dy.masa.malilib.hotkeys.IKeybindManager;
 import fi.dy.masa.malilib.hotkeys.IKeybindProvider;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
+import me.psychedelicpalimpsest.commands.Panic;
 import me.psychedelicpalimpsest.modules.Freecam;
 import me.psychedelicpalimpsest.modules.Freerot;
 import me.psychedelicpalimpsest.modules.NoWalk;
@@ -136,37 +137,7 @@ public class PuppeteerConfig implements IConfigHandler {
         PuppeteerConfig.TOGGLE_FREEROT.getKeybind().setCallback(Freerot::toggleFreerot);
         PuppeteerConfig.TOGGLE_NOWALK.getKeybind().setCallback(NoWalk::toggle);
         PuppeteerConfig.PANIC_BUTTON.getKeybind().setCallback((ignored, ignored2) -> {
-            if (McPuppeteer.installedMods.contains("baritone")) {
-                BaritoneListener.panic();
-            }
-
-            if (!McPuppeteer.tasks.isEmpty()) {
-                McPuppeteer.tasks.peek().kill();
-                McPuppeteer.tasks.clear();
-            }
-
-            if (NoWalk.isActive)
-                NoWalk.toggle(null, null);
-            if (Freerot.isFreerotActive())
-                Freerot.toggleFreerot(null, null);
-            if (Freecam.isFreecamActive())
-                Freecam.toggleFreecam(null, null);
-
-            PuppeteerInput.isForcePressed.clear();
-            PuppeteerInput.allowUserInput = true;
-            PuppeteerInput.isDirectionalMovement = false;
-
-
-            PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, () -> BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "panic",
-                    "message", "The user has pressed that panic button",
-
-                    /* Specifically force the client to interpret as error */
-                    "callback", false
-            ));
-
-
+            Panic.panic();
             return true;
         });
 

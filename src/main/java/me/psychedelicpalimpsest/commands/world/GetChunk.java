@@ -113,41 +113,43 @@ public class GetChunk implements BaseCommand {
     public void onRequest(JsonObject request, LaterCallback callback) {
         ClientWorld world = MinecraftClient.getInstance().world;
 
-        WorldChunk c = MinecraftClient.getInstance().world.getChunk(request.get("cx").getAsInt(), request.get("cz").getAsInt());
-        if (c == null) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "unknown chunk",
-                    "message", "Cannot find chunk"
-            ));
-            return;
-        }
+        new Thread(()-> {
+            WorldChunk c = MinecraftClient.getInstance().world.getChunk(request.get("cx").getAsInt(), request.get("cz").getAsInt());
+            if (c == null) {
+                callback.resultCallback(BaseCommand.jsonOf(
+                        "status", "error",
+                        "type", "unknown chunk",
+                        "message", "Cannot find chunk"
+                ));
+                return;
+            }
 
 
-        PacketByteBuf buf = PacketByteBufs.create();
-        NbtList nbtList = new NbtList();
-        c.getBlockEntities().forEach(((blockPos, blockEntity) -> {
-            NbtCompound tag = new NbtCompound();
-            tag.putInt("x", blockPos.getX());
-            tag.putInt("y", blockPos.getY());
-            tag.putInt("z", blockPos.getZ());
+            PacketByteBuf buf = PacketByteBufs.create();
+            NbtList nbtList = new NbtList();
+            c.getBlockEntities().forEach(((blockPos, blockEntity) -> {
+                NbtCompound tag = new NbtCompound();
+                tag.putInt("x", blockPos.getX());
+                tag.putInt("y", blockPos.getY());
+                tag.putInt("z", blockPos.getZ());
 
 
-            tag.put("data", blockEntity.createNbt(world.getRegistryManager()));
-            nbtList.add(tag);
-        }));
+                tag.put("data", blockEntity.createNbt(world.getRegistryManager()));
+                nbtList.add(tag);
+            }));
 
-        /* Block entities */
-        buf.writeNbt(nbtList);
+            /* Block entities */
+            buf.writeNbt(nbtList);
 
-        /* Section info */
-        buf.writeInt(c.getBottomSectionCoord());
-        buf.writeInt(c.getTopSectionCoord());
-        buf.writeShort(c.getSectionArray().length);
-        for (ChunkSection section : c.getSectionArray()) {
-            serializeSimple(section, buf);
-        }
+            /* Section info */
+            buf.writeInt(c.getBottomSectionCoord());
+            buf.writeInt(c.getTopSectionCoord());
+            buf.writeShort(c.getSectionArray().length);
+            for (ChunkSection section : c.getSectionArray()) {
+                serializeSimple(section, buf);
+            }
 
-        callback.packetResultCallback(buf.array());
+            callback.packetResultCallback(buf.array());
+        }).start();
     }
 }

@@ -23,6 +23,9 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.world.chunk.WorldChunk;
+
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 @PuppeteerCommand(
         cmd = "list loaded chunks",
@@ -34,15 +37,16 @@ public class ListLoadedChunks implements BaseCommand {
     public void onRequest(JsonObject request, LaterCallback callback) {
         JsonArray chunks = new JsonArray(MinecraftClient.getInstance().worldRenderer.getBuiltChunks().size());
 
-        MinecraftClient.getInstance().worldRenderer.getBuiltChunks().forEach((item) -> {
-            JsonArray array = new JsonArray(3);
-            array.add(item.getOrigin().getX() >> 4);
-            array.add(item.getOrigin().getY() >> 4);
-            array.add(item.getOrigin().getZ() >> 4);
-
+        AtomicReferenceArray<WorldChunk> map = MinecraftClient.getInstance().world.getChunkManager().chunks.chunks;
+        for (int i = 0; i < map.length(); i++) {
+            JsonArray array = new JsonArray(2);
+            WorldChunk chunk = map.get(i);
+            if (chunk == null) continue;
+            
+            array.add(chunk.getPos().x);
+            array.add(chunk.getPos().z);
             chunks.add(array);
-        });
-
+        }
 
         callback.resultCallback(BaseCommand.jsonOf(
                 "chunks", chunks
