@@ -23,10 +23,13 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.reflection.McReflector;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.Palette;
 import net.minecraft.world.chunk.PalettedContainer;
 
@@ -41,7 +44,8 @@ import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
         cmd_context = BaseCommand.CommandContext.PLAY
 )
 public class SearchForBlock implements BaseCommand {
-    static <T> void extractPaletteItems(Palette<T> palette, Consumer<Pair<Integer, T>> consumer) {
+    /* Iterates over each item in the palette. Calls back with the index, and the item itself */
+    static <T> void enumeratePaletteItems(Palette<T> palette, Consumer<Pair<Integer, T>> consumer) {
         for (int i = 0; i < palette.getSize(); i++) {
             T item = palette.get(i);
             consumer.accept(new Pair<>(i, item));
@@ -60,43 +64,67 @@ public class SearchForBlock implements BaseCommand {
         return new int[]{x, y, z};
     }
 
-    static JsonArray blockSearcher(HashSet<String> target) {
+    // Search for blocks by RAW BLOCK ID
+    // NOTE: Although I have tried to optimize it, this can still be quite long-running
+    static JsonArray blockSearcher(HashSet<Integer> target) {
         JsonArray ret = new JsonArray();
         var map = MinecraftClient.getInstance().world.getChunkManager().chunks.chunks;
+        var world = MinecraftClient.getInstance().world;
         for (int i = 0; i < map.length(); i++) {
             var chunk = map.get(i);
+            // Skip unloaded chunks
             if (chunk == null) continue;
 
-            final int offx = chunk.getPos().x * 16;
-            final int offz = chunk.getPos().z * 16;
-            int ySec = 0;
+            var cp = chunk.getPos();
+            // Chunks are composed of many sections, with an implementation defined start idx
+            int ySec = chunk.getBottomSectionCoord();
+
             for (var section : chunk.getSectionArray()) {
+                // From section to cord
                 final int offy = (ySec++) * 16;
+
+                // Palette idx to value, but only target items
                 var results = new HashMap<Integer, BlockState>();
-                var cont = section.getBlockStateContainer();
+                var blockStateContainer = section.getBlockStateContainer();
                 PalettedContainer.Data<BlockState> data = section.getBlockStateContainer().data;
 
-                extractPaletteItems(
+                enumeratePaletteItems(
                         data.palette(), (item) -> {
-                            if (target.contains(Registries.BLOCK.getId(item.getRight().getBlock()).toString()))
+                            if (target.contains(Registries.BLOCK.getRawId(item.getRight().getBlock())))
                                 results.put(item.getLeft(), item.getRight());
                         }
                 );
+                // Skip if no results in the section are found
                 if (results.isEmpty()) continue;
+                // Index within a section
                 final int[] secIdx = {0};
                 data.storage().forEach((id) -> {
-                    if (!results.containsKey(id)) return;
-                    JsonObject obj = new JsonObject();
-                    int edge = cont.paletteProvider.edgeBits;
-                    var location = computelocation(edge, secIdx[0]);
+                    // Skip blocks which are now our results
+                    if (results.containsKey(id)){
+                        JsonObject obj = new JsonObject();
 
+                        var rel_loc = computelocation(blockStateContainer.paletteProvider.edgeBits, secIdx[0]);
+                        var global_loc = new BlockPos(
+                                cp.getOffsetX(rel_loc[0]),
+                                rel_loc[1] + offy,
+                                cp.getOffsetZ(rel_loc[2])
+                        );
+                        var entity = world.getBlockEntity(global_loc);
 
-                    obj.add("state", McReflector.serializeObject(results.get(id)));
-                    obj.addProperty("x", location[0] + offx);
-                    obj.addProperty("y", location[1] + offy);
-                    obj.addProperty("z", location[2] + offz);
+                        obj.add("state", McReflector.serializeObject(results.get(id)));
+                        if (entity != null) {
+                            obj.add("entity data", McReflector.serializeObject(
+                                    entity.createNbtWithIdentifyingData(
+                                           world.getRegistryManager()
+                                    )
+                            ));
+                        }
+                        obj.addProperty("x", global_loc.getX());
+                        obj.addProperty("y", global_loc.getX());
+                        obj.addProperty("z", global_loc.getZ());
 
-                    ret.add(obj);
+                        ret.add(obj);
+                    }
                     secIdx[0]++;
                 });
             }
@@ -108,10 +136,22 @@ public class SearchForBlock implements BaseCommand {
     public void onRequest(JsonObject request, LaterCallback callback) {
         JsonArray array = request.getAsJsonArray("blocks");
 
-        HashSet<String> targets = new HashSet<>(array.size());
+        HashSet<Integer> targets = new HashSet<>(array.size());
         for (JsonElement idElem : array) {
-            String id = idElem.getAsString();
-            targets.add(id);
+            Identifier id = Identifier.of(idElem.getAsString());
+            Block b = Registries.BLOCK.get(id);
+
+            // Ensure valid block
+            if (!Registries.BLOCK.getId(b).toString().equals(id.toString())) {
+                callback.resultCallback(BaseCommand.jsonOf(
+                        "status", "error",
+                        "type", "search error",
+                        "message", "Block id is not valid: " + id.toString()
+                        )
+                );
+                return;
+            }
+            targets.add(Registries.BLOCK.getRawId(b));
         }
 
         new Thread(() -> {
