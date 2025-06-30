@@ -47,8 +47,6 @@ public class CallbackManager {
     public static final Map<CallbackType, String> CALLBACK_TYPE_STRING_MAP;
     public static final Map<String, CallbackType> CALLBACK_STRING_TYPE_MAP;
 
-    public static final Set<String> PACKET_LIST = new HashSet<>();
-
     static {
         Map<CallbackType, String> map = new HashMap<>(CallbackType.values().length);
 
@@ -64,12 +62,12 @@ public class CallbackManager {
         map.forEach((k, v) -> map2.put(v, k));
         CALLBACK_STRING_TYPE_MAP = Collections.unmodifiableMap(map2);
 
-        PlayStateFactories.S2C.buildUnbound().forEachPacketType((type, packet) -> {
-            PACKET_LIST.add(type.toString());
-        });
-        PlayStateFactories.C2S.buildUnbound().forEachPacketType((type, packet) -> {
-            PACKET_LIST.add(type.toString());
-        });
+//        PlayStateFactories.S2C.buildUnbound().forEachPacketType((type, packet) -> {
+//            PACKET_LIST.add(type.toString());
+//        });
+//        PlayStateFactories.C2S.buildUnbound().forEachPacketType((type, packet) -> {
+//            PACKET_LIST.add(type.toString());
+//        });
     }
 
 

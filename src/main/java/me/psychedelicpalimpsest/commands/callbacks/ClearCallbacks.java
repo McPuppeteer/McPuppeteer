@@ -29,9 +29,8 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 public class ClearCallbacks implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.callbacksModView((callbacks, packetCallbacks) -> {
+        callback.callbacksModView((callbacks) -> {
             callbacks.clear();
-            packetCallbacks.clear();
             callback.resultCallback(new JsonObject());
         });
     }
