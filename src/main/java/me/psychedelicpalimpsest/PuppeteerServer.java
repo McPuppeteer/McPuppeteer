@@ -460,13 +460,51 @@ public class PuppeteerServer implements Runnable {
         writeByteBufferRaw(client, respBuffer, isOnServerThread);
     }
 
+    public interface ServerToClientPacketCallback {
+        JsonObject invoke(CallbackManager.PacketCallbackMode mode, ClientAttachment attachment);
+    }
+
     public interface ServerToClientCallback {
         JsonObject invoke();
     }
 
 
+
+    public static void broadcastPacket(String packetId, ServerToClientPacketCallback callback) {
+        if (getInstance() == null) return;
+
+        getInstance().scheduleSelectorTask(() -> {
+            HashMap<CallbackManager.PacketCallbackMode, JsonObject> cache = null;
+
+            Selector s = instance.selector;
+            for (SocketChannel client : instance.connectedClients) {
+                if (!client.isOpen()) {
+                    instance.connectedClients.remove(client);
+                    continue;
+                }
+                ClientAttachment attachment = (ClientAttachment)
+                        client.keyFor(s).attachment();
+
+                var type = attachment.packetCallbacks.getOrDefault(packetId, CallbackManager.PacketCallbackMode.DISABLED);
+                if (type == CallbackManager.PacketCallbackMode.DISABLED) continue;
+
+                if (cache == null) cache = new HashMap<>();
+                if (!cache.containsKey(type)) {
+                    JsonObject packet = callback.invoke(type, attachment);
+                    if (!packet.has("callback"))
+                        packet.addProperty("callback", true);
+                    if (!packet.has("status"))
+                        packet.addProperty("status", "ok");
+                    packet.addProperty("type", packetId);
+                    cache.put(type, packet);
+                }
+                instance.writeJsonPacket(client, cache.get(type), true);
+            }
+
+        });
+    }
     public static void broadcastJsonPacket(CallbackManager.CallbackType type, ServerToClientCallback callback) {
-        String type_name = CallbackManager.CALLBACK_TYPE_STRING_MAP.getOrDefault(type, "UNKNOWN");
+        String type_name = type.name();
 
         /* No broadcasts :< */
         if (getInstance() == null) return;
@@ -515,14 +553,14 @@ public class PuppeteerServer implements Runnable {
     }
 
 
-    static class ClientAttachment {
+    public static class ClientAttachment {
         ByteBuffer readBuffer = ByteBuffer.allocate(BUFFER_SIZE);
         Queue<ByteBuffer> writeQueue = new ConcurrentLinkedQueue<>();
         int expectedLength = -1;
         byte dataType = 0;
 
-        Map<CallbackManager.CallbackType, Boolean> allowedCallbacks = new HashMap<>();
-        Map<String, Boolean> packetCallbacks = new HashMap<>();
+        public Map<CallbackManager.CallbackType, Boolean> allowedCallbacks = new HashMap<>();
+        public Map<String, CallbackManager.PacketCallbackMode> packetCallbacks = new HashMap<>();
     }
 
 

@@ -23,6 +23,20 @@ import net.minecraft.network.state.PlayStateFactories;
 import java.util.*;
 
 public class CallbackManager {
+    public enum PacketCallbackMode {
+        DISABLED,
+
+        NOTIFY_ONLY,
+        NOTIFY_NEXT,
+
+        NETWORK_SERIALIZED,
+        NETWORK_SERIALIZED_NEXT,
+
+        OBJECT_SERIALIZED,
+        OBJECT_SERIALIZED_NEXT,
+    }
+
+
     public enum CallbackType {
         FORCED,
 
@@ -42,27 +56,18 @@ public class CallbackManager {
         CLOSE_CONTAINER,
         SET_CURSOR_ITEM,
     }
+    public static final Set<String> CALLBACK_STRING_TYPES;
 
 
-    public static final Map<CallbackType, String> CALLBACK_TYPE_STRING_MAP;
-    public static final Map<String, CallbackType> CALLBACK_STRING_TYPE_MAP;
 
     public static final Set<String> PACKET_LIST = new HashSet<>();
 
     static {
-        Map<CallbackType, String> map = new HashMap<>(CallbackType.values().length);
-
-        /* Assume we are not obfuscating shit in our own mod */
+        Set<String> types = new HashSet<>();
         for (CallbackType type : CallbackType.values()) {
-            map.put(type, type.name());
+            types.add(type.name());
         }
-
-
-        CALLBACK_TYPE_STRING_MAP = Collections.unmodifiableMap(map);
-
-        Map<String, CallbackType> map2 = new HashMap<>(map.size());
-        map.forEach((k, v) -> map2.put(v, k));
-        CALLBACK_STRING_TYPE_MAP = Collections.unmodifiableMap(map2);
+        CALLBACK_STRING_TYPES = Collections.unmodifiableSet(types);
 
         PlayStateFactories.S2C.buildUnbound().forEachPacketType((type, packet) -> {
             PACKET_LIST.add(type.toString());
@@ -71,6 +76,7 @@ public class CallbackManager {
             PACKET_LIST.add(type.toString());
         });
     }
+
 
 
 }

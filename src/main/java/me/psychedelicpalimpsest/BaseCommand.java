@@ -35,8 +35,9 @@ import java.util.Map;
 
 public interface BaseCommand {
 
+
     interface CallbackModView {
-        void invoke(Map<CallbackManager.CallbackType, Boolean> callbacks, Map<String, Boolean> packetCallbacks);
+        void invoke(Map<CallbackManager.CallbackType, Boolean> callbacks, Map<String, CallbackManager.PacketCallbackMode> packetCallbacks);
     }
 
     interface LaterCallback {

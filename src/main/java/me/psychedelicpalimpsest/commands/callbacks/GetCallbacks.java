@@ -32,20 +32,20 @@ public class GetCallbacks implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
         callback.callbacksModView((callbackMap, packetMap) -> {
-            JsonObject result = new JsonObject();
-            CallbackManager.CALLBACK_TYPE_STRING_MAP.forEach((type, name) -> {
-                result.addProperty(
-                        name, callbackMap.getOrDefault(type, false)
+            JsonObject typicalCallbackResults = new JsonObject();
+            JsonObject packetCallbackResults = new JsonObject();
+            for (CallbackManager.CallbackType callbackType : CallbackManager.CallbackType.values()){
+                typicalCallbackResults.addProperty(
+                        callbackType.name(), callbackMap.getOrDefault(callbackType, false)
                 );
-            });
-            CallbackManager.PACKET_LIST.forEach(packet -> {
-                result.addProperty(
-                        packet, packetMap.getOrDefault(packet, false)
-                );
-            });
+            }
+            CallbackManager.PACKET_LIST.forEach(packet -> packetCallbackResults.addProperty(
+                    packet, packetMap.getOrDefault(packet, CallbackManager.PacketCallbackMode.DISABLED).name()
+            ));
 
             callback.resultCallback(BaseCommand.jsonOf(
-                    "callbacks", result
+                    "typical callbacks", typicalCallbackResults,
+                    "packet callbacks", packetCallbackResults
             ));
         });
     }

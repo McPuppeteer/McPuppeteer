@@ -17,6 +17,10 @@
 
 package me.psychedelicpalimpsest.mixin;
 
+import com.google.gson.JsonObject;
+import me.psychedelicpalimpsest.PuppeteerServer;
+import me.psychedelicpalimpsest.reflection.McReflector;
+import me.psychedelicpalimpsest.reflection.PacketJsonEncoder;
 import net.minecraft.network.ClientConnection;
 import net.minecraft.network.listener.PacketListener;
 import net.minecraft.network.packet.Packet;
@@ -26,20 +30,39 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static me.psychedelicpalimpsest.CallbackManager.PacketCallbackMode.*;
 
 @Mixin(ClientConnection.class)
 public class ClientConnectionMixin {
     @Inject(method = "handlePacket", at = @At("HEAD"))
     private static void handlePacket(Packet<?> packet, PacketListener listener, CallbackInfo ci) {
-        String id = packet.getPacketType().id().toString();
-
-        if (packet instanceof ChunkDataS2CPacket) return;
+        String id = packet.getPacketType().toString();
 
 
-        /* TODO: Proper packet callbacks */
-//        new Thread(()->
-//            System.out.println(PacketJsonEncoder.encode(packet))
-//        ).start();
+        PuppeteerServer.broadcastPacket(id, (type, attachment) -> {
+            if (type == NOTIFY_NEXT || type == NETWORK_SERIALIZED_NEXT || type == OBJECT_SERIALIZED_NEXT) {
+                attachment.packetCallbacks.remove(id);
+            }
+            System.out.println(id + " with " + type.name());
+
+            switch (type){
+                case NOTIFY_NEXT:
+                case NOTIFY_ONLY:
+                    return new JsonObject();
+                case NETWORK_SERIALIZED:
+                case NETWORK_SERIALIZED_NEXT:
+                    return PacketJsonEncoder.encode(packet);
+                case OBJECT_SERIALIZED:
+                case OBJECT_SERIALIZED_NEXT:
+                    /* Note: This is safe because we KNOW that packets will return an object */
+                    return (JsonObject) McReflector.serializeObject(packet);
+
+
+                default:
+                    throw new AssertionError("Unreachable " + type.name());
+            }
+        });
+
 
     }
 }

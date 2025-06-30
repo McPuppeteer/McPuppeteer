@@ -35,15 +35,17 @@ public class SetCallbacks implements BaseCommand {
         JsonObject userCallbacks = request.getAsJsonObject("callbacks");
 
 
-        var typicalCallbacks = userCallbacks.entrySet().stream()
-                .filter(entry -> CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey())).toList();
+
+
 
         final var packetCallbacks = userCallbacks.entrySet().stream()
-                .filter(entry -> !CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey()))
-                .map((entry -> Map.entry(entry.getKey(), entry.getValue().getAsBoolean())))
+                .filter(entry -> !CallbackManager.CALLBACK_STRING_TYPES.contains(entry.getKey()))
+                .map((entry -> Map.entry(entry.getKey(), entry.getValue().getAsString())))
                 .toList();
 
 
+        var typicalCallbacks = userCallbacks.entrySet().stream()
+                .filter(entry -> CallbackManager.CALLBACK_STRING_TYPES.contains(entry.getKey())).toList();
         if (packetCallbacks.stream().anyMatch((entry) -> !CallbackManager.PACKET_LIST.contains(entry.getKey()))) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
@@ -62,17 +64,18 @@ public class SetCallbacks implements BaseCommand {
         }
 
 
-        final var entries = typicalCallbacks.stream().map(
+        final var typicalCallbackList = typicalCallbacks.stream().map(
                 (entry) -> Map.entry(
-                        CallbackManager.CALLBACK_STRING_TYPE_MAP.get(entry.getKey()),
+                        CallbackManager.CallbackType.valueOf(entry.getKey()),
                         entry.getValue().getAsBoolean()
                 )
         ).toList();
 
 
         callback.callbacksModView((callbackMap, packetMap) -> {
-            entries.forEach(entry -> callbackMap.put(entry.getKey(), entry.getValue()));
-            packetCallbacks.forEach(entry -> packetMap.put(entry.getKey(), entry.getValue()));
+            typicalCallbackList.forEach(entry -> callbackMap.put(entry.getKey(), entry.getValue()));
+            packetCallbacks.forEach(entry ->
+                    packetMap.put(entry.getKey(), CallbackManager.PacketCallbackMode.valueOf(entry.getValue())));
 
             callback.resultCallback(new JsonObject());
         });
