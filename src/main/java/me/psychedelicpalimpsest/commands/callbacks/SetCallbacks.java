@@ -38,6 +38,20 @@ public class SetCallbacks implements BaseCommand {
         var typicalCallbacks = userCallbacks.entrySet().stream()
                 .filter(entry -> CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey())).toList();
 
+        final var packetCallbacks = userCallbacks.entrySet().stream()
+                .filter(entry -> !CallbackManager.CALLBACK_STRING_TYPE_MAP.containsKey(entry.getKey()))
+                .map((entry -> Map.entry(entry.getKey(), entry.getValue().getAsBoolean())))
+                .toList();
+
+
+        if (packetCallbacks.stream().anyMatch((entry) -> !CallbackManager.PACKET_LIST.contains(entry.getKey()))) {
+            callback.resultCallback(BaseCommand.jsonOf(
+                    "status", "error",
+                    "type", "unknown callback",
+                    "message", "Unknown packet callback"
+            ));
+            return;
+        }
         if (typicalCallbacks.stream().anyMatch(entry -> null == entry.getKey())) {
             callback.resultCallback(BaseCommand.jsonOf(
                     "status", "error",
@@ -56,9 +70,9 @@ public class SetCallbacks implements BaseCommand {
         ).toList();
 
 
-        callback.callbacksModView((callbackMap) -> {
+        callback.callbacksModView((callbackMap, packetMap) -> {
             entries.forEach(entry -> callbackMap.put(entry.getKey(), entry.getValue()));
-//            packetCallbacks.forEach(entry -> packetMap.put(entry.getKey(), entry.getValue()));
+            packetCallbacks.forEach(entry -> packetMap.put(entry.getKey(), entry.getValue()));
 
             callback.resultCallback(new JsonObject());
         });

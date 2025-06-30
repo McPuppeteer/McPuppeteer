@@ -31,11 +31,16 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 public class GetCallbacks implements BaseCommand {
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.callbacksModView((callbackMap) -> {
+        callback.callbacksModView((callbackMap, packetMap) -> {
             JsonObject result = new JsonObject();
             CallbackManager.CALLBACK_TYPE_STRING_MAP.forEach((type, name) -> {
                 result.addProperty(
                         name, callbackMap.getOrDefault(type, false)
+                );
+            });
+            CallbackManager.PACKET_LIST.forEach(packet -> {
+                result.addProperty(
+                        packet, packetMap.getOrDefault(packet, false)
                 );
             });
 
