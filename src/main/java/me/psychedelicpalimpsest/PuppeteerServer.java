@@ -168,7 +168,6 @@ public class PuppeteerServer implements Runnable {
         instance = new PuppeteerServer();
         listenThread = new Thread(instance);
         listenThread.start();
-
     }
 
     public static void killServer() {
@@ -191,9 +190,14 @@ public class PuppeteerServer implements Runnable {
 
     private final Queue<Runnable> pendingTasks = new ConcurrentLinkedQueue<>();
 
-    private void scheduleSelectorTask(Runnable task) {
-        pendingTasks.add(task);
-        selector.wakeup();
+    public void serverTask(Runnable task) {
+        if (Thread.currentThread().threadId() != PuppeteerServer.listenThread.threadId()) {
+            pendingTasks.add(task);
+            selector.wakeup();
+        } else {
+            task.run();
+        }
+
     }
 
     private final Set<SocketChannel> connectedClients = ConcurrentHashMap.newKeySet();
@@ -216,7 +220,7 @@ public class PuppeteerServer implements Runnable {
         }
         while (running) {
             try {
-                selector.select(20);
+                selector.select();
 
                 Runnable task;
                 while ((task = pendingTasks.poll()) != null) {
@@ -310,7 +314,7 @@ public class PuppeteerServer implements Runnable {
                 if (request.has("id"))
                     response.add("id", request.get("id"));
 
-                writeJsonPacket(client, response, true);
+                writeJsonPacket(client, response);
                 return;
             }
 
@@ -323,7 +327,7 @@ public class PuppeteerServer implements Runnable {
                         "type", "format",
                         "message", "unknown command",
                         "id", id
-                ), true);
+                ));
                 return;
             }
 
@@ -335,7 +339,7 @@ public class PuppeteerServer implements Runnable {
                         "type", "mod requirement",
                         "message", r + " not installed",
                         "id", id
-                ), true);
+                ));
                 return;
             }
             BaseCommand.CommandContext ctx = COMMAND_CONTEXT_MAP.get(cmd);
@@ -345,7 +349,7 @@ public class PuppeteerServer implements Runnable {
                         "type", "context error",
                         "message", "The player is not in the expected context, meaning they cannot complete the requested action. Expected context: " + ctx,
                         "id", id
-                ), true);
+                ));
                 return;
             }
 
@@ -354,7 +358,7 @@ public class PuppeteerServer implements Runnable {
                 COMMAND_MAP.get(cmd).onRequest(request, new BaseCommand.LaterCallback() {
                     @Override
                     public void callbacksModView(BaseCommand.CallbackModView callback) {
-                        scheduleSelectorTask(() -> {
+                        serverTask(() -> {
                             ClientAttachment attachment = (ClientAttachment) client.keyFor(instance.selector).attachment();
                             callback.invoke(attachment.allowedCallbacks, attachment.packetCallbacks);
                         });
@@ -367,7 +371,7 @@ public class PuppeteerServer implements Runnable {
                             result.addProperty("status", "ok");
                         result.addProperty("id", id);
 
-                        writeJsonPacket(client, result, false);
+                        writeJsonPacket(client, result);
                     }
 
                     @Override
@@ -375,19 +379,19 @@ public class PuppeteerServer implements Runnable {
 
                         result.addProperty("callback", true);
 
-                        writeJsonPacket(client, result, false);
+                        writeJsonPacket(client, result);
                     }
 
                     @Override
                     public void packetResultCallback(byte[] result) {
-                        writeBinaryStyleData(client, (byte) 'b', result, id, false);
+                        writeBinaryStyleData(client, (byte) 'b', result, id);
                     }
 
                     @Override
                     public void nbtResultCallback(NbtElement result) {
                         PacketByteBuf pb = PacketByteBufs.create();
                         pb.writeNbt(result);
-                        writeBinaryStyleData(client, (byte) 'n', pb.array(), id, false);
+                        writeBinaryStyleData(client, (byte) 'n', pb.array(), id);
                     }
 
                 });
@@ -398,7 +402,7 @@ public class PuppeteerServer implements Runnable {
                         "type", "exception",
                         "message", "An exception occurred while processing this request: " + e.toString(),
                         "id", id
-                ), false);
+                ));
             }
 
         } else if (type == 'n') {
@@ -412,8 +416,7 @@ public class PuppeteerServer implements Runnable {
     }
 
 
-    private void writeByteBufferRaw(SocketChannel client, ByteBuffer respBuffer, boolean isOnServerThread) {
-        Runnable run = (() -> {
+    private void writeByteBufferRaw(SocketChannel client, ByteBuffer respBuffer) {
             ClientAttachment attachment = (ClientAttachment)
                     client.keyFor(selector).attachment();
             attachment.writeQueue.add(respBuffer);
@@ -421,16 +424,10 @@ public class PuppeteerServer implements Runnable {
             SelectionKey key = client.keyFor(selector);
             key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
 
-        });
-
-        if (isOnServerThread)
-            run.run();
-        else
-            scheduleSelectorTask(run);
     }
 
 
-    private void writeBinaryStyleData(SocketChannel client, byte format, byte[] data, @Nullable String id, boolean isOnServerThread) {
+    private void writeBinaryStyleData(SocketChannel client, byte format, byte[] data, @Nullable String id) {
         byte[] idBytes = id == null ? new byte[0] : id.getBytes(StandardCharsets.UTF_8);
 
         ByteBuffer respBuffer = ByteBuffer.allocate(1 + 4 + 2 + data.length + idBytes.length);
@@ -443,11 +440,11 @@ public class PuppeteerServer implements Runnable {
         respBuffer.put(idBytes);
         respBuffer.flip();
 
-        writeByteBufferRaw(client, respBuffer, isOnServerThread);
+        writeByteBufferRaw(client, respBuffer);
     }
 
 
-    private void writeJsonPacket(SocketChannel client, JsonObject packet, boolean isOnServerThread) {
+    private void writeJsonPacket(SocketChannel client, JsonObject packet) {
         String jsond = packet.toString();
         byte[] byteData = jsond.getBytes();
 
@@ -457,7 +454,7 @@ public class PuppeteerServer implements Runnable {
         respBuffer.put(byteData);
         respBuffer.flip();
 
-        writeByteBufferRaw(client, respBuffer, isOnServerThread);
+        writeByteBufferRaw(client, respBuffer);
     }
 
     public interface ServerToClientPacketCallback {
@@ -473,7 +470,7 @@ public class PuppeteerServer implements Runnable {
     public static void broadcastPacket(String packetId, ServerToClientPacketCallback callback) {
         if (getInstance() == null) return;
 
-        getInstance().scheduleSelectorTask(() -> {
+        getInstance().serverTask(() -> {
             HashMap<CallbackManager.PacketCallbackMode, JsonObject> cache = null;
 
             Selector s = instance.selector;
@@ -498,7 +495,7 @@ public class PuppeteerServer implements Runnable {
                     packet.addProperty("type", packetId);
                     cache.put(type, packet);
                 }
-                instance.writeJsonPacket(client, cache.get(type), true);
+                instance.writeJsonPacket(client, cache.get(type));
             }
 
         });
@@ -509,7 +506,7 @@ public class PuppeteerServer implements Runnable {
         /* No broadcasts :< */
         if (getInstance() == null) return;
 
-        getInstance().scheduleSelectorTask(() -> {
+        getInstance().serverTask(() -> {
             JsonObject packet = null;
 
             Selector s = instance.selector;
@@ -532,7 +529,7 @@ public class PuppeteerServer implements Runnable {
                         packet.addProperty("status", "ok");
                     packet.addProperty("type", type_name);
                 }
-                instance.writeJsonPacket(client, packet, true);
+                instance.writeJsonPacket(client, packet);
             }
         });
     }
@@ -540,7 +537,6 @@ public class PuppeteerServer implements Runnable {
     private static void writeData(SelectionKey key) throws IOException {
         SocketChannel client = (SocketChannel) key.channel();
         ClientAttachment attachment = (ClientAttachment) key.attachment();
-
         /* Just write all the shit */
         while (!attachment.writeQueue.isEmpty()) {
             ByteBuffer buffer = attachment.writeQueue.peek();

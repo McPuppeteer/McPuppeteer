@@ -40,17 +40,10 @@ import java.util.function.Consumer;
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 
 @PuppeteerCommand(
-        cmd = "search for block", description = "Search the players render distance for a block by id",
+        cmd = "search for blocks", description = "Search the players render distance for a block by id",
         cmd_context = BaseCommand.CommandContext.PLAY
 )
-public class SearchForBlock implements BaseCommand {
-    /* Iterates over each item in the palette. Calls back with the index, and the item itself */
-    static <T> void enumeratePaletteItems(Palette<T> palette, Consumer<Pair<Integer, T>> consumer) {
-        for (int i = 0; i < palette.getSize(); i++) {
-            T item = palette.get(i);
-            consumer.accept(new Pair<>(i, item));
-        }
-    }
+public class SearchForBlocks implements BaseCommand {
 
     static int[] computelocation(int edge, int index) {
         // mask for one coordinate (edgebits low-order bits set to 1)
@@ -83,17 +76,22 @@ public class SearchForBlock implements BaseCommand {
                 // From section to cord
                 final int offy = (ySec++) * 16;
 
+                if (section.isEmpty()) continue;
+
                 // Palette idx to value, but only target items
                 var results = new HashMap<Integer, BlockState>();
                 var blockStateContainer = section.getBlockStateContainer();
                 PalettedContainer.Data<BlockState> data = section.getBlockStateContainer().data;
 
-                enumeratePaletteItems(
-                        data.palette(), (item) -> {
-                            if (target.contains(Registries.BLOCK.getRawId(item.getRight().getBlock())))
-                                results.put(item.getLeft(), item.getRight());
-                        }
-                );
+                // Search the palette
+                var palette = data.palette();
+                for (int idx = 0; idx < palette.getSize(); idx++) {
+                    BlockState item = palette.get(idx);
+                    /* Can this be further optimized? */
+                    if (target.contains(Registries.BLOCK.getRawId(item.getBlock())))
+                        results.put(idx, item);
+                }
+
                 // Skip if no results in the section are found
                 if (results.isEmpty()) continue;
                 // Index within a section

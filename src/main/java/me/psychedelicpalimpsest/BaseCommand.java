@@ -78,18 +78,10 @@ public interface BaseCommand {
             case String s -> {
                 return new JsonPrimitive(s);
             }
-            case Integer i -> {
+            case Number i -> {
                 return new JsonPrimitive(i);
             }
-            case Double v -> {
-                return new JsonPrimitive(v);
-            }
-            case Boolean b -> {
-                return new JsonPrimitive(b);
-            }
-            case Float v -> {
-                return new JsonPrimitive(v);
-            }
+
             case JsonElement jsonElement -> {
                 return jsonElement;
             }

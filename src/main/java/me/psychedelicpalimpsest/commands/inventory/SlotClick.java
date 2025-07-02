@@ -30,7 +30,6 @@ import java.util.Optional;
 
  /*
     See: https://minecraft.wiki/w/Java_Edition_protocol/Packets#Click_Container
-
   */
 
 

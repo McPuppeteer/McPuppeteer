@@ -24,6 +24,8 @@ import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.PuppeteerTask;
+import me.psychedelicpalimpsest.reflection.McReflector;
+import me.psychedelicpalimpsest.reflection.YarnMapping;
 import me.psychedelicpalimpsest.utils.EventBasedTask;
 import me.psychedelicpalimpsest.utils.Rotation;
 import me.psychedelicpalimpsest.utils.RotationUtils;
@@ -59,26 +61,6 @@ public class AutoUse implements BaseCommand {
     }
 
 
-    public final static Map<String, Direction> directionMap = ImmutableMap.of(
-            "north", Direction.NORTH,
-            "south", Direction.SOUTH,
-
-            "east", Direction.EAST,
-            "west", Direction.WEST,
-
-            "up", Direction.UP,
-            "down", Direction.DOWN
-    );
-    public final static Map<Direction, String> fromDirectionMap = ImmutableMap.of(
-            Direction.NORTH, "north",
-            Direction.SOUTH, "south",
-
-            Direction.EAST, "east",
-            Direction.WEST, "west",
-
-            Direction.UP, "up",
-            Direction.DOWN, "down"
-    );
 
     private static Vec3d getCenter(VoxelShape shape) {
         double minX = shape.getMin(Direction.Axis.X);
@@ -120,7 +102,9 @@ public class AutoUse implements BaseCommand {
 
 
         if (direction != null) {
-            Direction dirr = directionMap.get(direction);
+
+            Direction dirr = YarnMapping.deserializeEnum(Direction.class, direction).orElse(null);
+
             if (dirr == null) {
                 onError.invoke(BaseCommand.jsonOf("status", "error", "type", "expected argument", "message", "Invalid direction"));
                 return null;
@@ -178,7 +162,7 @@ public class AutoUse implements BaseCommand {
                     new BlockHitResult(
                             point,
                             direction != null
-                                    ? directionMap.get(direction)
+                                    ? YarnMapping.deserializeEnum(Direction.class, direction).get()
                                     : Direction.getFacing(point.subtract(Vec3d.of(bp))),
                             bp,
                             false

@@ -18,12 +18,18 @@
 
 package me.psychedelicpalimpsest;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.ibm.icu.text.MessagePatternUtil;
 import fi.dy.masa.malilib.config.ConfigManager;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import me.psychedelicpalimpsest.reflection.YarnMapping;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import org.slf4j.Logger;
@@ -83,8 +89,14 @@ public class McPuppeteer {
 
     public static Queue<PuppeteerTask> tasks = new ConcurrentLinkedQueue<>();
 
+    public static JsonObject serializeText(Text text) {
+        return BaseCommand.jsonOf(
+                "message", textToString(text),
+                "message json", textToJson(text)
+        );
+    }
 
-    public static String textToString(Text text) {
+    private static String textToString(Text text) {
         StringBuilder builder = new StringBuilder();
         text.visit((style, string) -> {
             builder.append(string);
@@ -94,5 +106,15 @@ public class McPuppeteer {
         return builder.toString();
     }
 
+    private static JsonElement textToJson(Text text){
+        Text.Serializer serializer = new Text.Serializer(
+                MinecraftClient.getInstance().world != null
+                    ? MinecraftClient.getInstance().world.getRegistryManager()
+                        :  DynamicRegistryManager.of(Registries.REGISTRIES)
+        );
+
+        /* Only the text and registries are used */
+        return serializer.serialize(text, null, null);
+    }
 
 }

@@ -20,6 +20,7 @@ package me.psychedelicpalimpsest.commands.actions;
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
+import me.psychedelicpalimpsest.reflection.YarnMapping;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
@@ -30,7 +31,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static me.psychedelicpalimpsest.commands.actions.AutoUse.AutomaticallyUse;
-import static me.psychedelicpalimpsest.commands.actions.AutoUse.fromDirectionMap;
 
 @PuppeteerCommand(
         cmd = "auto place", description = "",
@@ -46,7 +46,8 @@ public class AutoPlace implements BaseCommand {
         Direction direction;
 
         if (sdirection != null) {
-            direction = Direction.valueOf(sdirection.toUpperCase());
+            direction = YarnMapping.deserializeEnum(Direction.class, sdirection).get();
+
         } else {
             List<Direction> candidates = Arrays.stream(Direction.values())
                     .filter(d -> !w.getBlockState(bp.offset(d)).isAir())
@@ -70,7 +71,7 @@ public class AutoPlace implements BaseCommand {
                         ? request.get("degrees per tick").getAsFloat()
                         : 4.0f,
                 request.has("method") ? request.get("method").getAsString() : "linear",
-                fromDirectionMap.get(direction),
+                YarnMapping.serializeEnum(direction),
                 callback::resultCallback,
                 () -> callback.resultCallback(BaseCommand.jsonOf())
         );
