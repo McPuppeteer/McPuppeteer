@@ -44,70 +44,27 @@ import java.util.HashMap;
 )
 public class GetChunk implements BaseCommand {
 
-    /* I feel in my heart this is a good estimation */
-    final static int SET_SIZE_EST = MathHelper.ceilLog2(16 * 16 * 16);
-
-
     /*
-        Minecraft (for some reason) changes with almost ever version.
-        So it is simply to use my own format! This way we do not need to change every version
+        Minecraft keeps its chunks serialized internally, to we simply serialize the palette, and send the
+        complete segment.
      */
     public static void serializeSimple(ChunkSection section, PacketByteBuf buf) {
-        HashMap<Integer, Integer> bsMap = new HashMap<>(SET_SIZE_EST);
-        int id = 0;
-
+        var data = section.getBlockStateContainer().data;
         NbtList nbtList = new NbtList();
-
-        /* Build the palette */
-        for (int x = 0; x < 16; x++)
-            for (int z = 0; z < 16; z++)
-                for (int y = 0; y < 16; y++) {
-                    BlockState bs = section.getBlockState(x, y, z);
-                    int rawId = Block.getRawIdFromState(bs);
-                    if (!bsMap.containsKey(rawId)) {
-                        bsMap.put(rawId, id++);
-                        nbtList.add(NbtHelper.fromBlockState(bs));
-                    }
-                }
+        for (int i = 0; i < data.palette().getSize(); i++){
+            nbtList.add(NbtHelper.fromBlockState(data.palette().get(i)));
+        }
+        long[] longs = data.storage().getData();
+        buf.writeShort(data.storage().getElementBits());
+        buf.writeShort(section.getBlockStateContainer().paletteProvider.edgeBits);
 
 
-        int bitSize = Math.max(1, MathHelper.ceilLog2(bsMap.size()));
-
-        /* Overestimate the amount of data (as longs) */
-        int dataSize = ((bitSize * 16 * 16 * 16) + 63) / 64;
-
-        int bit = 0;
-        int clong = 0;
-
-        long[] blocks = new long[dataSize];
-        blocks[0] = 0;
-
-        for (int x = 0; x < 16; x++)
-            for (int z = 0; z < 16; z++)
-                for (int y = 0; y < 16; y++) {
-                    BlockState bs = section.getBlockState(x, y, z);
-                    long rawId = (long) bsMap.get(Block.getRawIdFromState(bs));
-
-                    blocks[clong] |= rawId << bit;
-
-                    bit += bitSize;
-                    if (bit > 64) {
-                        bit -= 64;
-                        clong++;
-
-                        blocks[clong] = rawId >> bit;
-                    }
-                }
-
-        buf.writeShort(bitSize);
-        buf.writeInt(dataSize);
+        buf.writeInt(longs.length);
         buf.writeNbt(nbtList);
 
-        for (long l : blocks) {
+        for (long l : longs)
             buf.writeLong(l);
-        }
     }
-
 
     @Override
     public void onRequest(JsonObject request, LaterCallback callback) {
