@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.currentWorld;
 
 import com.google.gson.JsonObject;
@@ -30,42 +29,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 @PuppeteerCommand(
-        cmd = "get server list",
-        description = "Gets all the multiplayer servers in your server list, along with the \"hidden\" ones (your direct connect history). "
-)
+    cmd = "get server list",
+    description = "Gets all the multiplayer servers in your server list, along with the \"hidden\" ones (your direct connect history). ")
 public class GetServers implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        new Thread(() -> {
-            ServerList serverList = new ServerList(MinecraftClient.getInstance());
-            serverList.loadFile();
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		new Thread(() -> {
+			ServerList serverList = new ServerList(MinecraftClient.getInstance());
+			serverList.loadFile();
 
-            HiddenServerAccessor hiddenServerAccessor = (HiddenServerAccessor) serverList;
-            List<ServerInfo> hiddenServers = hiddenServerAccessor.getHiddenServers();
+			HiddenServerAccessor hiddenServerAccessor = (HiddenServerAccessor) serverList;
+			List<ServerInfo> hiddenServers = hiddenServerAccessor.getHiddenServers();
 
+			List<JsonObject> jsonHiddenServers = new ArrayList<>(hiddenServers.size());
+			for (ServerInfo info : hiddenServers) {
+				jsonHiddenServers.add(BaseCommand.jsonOf(
+				    "address", info.address,
+				    "name", info.name));
+			}
 
-            List<JsonObject> jsonHiddenServers = new ArrayList<>(hiddenServers.size());
-            for (ServerInfo info : hiddenServers) {
-                jsonHiddenServers.add(BaseCommand.jsonOf(
-                        "address", info.address,
-                        "name", info.name
-                ));
-            }
+			List<JsonObject> jsonServerList = new ArrayList<>(serverList.size());
+			for (int i = 0; i < serverList.size(); i++) {
+				ServerInfo info = serverList.get(i);
 
-            List<JsonObject> jsonServerList = new ArrayList<>(serverList.size());
-            for (int i = 0; i < serverList.size(); i++) {
-                ServerInfo info = serverList.get(i);
+				jsonServerList.add(BaseCommand.jsonOf(
+				    "address", info.address,
+				    "name", info.name));
+			}
 
-                jsonServerList.add(BaseCommand.jsonOf(
-                        "address", info.address,
-                        "name", info.name
-                ));
-            }
-
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "server list", jsonServerList,
-                    "hidden servers", jsonHiddenServers
-            ));
-        }).start();
-    }
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "server list", jsonServerList,
+			    "hidden servers", jsonHiddenServers));
+		}).start();
+	}
 }

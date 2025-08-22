@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.mixin;
 
 import me.psychedelicpalimpsest.McPuppeteer;
@@ -52,178 +51,168 @@ import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 import static me.psychedelicpalimpsest.PuppeteerServer.broadcastState;
 import static me.psychedelicpalimpsest.PuppeteerTask.TaskType.TICKLY;
 
-
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
-    @Shadow
-    private int itemUseCooldown;
+	@Shadow
+	private int itemUseCooldown;
 
-    @Shadow
-    @Nullable
-    public ClientPlayerEntity player;
+	@Shadow
+	@Nullable
+	public ClientPlayerEntity player;
 
-    @Shadow
-    public abstract void scheduleStop();
+	@Shadow
+	public abstract void scheduleStop();
 
-    @Shadow
-    @Final
-    private Queue<Runnable> renderTaskQueue;
+	@Shadow
+	@Final
+	private Queue<Runnable> renderTaskQueue;
 
-    @Shadow
-    private @Nullable CompletableFuture<Void> resourceReloadFuture;
+	@Shadow
+	private @Nullable CompletableFuture<Void> resourceReloadFuture;
 
-    @Shadow
-    private @Nullable Overlay overlay;
+	@Shadow
+	private @Nullable Overlay overlay;
 
-    @Shadow
-    public abstract CompletableFuture<Void> reloadResources();
+	@Shadow
+	public abstract CompletableFuture<Void> reloadResources();
 
-    @Shadow
-    @Final
-    private RenderTickCounter.Dynamic renderTickCounter;
+	@Shadow
+	@Final
+	private RenderTickCounter.Dynamic renderTickCounter;
 
-    @Shadow
-    public abstract void tick();
+	@Shadow
+	public abstract void tick();
 
-    @Shadow
-    public abstract Window getWindow();
+	@Shadow
+	public abstract Window getWindow();
 
-    @Inject(at = @At("TAIL"), method = "<init>")
-    private void init(CallbackInfo info) {
-        McPuppeteer.init();
-    }
+	@Inject(at = @At("TAIL"), method = "<init>")
+	private void init(CallbackInfo info) {
+		McPuppeteer.init();
+	}
 
+	/*
+	    Send UDP broadcats, run tickly tasks, and enforce forced player input when screens are open.
+	*/
+	@Inject(at = @At("TAIL"), method = "tick")
+	private void tick(CallbackInfo info) {
+		if (PuppeteerConfig.SEND_BROADCASTS.getBooleanValue()) {
+			long interval_millis = (long) (PuppeteerConfig.UDP_BROADCAST_INTERVAL.getFloatValue() * 1000f);
 
-    /*
-        Send UDP broadcats, run tickly tasks, and enforce forced player input when screens are open.
-    */
-    @Inject(at = @At("TAIL"), method = "tick")
-    private void tick(CallbackInfo info) {
-        if (PuppeteerConfig.SEND_BROADCASTS.getBooleanValue()) {
-            long interval_millis = (long) (PuppeteerConfig.UDP_BROADCAST_INTERVAL.getFloatValue() * 1000f);
+			long time = System.currentTimeMillis();
+			if (time - McPuppeteer.lastBroadcast > interval_millis) {
+				McPuppeteer.lastBroadcast = time;
+				new Thread(() -> {
+					try {
+						broadcastState();
+					} catch (IOException e) {
+						LOGGER.error("Error trying to broadcast state", e);
+					}
+				}).start();
+			}
+		}
 
-            long time = System.currentTimeMillis();
-            if (time - McPuppeteer.lastBroadcast > interval_millis) {
-                McPuppeteer.lastBroadcast = time;
-                new Thread(() -> {
-                    try {
-                        broadcastState();
-                    } catch (IOException e) {
-                        LOGGER.error("Error trying to broadcast state", e);
-                    }
-                }).start();
-            }
-        }
+		if (!McPuppeteer.tasks.isEmpty()) {
+			PuppeteerTask task = McPuppeteer.tasks.peek();
+			switch (task.getState()) {
+				case NOT_STARTED:
+					task.start();
+					break;
+				case ENDED:
+					McPuppeteer.tasks.remove();
+					break;
+				case RUNNING:
+					if (task.getType() == TICKLY)
+						task.tick();
+					break;
+				default:
+					break;
+			}
+		}
 
+		/* Minecraft skips this when a screen is open */
+		if (MinecraftClient.getInstance().currentScreen != null && PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK)) {
+			MinecraftClient.getInstance().handleBlockBreaking(false /* Ignored param */);
+		}
 
-        if (!McPuppeteer.tasks.isEmpty()) {
-            PuppeteerTask task = McPuppeteer.tasks.peek();
-            switch (task.getState()) {
-                case NOT_STARTED:
-                    task.start();
-                    break;
-                case ENDED:
-                    McPuppeteer.tasks.remove();
-                    break;
-                case RUNNING:
-                    if (task.getType() == TICKLY)
-                        task.tick();
-                    break;
-                default:
-                    break;
-            }
-        }
+		if (PuppeteerInput.isForcePressed.getOrDefault(PuppeteerInput.USE, false) && this.itemUseCooldown == 0 && !this.player.isUsingItem())
+			MinecraftClient.getInstance().doItemUse();
+	}
 
-        /* Minecraft skips this when a screen is open */
-        if (MinecraftClient.getInstance().currentScreen != null && PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK)) {
-            MinecraftClient.getInstance().handleBlockBreaking(false /* Ignored param */);
-        }
+	@Inject(at = @At("RETURN"), method = "getWindowTitle", cancellable = true)
+	private void onGetTitle(CallbackInfoReturnable<String> cir) {
+		String port_s = PuppeteerServer.getInstance() == null ? "unknown" : "" + PuppeteerServer.getInstance().getPort();
 
-        if (PuppeteerInput.isForcePressed.getOrDefault(PuppeteerInput.USE, false) && this.itemUseCooldown == 0 && !this.player.isUsingItem())
-            MinecraftClient.getInstance().doItemUse();
+		cir.setReturnValue(cir.getReturnValue() + " - [" + port_s + "]");
+	}
 
-    }
+	@Inject(at = @At("HEAD"), method = "close")
+	private void onClose(CallbackInfo ci) {
+		PuppeteerServer.killServer();
+		if (!McPuppeteer.tasks.isEmpty())
+			McPuppeteer.tasks.peek().kill();
+	}
 
+	/* Enforce forced attack state */
+	@ModifyVariable(at = @At("HEAD"), method = "handleBlockBreaking", ordinal = 0, argsOnly = true)
+	boolean handleBlockBreaking(boolean breaking) {
+		if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK))
+			return breaking;
 
-    @Inject(at = @At("RETURN"), method = "getWindowTitle", cancellable = true)
-    private void onGetTitle(CallbackInfoReturnable<String> cir) {
-        String port_s = PuppeteerServer.getInstance() == null ? "unknown" : "" + PuppeteerServer.getInstance().getPort();
+		MinecraftClient.getInstance().attackCooldown = 0;
+		return PuppeteerInput.isForcePressed.get(PuppeteerInput.ATTACK);
+	}
 
-        cir.setReturnValue(cir.getReturnValue() + " - [" + port_s + "]");
-    }
+	/* Enforce forced use state */
+	@Inject(at = @At("HEAD"), method = "doItemUse", cancellable = true)
+	void doItemUse(CallbackInfo ci) {
+		if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.USE)) return;
 
-    @Inject(at = @At("HEAD"), method = "close")
-    private void onClose(CallbackInfo ci) {
-        PuppeteerServer.killServer();
-        if (!McPuppeteer.tasks.isEmpty())
-            McPuppeteer.tasks.peek().kill();
-    }
+		if (!PuppeteerInput.isForcePressed.get(PuppeteerInput.USE))
+			ci.cancel();
+	}
 
-    /* Enforce forced attack state */
-    @ModifyVariable(at = @At("HEAD"), method = "handleBlockBreaking", ordinal = 0, argsOnly = true)
-    boolean handleBlockBreaking(boolean breaking) {
-        if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK))
-            return breaking;
+	@Inject(at = @At("HEAD"), method = "onResolutionChanged", cancellable = true)
+	void onResolutionChanged(CallbackInfo ci) {
+		if (HeadlessMode.isHeadless()) ci.cancel();
+	}
 
-        MinecraftClient.getInstance().attackCooldown = 0;
-        return PuppeteerInput.isForcePressed.get(PuppeteerInput.ATTACK);
-    }
+	@Inject(at = @At("HEAD"), method = "render", cancellable = true)
+	void onRender(boolean tick, CallbackInfo ci) {
+		if (!HeadlessMode.isHeadless()) return;
+		ci.cancel();
 
-    /* Enforce forced use state */
-    @Inject(at = @At("HEAD"), method = "doItemUse", cancellable = true)
-    void doItemUse(CallbackInfo ci) {
-        if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.USE)) return;
+		/* This is all the stuff that 'looked' necessary */
 
-        if (!PuppeteerInput.isForcePressed.get(PuppeteerInput.USE))
-            ci.cancel();
+		if (!HeadlessMode.isHeadless() && this.getWindow().shouldClose()) {
+			this.scheduleStop();
+		}
+		if (this.resourceReloadFuture != null && !(this.overlay instanceof SplashOverlay)) {
+			CompletableFuture<Void> completableFuture = this.resourceReloadFuture;
+			this.resourceReloadFuture = null;
+			this.reloadResources().thenRun(() -> completableFuture.complete(null));
+		}
 
-    }
+		Runnable runnable;
+		while ((runnable = this.renderTaskQueue.poll()) != null) {
+			runnable.run();
+		}
 
+		int i = this.renderTickCounter.beginRenderTick(Util.getMeasuringTimeMs(), tick);
+		Profiler profiler = Profilers.get();
+		if (tick) {
+			profiler.push("scheduledExecutables");
 
-    @Inject(at = @At("HEAD"), method = "onResolutionChanged", cancellable = true)
-    void onResolutionChanged(CallbackInfo ci) {
-        if (HeadlessMode.isHeadless()) ci.cancel();
-    }
+			((ThreadExecutor<Runnable>) (Object) this).runTask();
+			profiler.pop();
+			profiler.push("tick");
 
-    @Inject(at = @At("HEAD"), method = "render", cancellable = true)
-    void onRender(boolean tick, CallbackInfo ci) {
-        if (!HeadlessMode.isHeadless()) return;
-        ci.cancel();
+			for (int j = 0; j < Math.min(10, i); j++) {
+				profiler.visit("clientTick");
+				this.tick();
+			}
 
-        /* This is all the stuff that 'looked' necessary */
-
-        if (!HeadlessMode.isHeadless() && this.getWindow().shouldClose()) {
-            this.scheduleStop();
-        }
-        if (this.resourceReloadFuture != null && !(this.overlay instanceof SplashOverlay)) {
-            CompletableFuture<Void> completableFuture = this.resourceReloadFuture;
-            this.resourceReloadFuture = null;
-            this.reloadResources().thenRun(() -> completableFuture.complete(null));
-        }
-
-
-        Runnable runnable;
-        while ((runnable = this.renderTaskQueue.poll()) != null) {
-            runnable.run();
-        }
-
-        int i = this.renderTickCounter.beginRenderTick(Util.getMeasuringTimeMs(), tick);
-        Profiler profiler = Profilers.get();
-        if (tick) {
-            profiler.push("scheduledExecutables");
-
-            ((ThreadExecutor<Runnable>) (Object) this).runTask();
-            profiler.pop();
-            profiler.push("tick");
-
-            for (int j = 0; j < Math.min(10, i); j++) {
-                profiler.visit("clientTick");
-                this.tick();
-            }
-
-            profiler.pop();
-        }
-    }
-
-
+			profiler.pop();
+		}
+	}
 }

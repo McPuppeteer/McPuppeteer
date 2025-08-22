@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.input;
 
 import com.google.gson.JsonObject;
@@ -25,19 +24,18 @@ import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
-        cmd = "clear directional movement",
-        description = "Clears the directional movement",
-        cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT
-)
+    cmd = "clear directional movement",
+    description = "Clears the directional movement",
+    cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
 public class ClearDirectionalInput implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(() -> {
-            PuppeteerInput.isDirectionalMovement = false;
-            PuppeteerInput.directionalSpeed = 1f;
-            PuppeteerInput.direction = 0f;
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		MinecraftClient.getInstance().execute(() -> {
+			PuppeteerInput.isDirectionalMovement = false;
+			PuppeteerInput.directionalSpeed = 1f;
+			PuppeteerInput.direction = 0f;
 
-            callback.resultCallback(new JsonObject());
-        });
-    }
+			callback.resultCallback(new JsonObject());
+		});
+	}
 }

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.modInfo;
 
 import com.google.gson.JsonObject;
@@ -25,16 +24,14 @@ import me.psychedelicpalimpsest.modules.NoWalk;
 import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
-        cmd = "is nowalk",
-        description = "Gets the state of nowalk"
-)
+    cmd = "is nowalk",
+    description = "Gets the state of nowalk")
 public class IsNoWalk implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(() -> {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "is nowalk", NoWalk.isActive
-            ));
-        });
-    }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		MinecraftClient.getInstance().execute(() -> {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "is nowalk", NoWalk.isActive));
+		});
+	}
 }

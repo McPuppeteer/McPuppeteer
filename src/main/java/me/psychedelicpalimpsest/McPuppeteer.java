@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest;
 
 import com.google.gson.JsonElement;
@@ -43,78 +42,69 @@ import java.util.stream.Collectors;
 
 import static me.psychedelicpalimpsest.BaritoneListener.baritoneInit;
 
-
 public class McPuppeteer {
-    public static final String MOD_ID = "mc-puppeteer";
-    public static long lastBroadcast = 0;
-    public static Set<String> installedMods = null;
-//    public static SerializationTester serializationTester = new SerializationTester();
+	public static final String MOD_ID = "mc-puppeteer";
+	public static long lastBroadcast = 0;
+	public static Set<String> installedMods = null;
+	//    public static SerializationTester serializationTester = new SerializationTester();
 
+	public static PuppeteerInput puppeteerInput = new PuppeteerInput();
 
-    public static PuppeteerInput puppeteerInput = new PuppeteerInput();
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static void init() {
+		/* Yes, this makes init slower, but I do not care */
+		try {
+			PuppeteerServer.createServer();
+		} catch (IOException e) {
+			McPuppeteer.LOGGER.error("Failed to create server", e);
+		}
 
+		McPuppeteer.installedMods = FabricLoader.getInstance()
+						.getAllMods()
+						.stream()
+						.map((mod) -> mod.getMetadata().getId())
+						.collect(Collectors.toUnmodifiableSet());
 
-    public static void init() {
-        /* Yes, this makes init slower, but I do not care */
-        try {
-            PuppeteerServer.createServer();
-        } catch (IOException e) {
-            McPuppeteer.LOGGER.error("Failed to create server", e);
-        }
+		ConfigManager.getInstance().registerConfigHandler(McPuppeteer.MOD_ID, new PuppeteerConfig());
+		Registry.CONFIG_SCREEN.registerConfigScreenFactory(
+		    new ModInfo(McPuppeteer.MOD_ID, "Puppeteer", GuiConfigs::new));
 
+		PuppeteerConfig.initHotkeys();
 
-        McPuppeteer.installedMods = FabricLoader.getInstance()
-                .getAllMods()
-                .stream()
-                .map((mod) -> mod.getMetadata().getId())
-                .collect(Collectors.toUnmodifiableSet());
+		if (McPuppeteer.installedMods.contains("baritone")) {
+			baritoneInit();
+		}
 
-        ConfigManager.getInstance().registerConfigHandler(McPuppeteer.MOD_ID, new PuppeteerConfig());
-        Registry.CONFIG_SCREEN.registerConfigScreenFactory(
-                new ModInfo(McPuppeteer.MOD_ID, "Puppeteer", GuiConfigs::new)
-        );
+		YarnMapping.createMapping();
+		//        KeyboardOverride.init();
+	}
 
-        PuppeteerConfig.initHotkeys();
+	public static Queue<PuppeteerTask> tasks = new ConcurrentLinkedQueue<>();
 
-        if (McPuppeteer.installedMods.contains("baritone")) {
-            baritoneInit();
-        }
+	public static JsonObject serializeText(Text text) {
+		return BaseCommand.jsonOf(
+		    "message", textToString(text),
+		    "message json", textToJson(text));
+	}
 
-        YarnMapping.createMapping();
-//        KeyboardOverride.init();
-    }
+	private static String textToString(Text text) {
+		StringBuilder builder = new StringBuilder();
+		text.visit((style, string) -> {
+			builder.append(string);
 
+			return java.util.Optional.empty();
+		}, Style.EMPTY);
+		return builder.toString();
+	}
 
-    public static Queue<PuppeteerTask> tasks = new ConcurrentLinkedQueue<>();
+	private static JsonElement textToJson(Text text) {
+		Text.Serializer serializer = new Text.Serializer(
+		    MinecraftClient.getInstance().world != null
+			? MinecraftClient.getInstance().world.getRegistryManager()
+			: DynamicRegistryManager.of(Registries.REGISTRIES));
 
-    public static JsonObject serializeText(Text text) {
-        return BaseCommand.jsonOf(
-                "message", textToString(text),
-                "message json", textToJson(text)
-        );
-    }
-
-    private static String textToString(Text text) {
-        StringBuilder builder = new StringBuilder();
-        text.visit((style, string) -> {
-            builder.append(string);
-
-            return java.util.Optional.empty();
-        }, Style.EMPTY);
-        return builder.toString();
-    }
-
-    private static JsonElement textToJson(Text text){
-        Text.Serializer serializer = new Text.Serializer(
-                MinecraftClient.getInstance().world != null
-                    ? MinecraftClient.getInstance().world.getRegistryManager()
-                        :  DynamicRegistryManager.of(Registries.REGISTRIES)
-        );
-
-        /* Only the text and registries are used */
-        return serializer.serialize(text, null, null);
-    }
-
+		/* Only the text and registries are used */
+		return serializer.serialize(text, null, null);
+	}
 }

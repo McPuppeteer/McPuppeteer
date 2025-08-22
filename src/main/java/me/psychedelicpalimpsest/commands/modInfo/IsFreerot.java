@@ -15,9 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.modInfo;
-
 
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
@@ -26,17 +24,14 @@ import me.psychedelicpalimpsest.modules.Freerot;
 import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
-        cmd = "is freerot",
-        description = "Gets the state of freerot"
-)
+    cmd = "is freerot",
+    description = "Gets the state of freerot")
 public class IsFreerot implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(() -> {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "is freerot", Freerot.isFreerotActive()
-            ));
-        });
-
-    }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		MinecraftClient.getInstance().execute(() -> {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "is freerot", Freerot.isFreerotActive()));
+		});
+	}
 }

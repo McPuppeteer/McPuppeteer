@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.actions;
 
 import com.google.gson.JsonElement;
@@ -26,17 +25,15 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 @PuppeteerCommand(
-        cmd = "display chat message",
-        description = "Shows a message to the client (does NOT send it in public)",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "display chat message",
+    description = "Shows a message to the client (does NOT send it in public)",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class DisplayMessage implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        JsonElement element = request.get("message");
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
-                Text.of(element.getAsString())
-        );
-        callback.resultCallback(new JsonObject());
-    }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		JsonElement element = request.get("message");
+		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
+		    Text.of(element.getAsString()));
+		callback.resultCallback(new JsonObject());
+	}
 }

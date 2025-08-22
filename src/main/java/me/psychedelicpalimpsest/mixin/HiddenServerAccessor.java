@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.mixin;
 
 import net.minecraft.client.network.ServerInfo;
@@ -27,6 +26,6 @@ import java.util.List;
 
 @Mixin(ServerList.class)
 public interface HiddenServerAccessor {
-    @Accessor("hiddenServers")
-    List<ServerInfo> getHiddenServers();
+	@Accessor("hiddenServers")
+	List<ServerInfo> getHiddenServers();
 }

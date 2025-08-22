@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.malilib;
 
 import com.google.gson.JsonObject;
@@ -30,49 +29,40 @@ import java.io.IOException;
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 
 @PuppeteerCommand(
-        cmd = "replace config",
-        description = "Replaces a json file in the config folder"
-)
+    cmd = "replace config",
+    description = "Replaces a json file in the config folder")
 public class ReplaceConfigForMod implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "expected argument",
-                    "message", "Missing parameter 'file name'"
-            ));
-            return;
-        }
-        if (request.get("json") == null) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "expected argument",
-                    "message", "Missing parameter 'json'"
-            ));
-            return;
-        }
-        File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "status", "error",
+			    "type", "expected argument",
+			    "message", "Missing parameter 'file name'"));
+			return;
+		}
+		if (request.get("json") == null) {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "status", "error",
+			    "type", "expected argument",
+			    "message", "Missing parameter 'json'"));
+			return;
+		}
+		File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
 
+		try {
+			FileWriter writer = new FileWriter(config);
 
-        try {
-            FileWriter writer = new FileWriter(config);
+			writer.write(request.get("json").toString());
 
-            writer.write(request.get("json").toString());
+			writer.close();
 
-            writer.close();
-
-        } catch (IOException e) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "exception",
-                    "message", e.getMessage()
-            ));
-            LOGGER.error("IO exception in ReplaceConfigForMod", e);
-        }
-
-
-    }
-
-
+		} catch (IOException e) {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "status", "error",
+			    "type", "exception",
+			    "message", e.getMessage()));
+			LOGGER.error("IO exception in ReplaceConfigForMod", e);
+		}
+	}
 }

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.mixin;
 
 import com.google.gson.JsonObject;
@@ -34,12 +33,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ChatHud.class)
 public class ChatHubMixin {
 
-    @Inject(method = "addMessage(Lnet/minecraft/client/gui/hud/ChatHudLine;)V", at = @At("HEAD"))
-    void onAddMessage(ChatHudLine message, CallbackInfo ci) {
+	@Inject(method = "addMessage(Lnet/minecraft/client/gui/hud/ChatHudLine;)V", at = @At("HEAD"))
+	void onAddMessage(ChatHudLine message, CallbackInfo ci) {
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CHAT, () -> McPuppeteer.serializeText(message.content()));
-
-    }
-
-
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CHAT, () -> McPuppeteer.serializeText(message.content()));
+	}
 }

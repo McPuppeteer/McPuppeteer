@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.actions;
 
 import com.google.gson.JsonObject;
@@ -24,25 +23,20 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
-        cmd = "send chat message",
-        description = "Sends a PUBLIC chat message.",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "send chat message",
+    description = "Sends a PUBLIC chat message.",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class SendMessage implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        String message = request.get("message").getAsString();
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		String message = request.get("message").getAsString();
 
-        if (message.startsWith("/")) {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().player.networkHandler.sendChatCommand(message.substring(1))
-            );
-        } else {
-            MinecraftClient.getInstance().execute(() ->
-                    MinecraftClient.getInstance().player.networkHandler.sendChatMessage(message)
-            );
-        }
+		if (message.startsWith("/")) {
+			MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().player.networkHandler.sendChatCommand(message.substring(1)));
+		} else {
+			MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().player.networkHandler.sendChatMessage(message));
+		}
 
-        callback.resultCallback(new JsonObject());
-    }
+		callback.resultCallback(new JsonObject());
+	}
 }

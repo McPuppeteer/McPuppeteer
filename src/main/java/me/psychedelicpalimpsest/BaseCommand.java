@@ -15,9 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest;
-
 
 /*
     If you are making a command, you need to use the @PuppeteerCommand annotation.
@@ -37,99 +35,91 @@ import java.util.Map;
 
 public interface BaseCommand {
 
+	interface CallbackModView {
+		void invoke(Map<CallbackManager.CallbackType, Boolean> callbacks, Map<String, CallbackManager.PacketCallbackMode> packetCallbacks);
+	}
 
-    interface CallbackModView {
-        void invoke(Map<CallbackManager.CallbackType, Boolean> callbacks, Map<String, CallbackManager.PacketCallbackMode> packetCallbacks);
-    }
+	interface LaterCallback {
+		/* Allows you to both view and modify the callbacks map */
+		void callbacksModView(CallbackModView callback);
 
-    interface LaterCallback {
-        /* Allows you to both view and modify the callbacks map */
-        void callbacksModView(CallbackModView callback);
+		/* When something specific to this has occurred */
+		void resultCallback(JsonObject result);
 
-        /* When something specific to this has occurred */
-        void resultCallback(JsonObject result);
+		/* Something general everybody should here */
+		void generalCallback(JsonObject result);
 
-        /* Something general everybody should here */
-        void generalCallback(JsonObject result);
+		void packetResultCallback(byte[] result);
 
+		void nbtResultCallback(NbtElement result);
 
-        void packetResultCallback(byte[] result);
+		void simulatePuppeteerCommand(JsonObject request, PacketOnCompletion onCompletion);
+	}
 
-        void nbtResultCallback(NbtElement result);
+	enum CommandContext {
+		ANY,
 
+		/* Before the world has loaded */
+		PRE_PLAY,
 
-        void simulatePuppeteerCommand(JsonObject request, PacketOnCompletion onCompletion);
-    }
+		/* Must be in world */
+		PLAY,
 
-    enum CommandContext {
-        ANY,
+		/* Must be in world, and the player can move (Ex. Not in a bed) */
+		PLAY_WITH_MOVEMENT,
+	}
 
-        /* Before the world has loaded */
-        PRE_PLAY,
+	/* You can request a packet be sent immediately */
+	void onRequest(JsonObject request, LaterCallback callback);
 
-        /* Must be in world */
-        PLAY,
+	static JsonElement jsonObjectOf(Object object) {
+		switch (object) {
+			case String s -> {
+				return new JsonPrimitive(s);
+			}
+			case Number i -> {
+				return new JsonPrimitive(i);
+			}
 
-        /* Must be in world, and the player can move (Ex. Not in a bed) */
-        PLAY_WITH_MOVEMENT,
-    }
+			case JsonElement jsonElement -> {
+				return jsonElement;
+			}
+			case Map map -> {
+				JsonObject jsonObject = new JsonObject();
+				map.forEach((key, value) -> {
+					if (!(key instanceof String)) {
+						throw new IllegalArgumentException("Unknown map key type: " + key.getClass());
+					}
+					jsonObject.add((String) key, jsonObjectOf(value));
+				});
 
-    /* You can request a packet be sent immediately */
-    void onRequest(JsonObject request, LaterCallback callback);
+				return jsonObject;
+			}
+			case Collection ignored -> {
+				Collection<Object> collection = (Collection<Object>) object;
+				JsonArray jsonArray = new JsonArray();
+				for (Object o : collection) {
+					jsonArray.add(jsonObjectOf(o));
+				}
+				return jsonArray;
+			}
+			case null, default -> throw new IllegalArgumentException("Unknown value type: " + object.getClass());
+		}
+	}
 
-
-    static JsonElement jsonObjectOf(Object object) {
-        switch (object) {
-            case String s -> {
-                return new JsonPrimitive(s);
-            }
-            case Number i -> {
-                return new JsonPrimitive(i);
-            }
-
-            case JsonElement jsonElement -> {
-                return jsonElement;
-            }
-            case Map map -> {
-                JsonObject jsonObject = new JsonObject();
-                map.forEach((key, value) -> {
-                    if (!(key instanceof String)) {
-                        throw new IllegalArgumentException("Unknown map key type: " + key.getClass());
-                    }
-                    jsonObject.add((String) key, jsonObjectOf(value));
-                });
-
-
-                return jsonObject;
-            }
-            case Collection ignored -> {
-                Collection<Object> collection = (Collection<Object>) object;
-                JsonArray jsonArray = new JsonArray();
-                for (Object o : collection) {
-                    jsonArray.add(jsonObjectOf(o));
-                }
-                return jsonArray;
-            }
-            case null, default -> throw new IllegalArgumentException("Unknown value type: " + object.getClass());
-        }
-    }
-
-    static JsonObject jsonOf(Object... objects) {
-        if (objects.length % 2 != 0) {
-            throw new IllegalArgumentException("Must have an even number of arguments (key-value pairs)");
-        }
-        JsonObject jsonObject = new JsonObject();
-        for (int i = 0; i < objects.length; i += 2) {
-            Object key = objects[i];
-            Object value = objects[i + 1];
-            if (!(key instanceof String)) {
-                throw new IllegalArgumentException("Key must be a string");
-            }
-            jsonObject.add((String) key, jsonObjectOf(value));
-
-
-        }
-        return jsonObject;
-    }
-
+	static JsonObject jsonOf(Object... objects) {
+		if (objects.length % 2 != 0) {
+			throw new IllegalArgumentException("Must have an even number of arguments (key-value pairs)");
+		}
+		JsonObject jsonObject = new JsonObject();
+		for (int i = 0; i < objects.length; i += 2) {
+			Object key = objects[i];
+			Object value = objects[i + 1];
+			if (!(key instanceof String)) {
+				throw new IllegalArgumentException("Key must be a string");
+			}
+			jsonObject.add((String) key, jsonObjectOf(value));
+		}
+		return jsonObject;
+	}
 }

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.modules;
 
 import fi.dy.masa.malilib.hotkeys.IKeybind;
@@ -25,37 +24,34 @@ import net.minecraft.text.Text;
 
 import static me.psychedelicpalimpsest.PuppeteerEffects.noRotationEffect;
 
-
 public class Freerot {
 
-    private static boolean isFreerot = false;
+	private static boolean isFreerot = false;
 
-    public static boolean toggleFreerot(KeyAction keyAction, IKeybind iKeybind) {
-        isFreerot = !isFreerot;
+	public static boolean toggleFreerot(KeyAction keyAction, IKeybind iKeybind) {
+		isFreerot = !isFreerot;
 
-        if (isFreerot) initializeFreerot();
-        else deactivateFreerot();
-        return true;
-    }
+		if (isFreerot) initializeFreerot();
+		else
+			deactivateFreerot();
+		return true;
+	}
 
-    public static void initializeFreerot() {
-        if (!isFreerot) return;
-        MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Enabled freerot"), false);
+	public static void initializeFreerot() {
+		if (!isFreerot) return;
+		MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Enabled freerot"), false);
 
+		noRotationEffect.isActive = true;
+	}
 
-        noRotationEffect.isActive = true;
-    }
+	public static void deactivateFreerot() {
+		if (isFreerot) return;
+		MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Disabled freerot"), false);
 
-    public static void deactivateFreerot() {
-        if (isFreerot) return;
-        MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of("Disabled freerot"), false);
+		noRotationEffect.isActive = false;
+	}
 
-
-        noRotationEffect.isActive = false;
-    }
-
-
-    public static Boolean isFreerotActive() {
-        return isFreerot;
-    }
+	public static Boolean isFreerotActive() {
+		return isFreerot;
+	}
 }

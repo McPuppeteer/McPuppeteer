@@ -1,0 +1,32 @@
+---
+Language: Java 
+BasedOnStyle: LLVM
+
+ColumnLimit: 0
+
+IndentWidth: 8
+UseTab: Always
+
+IndentCaseLabels: true 
+
+
+SpaceAfterCStyleCast: true 
+
+
+
+AllowAllArgumentsOnNextLine: true
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowShortBlocksOnASingleLine: Always
+AllowShortCaseExpressionOnASingleLine: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Always
+AllowShortLambdasOnASingleLine: All
+AllowShortLoopsOnASingleLine: true
+
+
+AlwaysBreakAfterReturnType: TopLevelDefinitions
+
+SortIncludes: false
+---

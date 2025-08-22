@@ -15,9 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.mixin;
-
 
 import fi.dy.masa.tweakeroo.util.CameraEntity;
 import net.minecraft.client.MinecraftClient;
@@ -34,17 +32,15 @@ import static me.psychedelicpalimpsest.PuppeteerConfig.WARN_ON_TWEAKEROO_FREECAM
 @Pseudo /* Ignore if not installed */
 public class TweekerooCameraMixin {
 
+	/* Scream at the user for using tweekeroo freecam */
 
-    /* Scream at the user for using tweekeroo freecam */
+	@Inject(at = @At("HEAD"), method = "setCameraState")
+	private static void setCameraState(boolean enabled, CallbackInfo ci) {
+		if (!WARN_ON_TWEAKEROO_FREECAM.getBooleanValue()) return;
+		if (!enabled) return;
 
-    @Inject(at = @At("HEAD"), method = "setCameraState")
-    private static void setCameraState(boolean enabled, CallbackInfo ci) {
-        if (!WARN_ON_TWEAKEROO_FREECAM.getBooleanValue()) return;
-        if (!enabled) return;
-
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
-                Text.of("§c§lWARNING:§r Tweakeroo's freecam is not compatible with §6McPuppeteer§r or §bBaritone§r. "
-                        + "Please use McPuppeteer's freecam module instead.")
-        );
-    }
+		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
+		    Text.of("§c§lWARNING:§r Tweakeroo's freecam is not compatible with §6McPuppeteer§r or §bBaritone§r. "
+			    + "Please use McPuppeteer's freecam module instead."));
+	}
 }

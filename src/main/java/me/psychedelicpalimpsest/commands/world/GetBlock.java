@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.world;
 
 import com.google.gson.JsonObject;
@@ -28,19 +27,16 @@ import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.math.BlockPos;
 
 @PuppeteerCommand(
-        cmd = "get block",
-        description = "Get the **nbt** data for a block",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "get block",
+    description = "Get the **nbt** data for a block",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class GetBlock implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        ClientWorld world = MinecraftClient.getInstance().world;
-        BlockState bs = world.getBlockState(new BlockPos(request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt()));
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		ClientWorld world = MinecraftClient.getInstance().world;
+		BlockState bs = world.getBlockState(new BlockPos(request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt()));
 
-
-        callback.nbtResultCallback(
-                NbtHelper.fromBlockState(bs)
-        );
-    }
+		callback.nbtResultCallback(
+		    NbtHelper.fromBlockState(bs));
+	}
 }

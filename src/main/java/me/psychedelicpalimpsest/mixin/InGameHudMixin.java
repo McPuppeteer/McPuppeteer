@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.mixin;
 
 import me.psychedelicpalimpsest.McPuppeteer;
@@ -33,22 +32,21 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(InGameHud.class)
 public class InGameHudMixin {
 
-    @Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"))
-    void onRenderStatusEffectOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
-        int x = 1;
-        int y = 1;
+	@Inject(method = "renderStatusEffectOverlay", at = @At("HEAD"))
+	void onRenderStatusEffectOverlay(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
+		int x = 1;
+		int y = 1;
 
-        /* A nice courtesy, don't draw over your shit */
-        if (McPuppeteer.installedMods.contains("minihud"))
-            y += MinihudUtils.getMinhudHeight() + 4;
+		/* A nice courtesy, don't draw over your shit */
+		if (McPuppeteer.installedMods.contains("minihud"))
+			y += MinihudUtils.getMinhudHeight() + 4;
 
-        for (PuppeteerEffects.PuppeteerEffect effect : PuppeteerEffects.effects) {
-            if (!effect.isActive) continue;
+		for (PuppeteerEffects.PuppeteerEffect effect : PuppeteerEffects.effects) {
+			if (!effect.isActive) continue;
 
-
-            context.drawGuiTexture(RenderLayer::getGuiTextured, InGameHud.EFFECT_BACKGROUND_TEXTURE, x, y, 24, 24);
-            context.drawTexture(RenderLayer::getGuiTextured, effect.texture, x + 2, y + 2, 0f, 0f, 20, 20, 20, 20);
-            x += 24 + 2 + 2;
-        }
-    }
+			context.drawGuiTexture(RenderLayer::getGuiTextured, InGameHud.EFFECT_BACKGROUND_TEXTURE, x, y, 24, 24);
+			context.drawTexture(RenderLayer::getGuiTextured, effect.texture, x + 2, y + 2, 0f, 0f, 20, 20, 20, 20);
+			x += 24 + 2 + 2;
+		}
+	}
 }

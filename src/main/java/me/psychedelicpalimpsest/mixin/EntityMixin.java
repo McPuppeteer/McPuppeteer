@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.mixin;
 
 import me.psychedelicpalimpsest.BaseCommand;
@@ -36,68 +35,55 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
-    @Shadow
-    public abstract boolean isPlayer();
+	@Shadow
+	public abstract boolean isPlayer();
 
-    @Shadow
-    public abstract Vec3d getPos();
+	@Shadow
+	public abstract Vec3d getPos();
 
-    @Shadow
-    public abstract float getYaw();
+	@Shadow
+	public abstract float getYaw();
 
-    @Shadow
-    public abstract float getPitch();
+	@Shadow
+	public abstract float getPitch();
 
-    @Inject(method = "changeLookDirection", at = @At("HEAD"), cancellable = true)
-    void onChangeLookDirection(double cursorDeltaX, double cursorDeltaY, CallbackInfo ci) {
-        if (!this.isPlayer()) return;
+	@Inject(method = "changeLookDirection", at = @At("HEAD"), cancellable = true)
+	void onChangeLookDirection(double cursorDeltaX, double cursorDeltaY, CallbackInfo ci) {
+		if (!this.isPlayer()) return;
 
-        if (Freecam.isFreecamActive() || Freerot.isFreerotActive()) {
-            ci.cancel();
+		if (Freecam.isFreecamActive() || Freerot.isFreerotActive()) {
+			ci.cancel();
 
-            Camera c = MinecraftClient.getInstance().gameRenderer.getCamera();
-            float f = (float) cursorDeltaY * 0.15F;
-            float g = (float) cursorDeltaX * 0.15F;
+			Camera c = MinecraftClient.getInstance().gameRenderer.getCamera();
+			float f = (float) cursorDeltaY * 0.15F;
+			float g = (float) cursorDeltaX * 0.15F;
 
-            c.setRotation(
-                    c.getYaw() + g,
-                    MathHelper.clamp(c.getPitch() + f, -90.0F, 90.0F)
-            );
+			c.setRotation(
+			    c.getYaw() + g,
+			    MathHelper.clamp(c.getPitch() + f, -90.0F, 90.0F));
+		}
+	}
 
+	@Inject(method = "setPos", at = @At("HEAD"))
+	void onSetPosition(double x, double y, double z, CallbackInfo ci) {
+		if (!this.isPlayer()) return;
+		/* Since this method sets the position, this check tells us if the player actually moved */
+		if (getPos().equals(new Vec3d(x, y, z))) return;
 
-        }
-    }
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_POSITION, () -> BaseCommand.jsonOf("x", x, "y", y, "z", z));
+	}
 
-    @Inject(method = "setPos", at = @At("HEAD"))
-    void onSetPosition(double x, double y, double z, CallbackInfo ci) {
-        if (!this.isPlayer()) return;
-        /* Since this method sets the position, this check tells us if the player actually moved */
-        if (getPos().equals(new Vec3d(x, y, z))) return;
+	@Inject(method = "setYaw", at = @At("HEAD"))
+	void onSetYaw(float yaw, CallbackInfo ci) {
+		if (!this.isPlayer()) return;
+		if (getYaw() == yaw) return;
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_YAW, () -> BaseCommand.jsonOf("yaw", yaw));
+	}
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_POSITION, () -> BaseCommand.jsonOf(
-                "x", x,
-                "y", y,
-                "z", z
-        ));
-    }
-
-    @Inject(method = "setYaw", at = @At("HEAD"))
-    void onSetYaw(float yaw, CallbackInfo ci) {
-        if (!this.isPlayer()) return;
-        if (getYaw() == yaw) return;
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_YAW, () -> BaseCommand.jsonOf(
-                "yaw", yaw
-        ));
-    }
-
-    @Inject(method = "setPitch", at = @At("HEAD"))
-    void onSetPitch(float pitch, CallbackInfo ci) {
-        if (!this.isPlayer()) return;
-        if (getPitch() == pitch) return;
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_PITCH, () -> BaseCommand.jsonOf(
-                "pitch", pitch
-        ));
-    }
-
-
+	@Inject(method = "setPitch", at = @At("HEAD"))
+	void onSetPitch(float pitch, CallbackInfo ci) {
+		if (!this.isPlayer()) return;
+		if (getPitch() == pitch) return;
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_PITCH, () -> BaseCommand.jsonOf("pitch", pitch));
+	}
 }

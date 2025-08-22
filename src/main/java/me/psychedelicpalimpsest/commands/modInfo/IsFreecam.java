@@ -15,9 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.modInfo;
-
 
 import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
@@ -26,17 +24,14 @@ import me.psychedelicpalimpsest.modules.Freecam;
 import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
-        cmd = "is freecam",
-        description = "Gets the state of freecam"
-)
+    cmd = "is freecam",
+    description = "Gets the state of freecam")
 public class IsFreecam implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(() -> {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "is freecam", Freecam.isFreecamActive()
-            ));
-        });
-
-    }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		MinecraftClient.getInstance().execute(() -> {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "is freecam", Freecam.isFreecamActive()));
+		});
+	}
 }

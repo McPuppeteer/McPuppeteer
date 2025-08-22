@@ -24,25 +24,21 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.MerchantScreen;
 import net.minecraft.network.packet.c2s.play.SelectMerchantTradeC2SPacket;
 
-
 @PuppeteerCommand(
-        cmd = "select trade", description = "Selects a trade from a merchant menu",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "select trade", description = "Selects a trade from a merchant menu",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class SelectTrades implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        if (!(MinecraftClient.getInstance().currentScreen instanceof MerchantScreen)) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "unexpected screen",
-                    "message", "No MerchantScreen is open"
-            ));
-            return;
-        }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		if (!(MinecraftClient.getInstance().currentScreen instanceof MerchantScreen)) {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "status", "error",
+			    "type", "unexpected screen",
+			    "message", "No MerchantScreen is open"));
+			return;
+		}
 
-        MinecraftClient.getInstance().getNetworkHandler().sendPacket(
-                new SelectMerchantTradeC2SPacket(request.get("index").getAsInt())
-        );
-    }
+		MinecraftClient.getInstance().getNetworkHandler().sendPacket(
+		    new SelectMerchantTradeC2SPacket(request.get("index").getAsInt()));
+	}
 }

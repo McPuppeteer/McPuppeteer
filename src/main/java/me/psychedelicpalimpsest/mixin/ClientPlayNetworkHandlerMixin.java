@@ -31,50 +31,37 @@ import static me.psychedelicpalimpsest.BaseCommand.jsonOf;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public class ClientPlayNetworkHandlerMixin {
-    @Inject(method = "onInventory", at = @At("HEAD"))
-    void onInventory(InventoryS2CPacket packet, CallbackInfo ci) {
+	@Inject(method = "onInventory", at = @At("HEAD"))
+	void onInventory(InventoryS2CPacket packet, CallbackInfo ci) {
 
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.SET_CONTAINER_CONTENTS, () -> jsonOf("data", McReflector.serializeObject(packet)));
+	}
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.SET_CONTAINER_CONTENTS, () -> jsonOf(
-                "data", McReflector.serializeObject(packet)
-        ));
-    }
+	@Inject(method = "onSetPlayerInventory", at = @At("HEAD"))
+	void onSetPlayerInventory(SetPlayerInventoryS2CPacket packet, CallbackInfo ci) {
 
-    @Inject(method = "onSetPlayerInventory", at = @At("HEAD"))
-    void onSetPlayerInventory(SetPlayerInventoryS2CPacket packet, CallbackInfo ci) {
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_INVENTORY, () -> jsonOf("data", McReflector.serializeObject(packet)));
+	}
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_INVENTORY, () -> jsonOf(
-                "data", McReflector.serializeObject(packet)
-        ));
-    }
+	@Inject(method = "onCloseScreen", at = @At("HEAD"))
+	void onClose(CloseScreenS2CPacket packet, CallbackInfo ci) {
 
-    @Inject(method = "onCloseScreen", at = @At("HEAD"))
-    void onClose(CloseScreenS2CPacket packet, CallbackInfo ci) {
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CLOSE_CONTAINER, () -> jsonOf("data", McReflector.serializeObject(packet)));
+	}
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CLOSE_CONTAINER, () -> jsonOf(
-                "data", McReflector.serializeObject(packet)
-        ));
-    }
+	@Inject(method = "onOpenScreen", at = @At("HEAD"))
+	void onOpenScreen(OpenScreenS2CPacket packet, CallbackInfo ci) {
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.OPEN_SCREEN, () -> jsonOf("data", McReflector.serializeObject(packet)));
+	}
 
-    @Inject(method = "onOpenScreen", at = @At("HEAD"))
-    void onOpenScreen(OpenScreenS2CPacket packet, CallbackInfo ci) {
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.OPEN_SCREEN, () -> jsonOf(
-                "data", McReflector.serializeObject(packet)
-        ));
-    }
+	@Inject(method = "onSetCursorItem", at = @At("HEAD"))
+	void onSetCursorItem(SetCursorItemS2CPacket packet, CallbackInfo ci) {
 
-    @Inject(method = "onSetCursorItem", at = @At("HEAD"))
-    void onSetCursorItem(SetCursorItemS2CPacket packet, CallbackInfo ci) {
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.SET_CURSOR_ITEM, () -> jsonOf("data", McReflector.serializeObject(packet)));
+	}
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.SET_CURSOR_ITEM, () -> jsonOf(
-                "data", McReflector.serializeObject(packet)
-        ));
-    }
-
-    @Inject(method = "onScreenHandlerPropertyUpdate", at = @At("HEAD"))
-    void onScreenHandlerPropertyUpdate(ScreenHandlerPropertyUpdateS2CPacket packet, CallbackInfo ci) {
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.SET_CONTAINER_PROPERTIES, () -> jsonOf(
-                "data", McReflector.serializeObject(packet)
-        ));
-    }
+	@Inject(method = "onScreenHandlerPropertyUpdate", at = @At("HEAD"))
+	void onScreenHandlerPropertyUpdate(ScreenHandlerPropertyUpdateS2CPacket packet, CallbackInfo ci) {
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.SET_CONTAINER_PROPERTIES, () -> jsonOf("data", McReflector.serializeObject(packet)));
+	}
 }

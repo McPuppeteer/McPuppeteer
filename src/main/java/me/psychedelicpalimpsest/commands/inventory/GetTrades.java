@@ -30,53 +30,45 @@ import net.minecraft.village.TradeOffer;
 import net.minecraft.village.TradedItem;
 
 @PuppeteerCommand(
-        cmd = "get trades", description = "Gets the trades of the current merchant",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "get trades", description = "Gets the trades of the current merchant",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class GetTrades implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        if (!(MinecraftClient.getInstance().currentScreen instanceof MerchantScreen)) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "unexpected screen",
-                    "message", "No MerchantScreen is open"
-            ));
-            return;
-        }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		if (!(MinecraftClient.getInstance().currentScreen instanceof MerchantScreen)) {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "status", "error",
+			    "type", "unexpected screen",
+			    "message", "No MerchantScreen is open"));
+			return;
+		}
 
-        callback.resultCallback(BaseCommand.jsonOf(
-                "trades", getTrades()
-        ));
+		callback.resultCallback(BaseCommand.jsonOf(
+		    "trades", getTrades()));
+	}
 
-    }
+	private static JsonObject tradeItemToJson(TradedItem item) {
+		return BaseCommand.jsonOf(
+		    "count", item.count(),
+		    "item stack", McReflector.serializeObject(item.itemStack()));
+	}
 
-    private static JsonObject tradeItemToJson(TradedItem item) {
-        return BaseCommand.jsonOf(
-                "count", item.count(),
-                "item stack", McReflector.serializeObject(item.itemStack())
-        );
-    }
-
-    public static JsonArray getTrades() {
-        JsonArray jsonArray = new JsonArray();
-        var handler = (MerchantScreenHandler) MinecraftClient.getInstance().player.currentScreenHandler;
-        for (TradeOffer offer : handler.getRecipes()) {
-            jsonArray.add(BaseCommand.jsonOf(
-                    "first item", tradeItemToJson(offer.getFirstBuyItem()),
-                    "second item", offer.getSecondBuyItem().isEmpty()
-                            ? JsonNull.INSTANCE
-                            : tradeItemToJson(offer.getSecondBuyItem().get()),
-                    "sell item", McReflector.serializeObject(offer.getSellItem()),
-                    "uses", offer.getUses(),
-                    "max uses", offer.getMaxUses(),
-                    "gives xp", offer.shouldRewardPlayerExperience(),
-                    "special price", offer.getSpecialPrice(),
-                    "demand bonus", offer.getDemandBonus(),
-                    "price multiplier", offer.getPriceMultiplier(),
-                    "merchant xp", offer.getMerchantExperience()
-            ));
-        }
-        return jsonArray;
-    }
+	public static JsonArray getTrades() {
+		JsonArray jsonArray = new JsonArray();
+		var handler = (MerchantScreenHandler) MinecraftClient.getInstance().player.currentScreenHandler;
+		for (TradeOffer offer : handler.getRecipes()) {
+			jsonArray.add(BaseCommand.jsonOf(
+			    "first item", tradeItemToJson(offer.getFirstBuyItem()),
+			    "second item", offer.getSecondBuyItem().isEmpty() ? JsonNull.INSTANCE : tradeItemToJson(offer.getSecondBuyItem().get()),
+			    "sell item", McReflector.serializeObject(offer.getSellItem()),
+			    "uses", offer.getUses(),
+			    "max uses", offer.getMaxUses(),
+			    "gives xp", offer.shouldRewardPlayerExperience(),
+			    "special price", offer.getSpecialPrice(),
+			    "demand bonus", offer.getDemandBonus(),
+			    "price multiplier", offer.getPriceMultiplier(),
+			    "merchant xp", offer.getMerchantExperience()));
+		}
+		return jsonArray;
+	}
 }

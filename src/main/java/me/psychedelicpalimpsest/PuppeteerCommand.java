@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest;
 
 import org.jetbrains.annotations.Nullable;
@@ -32,13 +31,14 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
+
 public @interface PuppeteerCommand {
-    String cmd();
+	String cmd();
 
-    String description();
+	String description();
 
-    @Nullable
-    String[] mod_requirements() default {};
+	@Nullable
+	String[] mod_requirements() default {};
 
-    BaseCommand.CommandContext cmd_context() default BaseCommand.CommandContext.ANY;
+	BaseCommand.CommandContext cmd_context() default BaseCommand.CommandContext.ANY;
 }

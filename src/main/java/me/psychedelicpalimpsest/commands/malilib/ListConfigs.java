@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.malilib;
 
 import com.google.gson.JsonObject;
@@ -32,37 +31,35 @@ import java.util.*;
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 
 @PuppeteerCommand(
-        cmd = "list config info",
-        description = "Lists all mods with configs registered with malilib"
-)
+    cmd = "list config info",
+    description = "Lists all mods with configs registered with malilib")
 public class ListConfigs implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        File configDir = FileUtils.getConfigDirectoryAsPath().toFile();
-        List<String> jsonFiles = new ArrayList<>();
-        if (configDir.exists() && configDir.isDirectory()) {
-            jsonFiles = Arrays.stream(Objects.requireNonNull(
-                    configDir.listFiles((dir, name) -> name.endsWith(".json"))
-            )).map(File::getName).toList();
-        }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		File configDir = FileUtils.getConfigDirectoryAsPath().toFile();
+		List<String> jsonFiles = new ArrayList<>();
+		if (configDir.exists() && configDir.isDirectory()) {
+			jsonFiles = Arrays.stream(Objects.requireNonNull(
+						      configDir.listFiles((dir, name) -> name.endsWith(".json"))))
+					.map(File::getName)
+					.toList();
+		}
 
-        callback.resultCallback(BaseCommand.jsonOf(
-                "mods installed", getConfigHandlers().keySet().stream().toList(),
-                "json files", jsonFiles
-        ));
-    }
+		callback.resultCallback(BaseCommand.jsonOf(
+		    "mods installed", getConfigHandlers().keySet().stream().toList(),
+		    "json files", jsonFiles));
+	}
 
+	public static Map<String, IConfigHandler> getConfigHandlers() {
+		try {
+			Field field = ConfigManager.class.getDeclaredField("configHandlers");
+			field.setAccessible(true);
 
-    public static Map<String, IConfigHandler> getConfigHandlers() {
-        try {
-            Field field = ConfigManager.class.getDeclaredField("configHandlers");
-            field.setAccessible(true);
+			return (Map<String, IConfigHandler>) field.get(ConfigManager.getInstance());
+		} catch (NoSuchFieldException | IllegalAccessException e) {
+			LOGGER.error("Error trying to get config handlers", e);
 
-            return (Map<String, IConfigHandler>) field.get(ConfigManager.getInstance());
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            LOGGER.error("Error trying to get config handlers", e);
-
-            return null;
-        }
-    }
+			return null;
+		}
+	}
 }

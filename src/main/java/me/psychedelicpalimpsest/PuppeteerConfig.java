@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest;
 
 import com.google.common.collect.ImmutableList;
@@ -43,7 +42,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-
 /*
     This file is very much 'inspired' by litematica, as malilib is an undocumented mess
 
@@ -52,108 +50,95 @@ import java.util.List;
 
 public class PuppeteerConfig implements IConfigHandler {
 
-    private static final String CONFIG_FILE_NAME = McPuppeteer.MOD_ID + ".json";
+	private static final String CONFIG_FILE_NAME = McPuppeteer.MOD_ID + ".json";
 
+	public static ConfigFloat UDP_BROADCAST_INTERVAL = new ConfigFloat("UDP broadcast interval", 3f, 0.5f, 10f, "Amount of time (In seconds) between UDP broadcasts. Smaller values mean you can detect the game faster in python, but slow down your network very slightly.");
+	public static ConfigBoolean SEND_BROADCASTS = new ConfigBoolean("Send UDP broadcasts", true, "If you disable broadcasts you will not be able to \"Discover\" the client from python, but you might need this if you are on public wifi.");
 
-    public static ConfigFloat UDP_BROADCAST_INTERVAL = new ConfigFloat("UDP broadcast interval", 3f, 0.5f, 10f, "Amount of time (In seconds) between UDP broadcasts. Smaller values mean you can detect the game faster in python, but slow down your network very slightly.");
-    public static ConfigBoolean SEND_BROADCASTS = new ConfigBoolean("Send UDP broadcasts", true, "If you disable broadcasts you will not be able to \"Discover\" the client from python, but you might need this if you are on public wifi.");
+	/**
+	 * See: TweekerooCameraMixin.java
+	 */
+	public static ConfigBoolean WARN_ON_TWEAKEROO_FREECAM = new ConfigBoolean("Warn on tweakeroo freecam", true, "Gives a warning message if the user attempts to use the freecam module on tweakeroo");
+	public static ConfigBoolean SWAP_CAPSLOCK_AND_ESCAPE = new ConfigBoolean("Swap escape and capslock key", false, "The average player doesn't need this, but me, a vim user, does.");
 
-    /**
-     * See: TweekerooCameraMixin.java
-     */
-    public static ConfigBoolean WARN_ON_TWEAKEROO_FREECAM = new ConfigBoolean("Warn on tweakeroo freecam", true, "Gives a warning message if the user attempts to use the freecam module on tweakeroo");
-    public static ConfigBoolean SWAP_CAPSLOCK_AND_ESCAPE = new ConfigBoolean("Swap escape and capslock key", false, "The average player doesn't need this, but me, a vim user, does.");
+	public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
+	    UDP_BROADCAST_INTERVAL,
+	    SEND_BROADCASTS,
+	    WARN_ON_TWEAKEROO_FREECAM,
+	    SWAP_CAPSLOCK_AND_ESCAPE);
 
-    public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-            UDP_BROADCAST_INTERVAL,
-            SEND_BROADCASTS,
-            WARN_ON_TWEAKEROO_FREECAM,
-            SWAP_CAPSLOCK_AND_ESCAPE
-    );
+	public static final ConfigHotkey OPEN_CONFIG_GUI = new ConfigHotkey("Open Config UI", "I,C", "Open this menu");
+	public static final ConfigHotkey TOGGLE_FREECAM = new ConfigHotkey("Freecam", "I,F", "Toggle freecam");
+	public static final ConfigHotkey TOGGLE_FREEROT = new ConfigHotkey("Free rotation", "I,R", "Disconnects your player and cameras rotation");
+	public static final ConfigHotkey TOGGLE_NOWALK = new ConfigHotkey("No walk", "I,W", "Toggles if the player it allowed to walk");
+	public static final ConfigHotkey PANIC_BUTTON = new ConfigHotkey("Panic button", "I,P", "Kills Baritone, and throws a python error");
 
+	public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
+	    OPEN_CONFIG_GUI,
+	    TOGGLE_FREECAM,
+	    TOGGLE_FREEROT,
+	    PANIC_BUTTON,
+	    TOGGLE_NOWALK);
 
-    public static final ConfigHotkey OPEN_CONFIG_GUI = new ConfigHotkey("Open Config UI", "I,C", "Open this menu");
-    public static final ConfigHotkey TOGGLE_FREECAM = new ConfigHotkey("Freecam", "I,F", "Toggle freecam");
-    public static final ConfigHotkey TOGGLE_FREEROT = new ConfigHotkey("Free rotation", "I,R", "Disconnects your player and cameras rotation");
-    public static final ConfigHotkey TOGGLE_NOWALK = new ConfigHotkey("No walk", "I,W", "Toggles if the player it allowed to walk");
-    public static final ConfigHotkey PANIC_BUTTON = new ConfigHotkey("Panic button", "I,P", "Kills Baritone, and throws a python error");
+	@Override
+	public void load() {
+		Path configFile = FileUtils.getConfigDirectoryAsPath().resolve(CONFIG_FILE_NAME);
 
+		if (Files.exists(configFile) && Files.isReadable(configFile)) {
+			JsonElement element = JsonUtils.parseJsonFileAsPath(configFile);
 
-    public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
-            OPEN_CONFIG_GUI,
-            TOGGLE_FREECAM,
-            TOGGLE_FREEROT,
-            PANIC_BUTTON,
-            TOGGLE_NOWALK
-    );
+			if (element != null && element.isJsonObject()) {
+				JsonObject root = element.getAsJsonObject();
 
+				ConfigUtils.readConfigBase(root, "Options", OPTIONS);
+				ConfigUtils.readConfigBase(root, "Hot keys", HOTKEY_LIST);
+			} else
+				McPuppeteer.LOGGER.error("load(): Failed to load config file '{}'.", configFile.toAbsolutePath());
+		}
+	}
 
-    @Override
-    public void load() {
-        Path configFile = FileUtils.getConfigDirectoryAsPath().resolve(CONFIG_FILE_NAME);
+	@Override
+	public void save() {
+		Path dir = FileUtils.getConfigDirectoryAsPath();
 
-        if (Files.exists(configFile) && Files.isReadable(configFile)) {
-            JsonElement element = JsonUtils.parseJsonFileAsPath(configFile);
+		if (!Files.exists(dir))
+			FileUtils.createDirectoriesIfMissing(dir);
 
-            if (element != null && element.isJsonObject()) {
-                JsonObject root = element.getAsJsonObject();
+		if (Files.isDirectory(dir)) {
+			JsonObject root = new JsonObject();
+			ConfigUtils.writeConfigBase(root, "Options", OPTIONS);
+			ConfigUtils.writeConfigBase(root, "Hot keys", HOTKEY_LIST);
 
-                ConfigUtils.readConfigBase(root, "Options", OPTIONS);
-                ConfigUtils.readConfigBase(root, "Hot keys", HOTKEY_LIST);
-            } else
-                McPuppeteer.LOGGER.error("load(): Failed to load config file '{}'.", configFile.toAbsolutePath());
+			JsonUtils.writeJsonToFileAsPath(root, dir.resolve(CONFIG_FILE_NAME));
+		} else
+			McPuppeteer.LOGGER.error("save(): Config Folder '{}' does not exist!", dir.toAbsolutePath());
+	}
 
-        }
-    }
+	public static void initHotkeys() {
+		PuppeteerConfig.OPEN_CONFIG_GUI.getKeybind().setCallback((action, key) -> {
+			MinecraftClient.getInstance().setScreen(new GuiConfigs());
+			return true;
+		});
 
-    @Override
-    public void save() {
-        Path dir = FileUtils.getConfigDirectoryAsPath();
+		PuppeteerConfig.TOGGLE_FREECAM.getKeybind().setCallback(Freecam::toggleFreecam);
+		PuppeteerConfig.TOGGLE_FREEROT.getKeybind().setCallback(Freerot::toggleFreerot);
+		PuppeteerConfig.TOGGLE_NOWALK.getKeybind().setCallback(NoWalk::toggle);
+		PuppeteerConfig.PANIC_BUTTON.getKeybind().setCallback((ignored, ignored2) -> {
+			Panic.panic();
+			return true;
+		});
 
-        if (!Files.exists(dir))
-            FileUtils.createDirectoriesIfMissing(dir);
+		InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {
+			@Override
+			public void addKeysToMap(IKeybindManager manager) {
+				for (IHotkey hotkey : PuppeteerConfig.HOTKEY_LIST)
+					manager.addKeybindToMap(hotkey.getKeybind());
+			}
 
-
-        if (Files.isDirectory(dir)) {
-            JsonObject root = new JsonObject();
-            ConfigUtils.writeConfigBase(root, "Options", OPTIONS);
-            ConfigUtils.writeConfigBase(root, "Hot keys", HOTKEY_LIST);
-
-            JsonUtils.writeJsonToFileAsPath(root, dir.resolve(CONFIG_FILE_NAME));
-        } else
-            McPuppeteer.LOGGER.error("save(): Config Folder '{}' does not exist!", dir.toAbsolutePath());
-
-    }
-
-
-    public static void initHotkeys() {
-        PuppeteerConfig.OPEN_CONFIG_GUI.getKeybind().setCallback((action, key) -> {
-            MinecraftClient.getInstance().setScreen(new GuiConfigs());
-            return true;
-        });
-
-        PuppeteerConfig.TOGGLE_FREECAM.getKeybind().setCallback(Freecam::toggleFreecam);
-        PuppeteerConfig.TOGGLE_FREEROT.getKeybind().setCallback(Freerot::toggleFreerot);
-        PuppeteerConfig.TOGGLE_NOWALK.getKeybind().setCallback(NoWalk::toggle);
-        PuppeteerConfig.PANIC_BUTTON.getKeybind().setCallback((ignored, ignored2) -> {
-            Panic.panic();
-            return true;
-        });
-
-
-        InputEventHandler.getKeybindManager().registerKeybindProvider(new IKeybindProvider() {
-            @Override
-            public void addKeysToMap(IKeybindManager manager) {
-                for (IHotkey hotkey : PuppeteerConfig.HOTKEY_LIST)
-                    manager.addKeybindToMap(hotkey.getKeybind());
-            }
-
-            @Override
-            public void addHotkeys(IKeybindManager manager) {
-                manager.addHotkeysForCategory(McPuppeteer.MOD_ID, "", PuppeteerConfig.HOTKEY_LIST);
-            }
-        });
-    }
-
-
+			@Override
+			public void addHotkeys(IKeybindManager manager) {
+				manager.addHotkeysForCategory(McPuppeteer.MOD_ID, "", PuppeteerConfig.HOTKEY_LIST);
+			}
+		});
+	}
 }

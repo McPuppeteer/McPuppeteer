@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.integration;
 
 import com.google.common.collect.ImmutableMap;
@@ -34,52 +33,51 @@ import static me.psychedelicpalimpsest.utils.MesaConfigUtils.*;
 
 public class ItemScrollerIntegration {
 
-    /*
-        See: https://github.com/sakura-ryoko/itemscroller/blob/1.21.5/src/main/java/fi/dy/masa/itemscroller/config/Configs.java#L144
-     */
-    private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
-            "Generic", Configs.Generic.OPTIONS,
-            "Hotkeys", Hotkeys.HOTKEY_LIST,
-            "Toggles", Configs.Toggles.OPTIONS
-    );
+	/*
+	    See: https://github.com/sakura-ryoko/itemscroller/blob/1.21.5/src/main/java/fi/dy/masa/itemscroller/config/Configs.java#L144
+	 */
+	private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
+	    "Generic", Configs.Generic.OPTIONS,
+	    "Hotkeys", Hotkeys.HOTKEY_LIST,
+	    "Toggles", Configs.Toggles.OPTIONS);
 
-    @PuppeteerCommand(
-            cmd = "dump itemscroller config", description = "Dumps itemscrollers' config", mod_requirements = "itemscroller")
-    public static class DumpItemscroller implements BaseCommand {
+	@PuppeteerCommand(
+	    cmd = "dump itemscroller config", description = "Dumps itemscrollers' config", mod_requirements = "itemscroller")
+	public static class DumpItemscroller implements BaseCommand {
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(dumpJsonForMasaConfig(config)));
-        }
-    }
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(dumpJsonForMasaConfig(config)));
+		}
+	}
 
-    @PuppeteerCommand(
-            cmd = "get itemscroller config item", description = "Gets specific itemscroller config item", mod_requirements = "itemscroller")
-    public static class GetItemscrollerItem implements BaseCommand {
+	@PuppeteerCommand(
+	    cmd = "get itemscroller config item", description = "Gets specific itemscroller config item", mod_requirements = "itemscroller")
+	public static class GetItemscrollerItem implements BaseCommand {
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
-        }
-    }
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
+		}
+	}
 
-    @PuppeteerCommand(
-            cmd = "set itemscroller config item", description = "Sets specific itemscroller config item", mod_requirements = "itemscroller")
-    public static class SetItemscrollerItem implements BaseCommand {
+	@PuppeteerCommand(
+	    cmd = "set itemscroller config item", description = "Sets specific itemscroller config item", mod_requirements = "itemscroller")
+	public static class SetItemscrollerItem implements BaseCommand {
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
-        }
-    }
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
+		}
+	}
 
-    @PuppeteerCommand(
-            cmd = "exec itemscroller config item", description = "Executes specific itemscroller hotkey config item", mod_requirements = "itemscroller")
-    public static class ExecItemscrollerItem implements BaseCommand {
+	@PuppeteerCommand(
+	    cmd = "exec itemscroller config item", description = "Executes specific itemscroller hotkey config item", mod_requirements = "itemscroller")
+	public static class ExecItemscrollerItem implements BaseCommand {
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
-        }
-    }
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
+		}
+	}
 }

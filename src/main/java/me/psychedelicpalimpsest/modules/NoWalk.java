@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.modules;
 
 import fi.dy.masa.malilib.hotkeys.IKeybind;
@@ -25,19 +24,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 public class NoWalk {
-    public static boolean isActive = false;
+	public static boolean isActive = false;
 
-    public static boolean toggle(KeyAction keyAction, IKeybind iKeybind) {
-        isActive = !isActive;
+	public static boolean toggle(KeyAction keyAction, IKeybind iKeybind) {
+		isActive = !isActive;
 
+		MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of(isActive ? "Enabled NoWalk" : "Disabled NoWalk"), false);
 
-        MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of(isActive ? "Enabled NoWalk" : "Disabled NoWalk"), false);
+		PuppeteerEffects.noWalkEffect.isActive = isActive;
+		PuppeteerInput.allowUserInput = !isActive;
 
-
-        PuppeteerEffects.noWalkEffect.isActive = isActive;
-        PuppeteerInput.allowUserInput = !isActive;
-
-        return true;
-    }
-
+		return true;
+	}
 }

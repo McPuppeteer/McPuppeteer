@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.modInfo;
 
 import com.google.gson.JsonObject;
@@ -24,24 +23,21 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.HeadlessMode;
 import net.minecraft.client.MinecraftClient;
 
-
 @PuppeteerCommand(
-        cmd = "set headless",
-        description = "Disabled game rendering, and hides the game window. During this time it will be like Minecraft is not even open"
-)
+    cmd = "set headless",
+    description = "Disabled game rendering, and hides the game window. During this time it will be like Minecraft is not even open")
 public class SetHeadless implements BaseCommand {
 
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
 
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-
-        MinecraftClient.getInstance().execute(() -> {
-            if (request.getAsJsonPrimitive("enabled").getAsBoolean()) {
-                HeadlessMode.setHeadless();
-            } else {
-                HeadlessMode.disableHeadless();
-            }
-            callback.resultCallback(BaseCommand.jsonOf());
-        });
-    }
+		MinecraftClient.getInstance().execute(() -> {
+			if (request.getAsJsonPrimitive("enabled").getAsBoolean()) {
+				HeadlessMode.setHeadless();
+			} else {
+				HeadlessMode.disableHeadless();
+			}
+			callback.resultCallback(BaseCommand.jsonOf());
+		});
+	}
 }

@@ -25,19 +25,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
 @PuppeteerCommand(
-        cmd = "overview message",
-        description = "Show a message to the player",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "overview message",
+    description = "Show a message to the player",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class OverlayMessage implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        JsonElement element = request.get("message");
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		JsonElement element = request.get("message");
 
+		Text text = Text.of(element.getAsString());
 
-        Text text = Text.of(element.getAsString());
-
-        MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().inGameHud.setOverlayMessage(text, false));
-        callback.resultCallback(new JsonObject());
-    }
+		MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().inGameHud.setOverlayMessage(text, false));
+		callback.resultCallback(new JsonObject());
+	}
 }

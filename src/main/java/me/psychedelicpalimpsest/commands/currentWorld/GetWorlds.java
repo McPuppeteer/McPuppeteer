@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.currentWorld;
 
 import com.google.gson.JsonObject;
@@ -30,49 +29,45 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @PuppeteerCommand(
-        cmd = "get worlds",
-        description =
-                "List ALL the worlds on this minecraft instances .minecraft folder."
-                        + " This can be slow on some installs, as some users may have thousands of worlds."
-)
+    cmd = "get worlds",
+    description =
+	"List ALL the worlds on this minecraft instances .minecraft folder."
+	+ " This can be slow on some installs, as some users may have thousands of worlds.")
 public class GetWorlds implements BaseCommand {
 
-    public CompletableFuture<List<JsonObject>> getWorldListJson() {
-        LevelStorage.LevelList list = MinecraftClient.getInstance().getLevelStorage().getLevelList();
-        if (list.isEmpty()) {
-            return CompletableFuture.completedFuture(List.of());
-        }
-        List<LevelStorage.LevelSave> levelsSaves = list.levels();
-        return MinecraftClient.getInstance().getLevelStorage().loadSummaries(list).thenApply((levelSummaries -> {
-            List<JsonObject> worlds = new ArrayList<>(levelSummaries.size());
-            for (int i = 0; i < levelSummaries.size(); i++) {
-                LevelSummary levelSummary = levelSummaries.get(i);
-                LevelStorage.LevelSave save = levelsSaves.get(i);
+	public CompletableFuture<List<JsonObject>> getWorldListJson() {
+		LevelStorage.LevelList list = MinecraftClient.getInstance().getLevelStorage().getLevelList();
+		if (list.isEmpty()) {
+			return CompletableFuture.completedFuture(List.of());
+		}
+		List<LevelStorage.LevelSave> levelsSaves = list.levels();
+		return MinecraftClient.getInstance().getLevelStorage().loadSummaries(list).thenApply((levelSummaries -> {
+			List<JsonObject> worlds = new ArrayList<>(levelSummaries.size());
+			for (int i = 0; i < levelSummaries.size(); i++) {
+				LevelSummary levelSummary = levelSummaries.get(i);
+				LevelStorage.LevelSave save = levelsSaves.get(i);
 
-                worlds.add(BaseCommand.jsonOf(
-                        "display name", levelSummary.getDisplayName(),
-                        "load name", levelSummary.getName(),
-                        "last played", levelSummary.getLastPlayed(),
-                        "version", levelSummary.getVersion().toString(),
-                        "details", levelSummary.getDetails().toString(),
-                        "icon path", levelSummary.getIconPath().toString(),
-                        "save path", save.getRootPath()
-                ));
-            }
-            return worlds;
-        }));
-    }
+				worlds.add(BaseCommand.jsonOf(
+				    "display name", levelSummary.getDisplayName(),
+				    "load name", levelSummary.getName(),
+				    "last played", levelSummary.getLastPlayed(),
+				    "version", levelSummary.getVersion().toString(),
+				    "details", levelSummary.getDetails().toString(),
+				    "icon path", levelSummary.getIconPath().toString(),
+				    "save path", save.getRootPath()));
+			}
+			return worlds;
+		}));
+	}
 
-
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        new Thread(() -> {
-            getWorldListJson().thenAccept(list -> {
-                callback.resultCallback(BaseCommand.jsonOf(
-                        "world count", list.size(),
-                        "worlds", list
-                ));
-            });
-        }).start();
-    }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		new Thread(() -> {
+			getWorldListJson().thenAccept(list -> {
+				callback.resultCallback(BaseCommand.jsonOf(
+				    "world count", list.size(),
+				    "worlds", list));
+			});
+		}).start();
+	}
 }

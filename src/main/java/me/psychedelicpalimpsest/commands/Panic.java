@@ -25,45 +25,38 @@ import me.psychedelicpalimpsest.modules.NoWalk;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 
 @PuppeteerCommand(
-        cmd = "panic", description = "Same as pressing the panic button"
-)
+    cmd = "panic", description = "Same as pressing the panic button")
 public class Panic implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        panic();
-    }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		panic();
+	}
 
-    public static void panic() {
+	public static void panic() {
 
-        if (McPuppeteer.installedMods.contains("baritone")) {
-            BaritoneListener.panic();
-        }
+		if (McPuppeteer.installedMods.contains("baritone")) {
+			BaritoneListener.panic();
+		}
 
-        if (!McPuppeteer.tasks.isEmpty()) {
-            McPuppeteer.tasks.peek().kill();
-            McPuppeteer.tasks.clear();
-        }
+		if (!McPuppeteer.tasks.isEmpty()) {
+			McPuppeteer.tasks.peek().kill();
+			McPuppeteer.tasks.clear();
+		}
 
-        if (NoWalk.isActive)
-            NoWalk.toggle(null, null);
-        if (Freerot.isFreerotActive())
-            Freerot.toggleFreerot(null, null);
-        if (Freecam.isFreecamActive())
-            Freecam.toggleFreecam(null, null);
+		if (NoWalk.isActive)
+			NoWalk.toggle(null, null);
+		if (Freerot.isFreerotActive())
+			Freerot.toggleFreerot(null, null);
+		if (Freecam.isFreecamActive())
+			Freecam.toggleFreecam(null, null);
 
-        PuppeteerInput.isForcePressed.clear();
-        PuppeteerInput.allowUserInput = true;
-        PuppeteerInput.isDirectionalMovement = false;
+		PuppeteerInput.isForcePressed.clear();
+		PuppeteerInput.allowUserInput = true;
+		PuppeteerInput.isDirectionalMovement = false;
 
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, () -> BaseCommand.jsonOf("status", "error", "type", "panic", "message", "The user has pressed that panic button",
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.FORCED, () -> BaseCommand.jsonOf(
-                "status", "error",
-                "type", "panic",
-                "message", "The user has pressed that panic button",
-
-                /* Specifically force the client to interpret as error */
-                "callback", false
-        ));
-
-    }
+														  /* Specifically force the client to interpret as error */
+														  "callback", false));
+	}
 }

@@ -21,50 +21,48 @@ import java.util.Queue;
 import java.util.concurrent.*;
 
 public class SerializationTester {
-    final Thread thread;
-    final Queue<Object> queue = new ConcurrentLinkedQueue<>();
+	final Thread thread;
+	final Queue<Object> queue = new ConcurrentLinkedQueue<>();
 
-    private Runnable runner = () -> {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        while (true) {
-            final Object o = queue.poll();
-            if (o == null) {
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    return;
-                }
+	private Runnable runner = () -> {
+		ExecutorService executor = Executors.newSingleThreadExecutor();
+		while (true) {
+			final Object o = queue.poll();
+			if (o == null) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					return;
+				}
 
-                continue;
-            }
+				continue;
+			}
 
-            Future<?> fut = executor.submit(() -> {
-                try {
-                    System.out.println(McReflector.serializeObject(o).toString());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
+			Future<?> fut = executor.submit(() -> {
+				try {
+					System.out.println(McReflector.serializeObject(o).toString());
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			});
 
-            try {
-                fut.get(3, TimeUnit.SECONDS);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                System.err.println("Evil doer at " + o.getClass().getName());
-                e.printStackTrace();
-                fut.cancel(true);
-                break;
-            }
-        }
-    };
+			try {
+				fut.get(3, TimeUnit.SECONDS);
+			} catch (InterruptedException | ExecutionException | TimeoutException e) {
+				System.err.println("Evil doer at " + o.getClass().getName());
+				e.printStackTrace();
+				fut.cancel(true);
+				break;
+			}
+		}
+	};
 
+	public SerializationTester() {
+		thread = new Thread(runner);
+		thread.start();
+	}
 
-    public SerializationTester() {
-        thread = new Thread(runner);
-        thread.start();
-    }
-
-    public void enqueue(Object o) {
-        queue.add(o);
-    }
-
+	public void enqueue(Object o) {
+		queue.add(o);
+	}
 }

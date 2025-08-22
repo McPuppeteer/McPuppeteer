@@ -53,285 +53,254 @@ import java.util.stream.Collectors;
 import static me.psychedelicpalimpsest.reflection.YarnMapping.serializeEnum;
 
 public class McReflector {
-    public static List<Field> getAllFields(Class<?> clazz) {
-        List<Field> fields = new ArrayList<>();
-        while (clazz != null) {
-            Collections.addAll(fields, clazz.getDeclaredFields());
-            clazz = clazz.getSuperclass();
-        }
-        return fields;
-    }
+	public static List<Field> getAllFields(Class<?> clazz) {
+		List<Field> fields = new ArrayList<>();
+		while (clazz != null) {
+			Collections.addAll(fields, clazz.getDeclaredFields());
+			clazz = clazz.getSuperclass();
+		}
+		return fields;
+	}
 
+	public static JsonArray listToJsonArray(List<JsonElement> element) {
+		JsonArray jarr = new JsonArray(element.size());
+		for (JsonElement e : element) jarr.add(e);
+		return jarr;
+	}
 
-    public static JsonArray listToJsonArray(List<JsonElement> element) {
-        JsonArray jarr = new JsonArray(element.size());
-        for (JsonElement e : element) jarr.add(e);
-        return jarr;
-    }
+	private static final class CircularRefHandler {
+		Stack<Object> stack = new Stack<>();
+		Set<Object> set = Collections.newSetFromMap(new IdentityHashMap<>());
 
+		public CircularRefHandler() {
+		}
 
-    private static final class CircularRefHandler {
-        Stack<Object> stack = new Stack<>();
-        Set<Object> set = Collections.newSetFromMap(new IdentityHashMap<>());
+		boolean canPush(Object o) {
+			return !set.contains(o);
+		}
 
-        public CircularRefHandler() {
-        }
+		int getCircularRefLevel(Object e) {
+			for (int i = stack.size() - 1; i >= 0; i--) {
+				if (stack.get(i) == e) {
+					return stack.size() - i;
+				}
+			}
+			return -1;
+		}
 
-        boolean canPush(Object o) {
-            return !set.contains(o);
-        }
+		void push(Object o) {
+			stack.push(o);
+			set.add(o);
+		}
 
-        int getCircularRefLevel(Object e) {
-            for (int i = stack.size() - 1; i >= 0; i--) {
-                if (stack.get(i) == e) {
-                    return stack.size() - i;
-                }
-            }
-            return -1;
-        }
+		Object pop() {
+			set.remove(stack.peek());
+			return stack.pop();
+		}
 
-        void push(Object o) {
-            stack.push(o);
-            set.add(o);
-        }
+		int size() {
+			return stack.size();
+		}
 
-        Object pop() {
-            set.remove(stack.peek());
-            return stack.pop();
-        }
+		void printAll() {
+			stack.forEach(e -> System.out.println("ST:\t" + e.getClass().getName()));
+		}
+	}
 
-        int size() {
-            return stack.size();
-        }
+	public static JsonElement serializeObject(Object o) {
+		return serializeObject(o, new CircularRefHandler());
+	}
 
-        void printAll() {
-            stack.forEach(e -> System.out.println("ST:\t" + e.getClass().getName()));
-        }
-    }
+	private static final Gson gson = new Gson();
 
+	@SuppressWarnings({"unchecked"})
+	private static JsonElement serializeObject(Object obj, CircularRefHandler stack) {
+		if (obj == null) return JsonNull.INSTANCE;
 
-    public static JsonElement serializeObject(Object o) {
-        return serializeObject(o, new CircularRefHandler());
-    }
+		if (!stack.canPush(obj)) {
+			return BaseCommand.jsonOf(
+			    "_TYPE", stringifyClassName(obj.getClass().getName()),
+			    "circular reference", stack.getCircularRefLevel(obj));
+		}
+		if (stack.size() > 50) {
+			stack.printAll();
+			throw new StackOverflowError();
+		}
 
+		stack.push(obj);
 
-    private static final Gson gson = new Gson();
+		try {
+			if (obj instanceof JsonElement)
+				return typeWrap(obj, (JsonElement) obj);
 
-    @SuppressWarnings({"unchecked"})
-    private static JsonElement serializeObject(Object obj, CircularRefHandler stack) {
-        if (obj == null) return JsonNull.INSTANCE;
+			/* Primitives */
+			else if (obj instanceof String)
+				return new JsonPrimitive((String) obj);
+			else if (obj instanceof Number)
+				return new JsonPrimitive((Number) obj);
+			else if (obj instanceof Boolean)
+				return new JsonPrimitive((Boolean) obj);
+			else if (obj instanceof Character)
+				return typeWrap(obj, new JsonPrimitive((Character) obj));
 
+			/* Other generic-ish java types */
+			else if (obj instanceof Instant)
+				return typeWrap(obj, new JsonPrimitive(((Instant) obj).toEpochMilli()));
+			else if (obj instanceof Optional<?>)
+				return ((Optional<?>) obj).isEmpty()
+				    ? JsonNull.INSTANCE
+				    : serializeObject(((Optional<?>) obj).get(), stack);
 
-        if (!stack.canPush(obj)) {
-            return BaseCommand.jsonOf(
-                    "_TYPE", stringifyClassName(obj.getClass().getName()),
-                    "circular reference", stack.getCircularRefLevel(obj)
-            );
-        }
-        if (stack.size() > 50) {
-            stack.printAll();
-            throw new StackOverflowError();
-        }
+			else if (obj instanceof OptionalLong)
+				return typeWrap(obj, ((OptionalLong) obj).isEmpty() ? JsonNull.INSTANCE : new JsonPrimitive(((OptionalLong) obj).getAsLong()));
+			else if (obj instanceof OptionalDouble)
+				return typeWrap(obj, ((OptionalDouble) obj).isEmpty() ? JsonNull.INSTANCE : new JsonPrimitive(((OptionalDouble) obj).getAsDouble()));
+			else if (obj instanceof OptionalInt)
+				return typeWrap(obj, ((OptionalInt) obj).isEmpty() ? JsonNull.INSTANCE : new JsonPrimitive(((OptionalInt) obj).getAsInt()));
 
-        stack.push(obj);
+			else if (obj instanceof byte[])
+				return typeWrap(obj, new JsonPrimitive(
+							 Base64.getEncoder().encodeToString((byte[]) obj)));
 
-        try {
-            if (obj instanceof JsonElement)
-                return typeWrap(obj, (JsonElement) obj);
+			/* Minecraft Specific types */
+			else if (obj instanceof Identifier)
+				return typeWrap(obj, new JsonPrimitive(((Identifier) obj).toString()));
+			else if (obj instanceof Block)
+				return typeWrap(obj, new JsonPrimitive(Registries.BLOCK.getId((Block) obj).toString()));
+			else if (obj instanceof BlockItem)
+				return typeWrap(obj, serializeObject(((BlockItem) obj).getBlock(), stack));
+			else if (obj instanceof Item)
+				return typeWrap(obj, new JsonPrimitive(Registries.ITEM.getId((Item) obj).toString()));
+			else if (obj instanceof ItemStack itemStack)
+				return typeWrap(obj,
+						itemStack.isEmpty()
+						    ? new JsonPrimitive("empty stack")
+						    : serializeObject(itemStack.toNbt(MinecraftClient.getInstance().world.getRegistryManager()), stack));
+			else if (obj instanceof SingleStackRecipe)
+				return BaseCommand.jsonOf(
+				    "_TYPE", stringifyClassName(obj.getClass().getName()),
+				    "group", ((SingleStackRecipe) obj).getGroup(),
+				    "ingredient", serializeObject(((SingleStackRecipe) obj).ingredient().entries, stack),
+				    "result", ((SingleStackRecipe) obj).result);
+			else if (obj instanceof CuttingRecipeDisplay.GroupEntry<?> entry)
+				return BaseCommand.jsonOf(
+				    "_TYPE", stringifyClassName(obj.getClass().getName()),
+				    "ingredient", serializeObject(entry.input().entries, stack),
+				    "recipe display", serializeObject(entry.recipe().optionDisplay().getStacks(new ContextParameterMap.Builder().build(new ContextType.Builder().build())), stack));
+			else if (obj instanceof ScreenHandlerType<?> type)
+				return BaseCommand.jsonOf(
+				    "_TYPE", stringifyClassName(obj.getClass().getName()),
+				    "id", Registries.SCREEN_HANDLER.getId(type).toString());
+			else if (obj instanceof NbtElement)
+				return typeWrap(obj, new JsonPrimitive(obj.toString()));
 
+			else if (obj instanceof RegistryKey<?>)
+				return typeWrap(obj, new JsonPrimitive(((RegistryKey<?>) obj).toString()));
+			else if (obj instanceof StringIdentifiable /* Covers most enums */)
+				return typeWrap(obj, new JsonPrimitive(((StringIdentifiable) obj).asString()));
+			else if (obj.getClass().isEnum())
+				return new JsonPrimitive(serializeEnum((Enum<?>) obj));
 
+			else if (obj instanceof RegistryEntry<?>) {
+				return typeWrap(obj, new JsonPrimitive(((RegistryEntry<?>) obj).getIdAsString()));
+			}
+			// This exists just to stop stack overflows
+			else if (obj instanceof RegistryEntry.Reference<?>) {
+				RegistryEntry.Reference<?> ref = (RegistryEntry.Reference<?>) obj;
 
+				return BaseCommand.jsonOf(
+				    "_TYPE", stringifyClassName(obj.getClass().getName()),
+				    "tags", serializeObject(ref.tags, stack),
+				    "referenceType", serializeObject(ref.referenceType, stack),
+				    "registryKey", serializeObject(ref.registryKey, stack),
+				    "value", serializeObject(ref.value, stack));
+			} else if (obj instanceof ArgumentSerializer.ArgumentTypeProperties properties) {
+				JsonObject json = new JsonObject();
+				properties.getSerializer().writeJson((ArgumentSerializer.ArgumentTypeProperties) obj, json);
+				return typeWrap(obj, json);
+			} else if (obj instanceof Collection<?>)
+				return typeWrap(obj, listToJsonArray(
+							 ((Collection<Object>) obj)
+							     .stream()
+							     .map((e) -> serializeObject(e, stack))
+							     .collect(Collectors.toList())));
+	    else if (obj instanceof Map<?, ?>) {
+		Map<?, ?> map = (Map<?, ?>) obj;
+		JsonArray json = new JsonArray();
+		map.forEach((k, v) -> {
+			json.add(BaseCommand.jsonOf(
+			    "key", serializeObject(k, stack),
+			    "value", serializeObject(v, stack)));
+		});
+		return typeWrap(obj, json);
+	    } else if (obj instanceof ByteBuf)
+		    return typeWrap(obj, new JsonPrimitive(Base64.getEncoder().encodeToString(obj.toString().getBytes())));
 
-                /* Primitives */
-            else if (obj instanceof String)
-                return new JsonPrimitive((String) obj);
-            else if (obj instanceof Number)
-                return new JsonPrimitive((Number) obj);
-            else if (obj instanceof Boolean)
-                return new JsonPrimitive((Boolean) obj);
-            else if (obj instanceof Character)
-                return typeWrap(obj, new JsonPrimitive((Character) obj));
+	    else if (obj instanceof TranslatableTextContent)
+		    return typeWrap(obj, new JsonPrimitive(((TranslatableTextContent) obj).getKey()));
+	    else if (obj instanceof Message /* Includes Text */)
+		    return typeWrap(obj, new JsonPrimitive(((Message) obj).getString()));
+	    else if (obj instanceof BlockState bs)
+		    return typeWrap(obj, new JsonPrimitive(NbtHelper.fromBlockState(bs).toString()));
 
-                /* Other generic-ish java types */
-            else if (obj instanceof Instant)
-                return typeWrap(obj, new JsonPrimitive(((Instant) obj).toEpochMilli()));
-            else if (obj instanceof Optional<?>)
-                return ((Optional<?>) obj).isEmpty()
-                        ? JsonNull.INSTANCE
-                        : serializeObject(((Optional<?>) obj).get(), stack);
+	    else if (obj.getClass().getPackageName().startsWith("net.minecraft"))
+		    return serializeGenericObject(obj, stack);
+	    else {
+		    try {
+			    return typeWrap(obj, gson.toJsonTree(obj));
+		    } catch (Exception e) {
+			    System.err.println(obj.getClass());
+			    e.printStackTrace();
+			    throw e;
+		    }
+	    }
+		} finally {
+			stack.pop();
+		}
+	}
 
-            else if (obj instanceof OptionalLong)
-                return typeWrap(obj, ((OptionalLong) obj).isEmpty() ? JsonNull.INSTANCE : new JsonPrimitive(((OptionalLong) obj).getAsLong()));
-            else if (obj instanceof OptionalDouble)
-                return typeWrap(obj, ((OptionalDouble) obj).isEmpty() ? JsonNull.INSTANCE : new JsonPrimitive(((OptionalDouble) obj).getAsDouble()));
-            else if (obj instanceof OptionalInt)
-                return typeWrap(obj, ((OptionalInt) obj).isEmpty() ? JsonNull.INSTANCE : new JsonPrimitive(((OptionalInt) obj).getAsInt()));
+	private static JsonObject typeWrap(Object obj, JsonElement element) {
+		return BaseCommand.jsonOf(
+		    "_TYPE", stringifyClassName(obj.getClass().getName()),
+		    "data", element);
+	}
 
+	public static String stringifyClassName(String name) {
+		if (name.startsWith("net.minecraft.")) {
+			return YarnMapping.getInstance().unmapClassName(YarnMapping.Namespace.NAMED, name);
+		} else {
+			return name;
+		}
+	}
 
-            else if (obj instanceof byte[])
-                return typeWrap(obj, new JsonPrimitive(
-                        Base64.getEncoder().encodeToString((byte[]) obj)
-                ));
+	public static JsonObject serializeGenericObject(Object inputObj, CircularRefHandler stack) {
+		JsonObject object = new JsonObject();
+		object.addProperty("_TYPE", YarnMapping.getInstance().mapClassName(YarnMapping.Namespace.NAMED, inputObj.getClass().getName()));
 
-                /* Minecraft Specific types */
-            else if (obj instanceof Identifier)
-                return typeWrap(obj, new JsonPrimitive(((Identifier) obj).toString()));
-            else if (obj instanceof Block)
-                return typeWrap(obj, new JsonPrimitive(Registries.BLOCK.getId((Block) obj).toString()));
-            else if (obj instanceof BlockItem)
-                return typeWrap(obj, serializeObject(((BlockItem) obj).getBlock(), stack));
-            else if (obj instanceof Item)
-                return typeWrap(obj, new JsonPrimitive(Registries.ITEM.getId((Item) obj).toString()));
-            else if (obj instanceof ItemStack itemStack)
-                return typeWrap(obj,
-                        itemStack.isEmpty()
-                                ? new JsonPrimitive("empty stack")
-                                : serializeObject(itemStack.toNbt(MinecraftClient.getInstance().world.getRegistryManager()), stack)
-                );
-            else if (obj instanceof SingleStackRecipe)
-                return BaseCommand.jsonOf(
-                        "_TYPE", stringifyClassName(obj.getClass().getName()),
-                        "group", ((SingleStackRecipe) obj).getGroup(),
-                        "ingredient", serializeObject(((SingleStackRecipe) obj).ingredient().entries, stack),
-                        "result", ((SingleStackRecipe) obj).result
-                );
-            else if (obj instanceof CuttingRecipeDisplay.GroupEntry<?> entry)
-                return BaseCommand.jsonOf(
-                        "_TYPE", stringifyClassName(obj.getClass().getName()),
-                        "ingredient", serializeObject(entry.input().entries, stack),
-                        "recipe display", serializeObject(entry.recipe().optionDisplay().getStacks(new ContextParameterMap.Builder().build(new ContextType.Builder().build())), stack)
-                );
-            else if (obj instanceof ScreenHandlerType<?> type)
-                return BaseCommand.jsonOf(
-                        "_TYPE", stringifyClassName(obj.getClass().getName()),
-                        "id", Registries.SCREEN_HANDLER.getId(type).toString()
-                );
-            else if (obj instanceof NbtElement)
-                return typeWrap(obj, new JsonPrimitive(obj.toString()));
+		try {
+			for (Field field : getAllFields(inputObj.getClass())) {
+				if (Modifier.isStatic(field.getModifiers()))
+					continue;
+				field.setAccessible(true);
+				Object obj = field.get(inputObj);
 
+				String trueName = YarnMapping.getInstance().unmapFieldName(
+				    YarnMapping.Namespace.NAMED,
 
-            else if (obj instanceof RegistryKey<?>)
-                return typeWrap(obj, new JsonPrimitive(((RegistryKey<?>) obj).toString()));
-            else if (obj instanceof StringIdentifiable /* Covers most enums */)
-                return typeWrap(obj, new JsonPrimitive(((StringIdentifiable) obj).asString()));
-            else if (obj.getClass().isEnum())
-                return new JsonPrimitive(serializeEnum((Enum<?>) obj));
+				    /* Handle inheritance */
+				    field.getDeclaringClass().getName(),
+				    field.getName(),
+				    Type.getDescriptor(field.getType()));
 
-            else if (obj instanceof RegistryEntry<?>) {
-                return typeWrap(obj, new JsonPrimitive(((RegistryEntry<?>) obj).getIdAsString()));
-            }
-            // This exists just to stop stack overflows
-            else if (obj instanceof RegistryEntry.Reference<?>) {
-                RegistryEntry.Reference<?> ref = (RegistryEntry.Reference<?>) obj;
+				if (trueName == null) /* Likely an injected field */
+					continue;
 
-                return BaseCommand.jsonOf(
-                        "_TYPE", stringifyClassName(obj.getClass().getName()),
-                        "tags", serializeObject(ref.tags, stack),
-                        "referenceType", serializeObject(ref.referenceType, stack),
-                        "registryKey", serializeObject(ref.registryKey, stack),
-                        "value", serializeObject(ref.value, stack)
-                );
-            } else if (obj instanceof ArgumentSerializer.ArgumentTypeProperties properties) {
-                JsonObject json = new JsonObject();
-                properties.getSerializer().writeJson((ArgumentSerializer.ArgumentTypeProperties) obj, json);
-                return typeWrap(obj, json);
-            } else if (obj instanceof Collection<?>)
-                return typeWrap(obj, listToJsonArray(
-                        ((Collection<Object>) obj)
-                                .stream()
-                                .map((e) -> serializeObject(e, stack))
-                                .collect(Collectors.toList())
-                ));
-            else if (obj instanceof Map<?, ?>) {
-                Map<?, ?> map = (Map<?, ?>) obj;
-                JsonArray json = new JsonArray();
-                map.forEach((k, v) -> {
-                    json.add(BaseCommand.jsonOf(
-                            "key", serializeObject(k, stack),
-                            "value", serializeObject(v, stack)
-                    ));
-                });
-                return typeWrap(obj, json);
-            } else if (obj instanceof ByteBuf)
-                return typeWrap(obj, new JsonPrimitive(Base64.getEncoder().encodeToString(obj.toString().getBytes())));
+				object.add(trueName, serializeObject(obj, stack));
+			}
+		} catch (IllegalAccessException e) {
+			McPuppeteer.LOGGER.error("Cannot serialize packet", e);
+		}
 
-            else if (obj instanceof TranslatableTextContent)
-                return typeWrap(obj, new JsonPrimitive(((TranslatableTextContent) obj).getKey()));
-            else if (obj instanceof Message /* Includes Text */)
-                return typeWrap(obj, new JsonPrimitive(((Message) obj).getString()));
-            else if (obj instanceof BlockState bs)
-                return typeWrap(obj, new JsonPrimitive(NbtHelper.fromBlockState(bs).toString()));
-
-
-            else if (obj.getClass().getPackageName().startsWith("net.minecraft"))
-                return serializeGenericObject(obj, stack);
-            else {
-                try {
-                    return typeWrap(obj, gson.toJsonTree(obj));
-                } catch (Exception e) {
-                    System.err.println(obj.getClass());
-                    e.printStackTrace();
-                    throw e;
-                }
-            }
-        } finally {
-            stack.pop();
-        }
-
-    }
-
-
-    private static JsonObject typeWrap(Object obj, JsonElement element) {
-        return BaseCommand.jsonOf(
-                "_TYPE", stringifyClassName(obj.getClass().getName()),
-                "data", element
-        );
-    }
-
-
-    public static String stringifyClassName(String name) {
-        if (name.startsWith("net.minecraft.")) {
-            return YarnMapping.getInstance().unmapClassName(YarnMapping.Namespace.NAMED, name);
-        } else {
-            return name;
-        }
-    }
-
-
-    public static JsonObject serializeGenericObject(Object inputObj, CircularRefHandler stack) {
-        JsonObject object = new JsonObject();
-        object.addProperty("_TYPE", YarnMapping.getInstance().mapClassName(YarnMapping.Namespace.NAMED, inputObj.getClass().getName()));
-
-        try {
-            for (Field field : getAllFields(inputObj.getClass())) {
-                if (Modifier.isStatic(field.getModifiers()))
-                    continue;
-                field.setAccessible(true);
-                Object obj = field.get(inputObj);
-
-
-                String trueName = YarnMapping.getInstance().unmapFieldName(
-                        YarnMapping.Namespace.NAMED,
-
-                        /* Handle inheritance */
-                        field.getDeclaringClass().getName(),
-                        field.getName(),
-                        Type.getDescriptor(field.getType())
-                );
-
-
-                if (trueName == null) /* Likely an injected field */ continue;
-
-
-                object.add(trueName, serializeObject(obj, stack));
-
-            }
-        } catch (IllegalAccessException e) {
-            McPuppeteer.LOGGER.error("Cannot serialize packet", e);
-        }
-
-
-        return object;
-    }
-
+		return object;
+	}
 }

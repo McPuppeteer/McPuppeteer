@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.integration;
 
 import com.google.common.collect.ImmutableMap;
@@ -31,58 +30,54 @@ import java.util.Map;
 
 import static me.psychedelicpalimpsest.utils.MesaConfigUtils.*;
 
-
 public class MalilibIntegration {
 
-    /*
-        See: https://github.com/sakura-ryoko/malilib/blob/1.21.5/src/main/java/fi/dy/masa/malilib/MaLiLibConfigs.java
+	/*
+	    See: https://github.com/sakura-ryoko/malilib/blob/1.21.5/src/main/java/fi/dy/masa/malilib/MaLiLibConfigs.java
 
-        Note: Not adding experimental and testing options
-    */
-    private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
-            "Generic", MaLiLibConfigs.Generic.OPTIONS,
-            "Debug", MaLiLibConfigs.Debug.OPTIONS
-    );
+	    Note: Not adding experimental and testing options
+	*/
+	private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
+	    "Generic", MaLiLibConfigs.Generic.OPTIONS,
+	    "Debug", MaLiLibConfigs.Debug.OPTIONS);
 
+	@PuppeteerCommand(
+	    cmd = "dump malilib config", description = "Dumps malilibs config")
+	public static class DumpMalilib implements BaseCommand {
 
-    @PuppeteerCommand(
-            cmd = "dump malilib config", description = "Dumps malilibs config")
-    public static class DumpMalilib implements BaseCommand {
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(dumpJsonForMasaConfig(config)));
+		}
+	}
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(dumpJsonForMasaConfig(config)));
-        }
-    }
+	@PuppeteerCommand(
+	    cmd = "get malilib config item", description = "Gets specific malilib config item")
+	public static class GetMalilibItem implements BaseCommand {
 
-    @PuppeteerCommand(
-            cmd = "get malilib config item", description = "Gets specific malilib config item")
-    public static class GetMalilibItem implements BaseCommand {
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
+		}
+	}
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
-        }
-    }
+	@PuppeteerCommand(
+	    cmd = "set malilib config item", description = "Sets specific malilib config item")
+	public static class SetMalilibItem implements BaseCommand {
 
-    @PuppeteerCommand(
-            cmd = "set malilib config item", description = "Sets specific malilib config item")
-    public static class SetMalilibItem implements BaseCommand {
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
+		}
+	}
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
-        }
-    }
+	@PuppeteerCommand(
+	    cmd = "exec malilib config item", description = "Executes specific malilib hotkey config item")
+	public static class ExecMalilibItem implements BaseCommand {
 
-    @PuppeteerCommand(
-            cmd = "exec malilib config item", description = "Executes specific malilib hotkey config item")
-    public static class ExecMalilibItem implements BaseCommand {
-
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
-        }
-    }
-
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
+		}
+	}
 }

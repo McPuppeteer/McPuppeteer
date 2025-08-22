@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands;
 
 import com.google.gson.JsonElement;
@@ -25,42 +24,18 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 
-
 @PuppeteerCommand(
-        cmd = "Bundle",
-        description = "Bundle many packets together"
-)
+    cmd = "Bundle",
+    description = "Bundle many packets together")
 public class Bundle implements BaseCommand {
 
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		switch (request.get("method").getAsString()) {
+			case "instant":
+				for (JsonElement packet : request.getAsJsonArray("packets")) callback.simulatePuppeteerCommand(packet.getAsJsonObject(), null);
 
-
-
-
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        switch (request.get("method").getAsString()){
-            case "instant":
-                for (JsonElement packet: request.getAsJsonArray("packets")) callback.simulatePuppeteerCommand(packet.getAsJsonObject(), null);
-
-
-                break;
-
-
-
-
-        }
-
-
-
-
-
-
-
-      
-      
-
-
-
-
-  }
+				break;
+		}
+	}
 }

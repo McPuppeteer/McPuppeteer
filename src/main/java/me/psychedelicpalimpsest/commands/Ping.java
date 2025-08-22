@@ -1,4 +1,4 @@
- /**
+/**
  * Copyright (C) 2025 - PsychedelicPalimpsest
  *
  * This program is free software: you can redistribute it and/or modify
@@ -17,16 +17,15 @@
 
 package me.psychedelicpalimpsest.commands;
 
- import com.google.gson.JsonObject;
- import me.psychedelicpalimpsest.BaseCommand;
- import me.psychedelicpalimpsest.PuppeteerCommand;
+import com.google.gson.JsonObject;
+import me.psychedelicpalimpsest.BaseCommand;
+import me.psychedelicpalimpsest.PuppeteerCommand;
 
- @PuppeteerCommand(
-         cmd = "ping", description = "Pong"
- )
- public class Ping implements BaseCommand {
-     @Override
-     public void onRequest(JsonObject request, LaterCallback callback) {
-         callback.resultCallback(request);
-     }
- }
+@PuppeteerCommand(
+    cmd = "ping", description = "Pong")
+public class Ping implements BaseCommand {
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		callback.resultCallback(request);
+	}
+}

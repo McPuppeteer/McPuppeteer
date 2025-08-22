@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.malilib;
 
 import com.google.gson.JsonObject;
@@ -32,50 +31,42 @@ import java.io.IOException;
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 
 @PuppeteerCommand(
-        cmd = "get config",
-        description = "Load a config file with a certain name from the disk, assumes it is json. Takes one parameter: 'file name'"
-)
+    cmd = "get config",
+    description = "Load a config file with a certain name from the disk, assumes it is json. Takes one parameter: 'file name'")
 public class GetConfigSettingsForMod implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "expected argument",
-                    "message", "Missing parameter 'file name'"
-            ));
-            return;
-        }
-        File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
-        if (!config.exists()) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "config file missing",
-                    "message", "Config file does not exist"
-            ));
-            return;
-        }
-        try {
-            FileReader reader = new FileReader(config);
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "status", "error",
+			    "type", "expected argument",
+			    "message", "Missing parameter 'file name'"));
+			return;
+		}
+		File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
+		if (!config.exists()) {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "status", "error",
+			    "type", "config file missing",
+			    "message", "Config file does not exist"));
+			return;
+		}
+		try {
+			FileReader reader = new FileReader(config);
 
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "json", JsonParser.parseReader(reader)));
 
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "json", JsonParser.parseReader(reader)
-            ));
-
-            reader.close();
-        } catch (FileNotFoundException e) {
-            /* This should not be possible as we check this ourselves */
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            callback.resultCallback(BaseCommand.jsonOf(
-                    "status", "error",
-                    "type", "exception",
-                    "message", e.getMessage()
-            ));
-            LOGGER.error("IO exception in GetConfigSettingsForMod", e);
-        }
-
-
-    }
+			reader.close();
+		} catch (FileNotFoundException e) {
+			/* This should not be possible as we check this ourselves */
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			callback.resultCallback(BaseCommand.jsonOf(
+			    "status", "error",
+			    "type", "exception",
+			    "message", e.getMessage()));
+			LOGGER.error("IO exception in GetConfigSettingsForMod", e);
+		}
+	}
 }

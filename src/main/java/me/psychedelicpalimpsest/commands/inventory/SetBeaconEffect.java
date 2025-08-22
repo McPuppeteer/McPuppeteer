@@ -32,43 +32,36 @@ import net.minecraft.util.Identifier;
 import java.util.Optional;
 
 @PuppeteerCommand(
-        cmd = "set beacon effect", description = "Sets the effect of the beacon",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "set beacon effect", description = "Sets the effect of the beacon",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class SetBeaconEffect implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(() -> {
-            if (!(MinecraftClient.getInstance().currentScreen instanceof BeaconScreen beacon)) {
-                callback.resultCallback(BaseCommand.jsonOf(
-                        "status", "error",
-                        "type", "unexpected screen",
-                        "message", "No beacon screen is open"
-                ));
-                return;
-            }
-            if (!((BeaconScreenHandler) MinecraftClient.getInstance().player.currentScreenHandler).hasPayment()) {
-                callback.resultCallback(BaseCommand.jsonOf(
-                        "status", "error",
-                        "type", "beacon payment required",
-                        "message", "Please pay your beacon toll."
-                ));
-                return;
-            }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		MinecraftClient.getInstance().execute(() -> {
+			if (!(MinecraftClient.getInstance().currentScreen instanceof BeaconScreen beacon)) {
+				callback.resultCallback(BaseCommand.jsonOf(
+				    "status", "error",
+				    "type", "unexpected screen",
+				    "message", "No beacon screen is open"));
+				return;
+			}
+			if (!((BeaconScreenHandler) MinecraftClient.getInstance().player.currentScreenHandler).hasPayment()) {
+				callback.resultCallback(BaseCommand.jsonOf(
+				    "status", "error",
+				    "type", "beacon payment required",
+				    "message", "Please pay your beacon toll."));
+				return;
+			}
 
-            MinecraftClient.getInstance().getNetworkHandler().sendPacket(
-                    new UpdateBeaconC2SPacket(
-                            request.has("primary") ? parseEffect(request.get("primary").getAsString()) : Optional.empty(),
-                            request.has("secondary") ? parseEffect(request.get("secondary").getAsString()) : Optional.empty()
-                    )
-            );
-            MinecraftClient.getInstance().player.closeHandledScreen();
+			MinecraftClient.getInstance().getNetworkHandler().sendPacket(
+			    new UpdateBeaconC2SPacket(
+				request.has("primary") ? parseEffect(request.get("primary").getAsString()) : Optional.empty(),
+				request.has("secondary") ? parseEffect(request.get("secondary").getAsString()) : Optional.empty()));
+			MinecraftClient.getInstance().player.closeHandledScreen();
+		});
+	}
 
-        });
-    }
-
-    public static Optional<RegistryEntry<StatusEffect>> parseEffect(String effect) {
-        return Registries.STATUS_EFFECT.getEntry(Identifier.ofVanilla(effect)).map((ref) -> ref);
-    }
-
+	public static Optional<RegistryEntry<StatusEffect>> parseEffect(String effect) {
+		return Registries.STATUS_EFFECT.getEntry(Identifier.ofVanilla(effect)).map((ref) -> ref);
+	}
 }

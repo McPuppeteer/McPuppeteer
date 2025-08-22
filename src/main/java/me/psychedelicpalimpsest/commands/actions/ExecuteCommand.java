@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.actions;
 
 import com.google.gson.JsonObject;
@@ -24,18 +23,15 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 
 @PuppeteerCommand(
-        cmd = "execute command",
-        description = "Sends a chat command. The command here does NOT include the /",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "execute command",
+    description = "Sends a chat command. The command here does NOT include the /",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class ExecuteCommand implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        String message = request.get("message").getAsString();
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		String message = request.get("message").getAsString();
 
-        MinecraftClient.getInstance().execute(() ->
-                MinecraftClient.getInstance().player.networkHandler.sendChatCommand(message)
-        );
-        callback.resultCallback(new JsonObject());
-    }
+		MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().player.networkHandler.sendChatCommand(message));
+		callback.resultCallback(new JsonObject());
+	}
 }

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.mixin;
 
 import me.psychedelicpalimpsest.McPuppeteer;
@@ -29,25 +28,23 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
-    @Shadow
-    public Input input;
+	@Shadow
+	public Input input;
 
-    @Inject(method = "tickMovement", at = @At("HEAD"))
-    private void tickMovement(CallbackInfo ci) {
+	@Inject(method = "tickMovement", at = @At("HEAD"))
+	private void tickMovement(CallbackInfo ci) {
 
-        /* This allows other inputs, such as baritone, to still function (Looking at you tweakeroo) */
-        if (this.input.getClass() == KeyboardInput.class) {
-            this.input = McPuppeteer.puppeteerInput;
-        }
+		/* This allows other inputs, such as baritone, to still function (Looking at you tweakeroo) */
+		if (this.input.getClass() == KeyboardInput.class) {
+			this.input = McPuppeteer.puppeteerInput;
+		}
 
+		if (Freecam.isFreecamActive()) {
+			this.input.tick();
 
-        if (Freecam.isFreecamActive()) {
-            this.input.tick();
-
-            Freecam.movementHandler.movementTick();
-        }
-    }
+			Freecam.movementHandler.movementTick();
+		}
+	}
 }

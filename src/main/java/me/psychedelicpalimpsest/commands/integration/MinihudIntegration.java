@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.integration;
 
 import com.google.common.collect.ImmutableMap;
@@ -36,55 +35,53 @@ import static me.psychedelicpalimpsest.utils.MesaConfigUtils.*;
 
 public class MinihudIntegration {
 
-    /* https://github.com/sakura-ryoko/minihud/blob/1.21.5/src/main/java/fi/dy/masa/minihud/config/Configs.java#L360 */
-    private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
-            "Colors", Configs.Colors.OPTIONS,
-            "Generic", Configs.Generic.OPTIONS,
-            "InfoTypeToggles", InfoToggle.VALUES,
-            "RendererToggles", RendererToggle.VALUES,
-            "StructureColors", StructureToggle.COLOR_CONFIGS,
-            "StructureHotkeys", StructureToggle.HOTKEY_CONFIGS,
-            "StructureToggles", StructureToggle.TOGGLE_CONFIGS
-    );
+	/* https://github.com/sakura-ryoko/minihud/blob/1.21.5/src/main/java/fi/dy/masa/minihud/config/Configs.java#L360 */
+	private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
+	    "Colors", Configs.Colors.OPTIONS,
+	    "Generic", Configs.Generic.OPTIONS,
+	    "InfoTypeToggles", InfoToggle.VALUES,
+	    "RendererToggles", RendererToggle.VALUES,
+	    "StructureColors", StructureToggle.COLOR_CONFIGS,
+	    "StructureHotkeys", StructureToggle.HOTKEY_CONFIGS,
+	    "StructureToggles", StructureToggle.TOGGLE_CONFIGS);
 
+	@PuppeteerCommand(
+	    cmd = "dump minihud config", description = "Dumps minihuds config", mod_requirements = "minihud")
+	public static class DumpMinihud implements BaseCommand {
 
-    @PuppeteerCommand(
-            cmd = "dump minihud config", description = "Dumps minihuds config", mod_requirements = "minihud")
-    public static class DumpMinihud implements BaseCommand {
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(dumpJsonForMasaConfig(config)));
+		}
+	}
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(dumpJsonForMasaConfig(config)));
-        }
-    }
+	@PuppeteerCommand(
+	    cmd = "get minihud config item", description = "Gets specific minihud config item", mod_requirements = "minihud")
+	public static class GetMinihudItem implements BaseCommand {
 
-    @PuppeteerCommand(
-            cmd = "get minihud config item", description = "Gets specific minihud config item", mod_requirements = "minihud")
-    public static class GetMinihudItem implements BaseCommand {
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
+		}
+	}
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
-        }
-    }
+	@PuppeteerCommand(
+	    cmd = "set minihud config item", description = "Sets specific minihud config item", mod_requirements = "minihud")
+	public static class SetMinihudItem implements BaseCommand {
 
-    @PuppeteerCommand(
-            cmd = "set minihud config item", description = "Sets specific minihud config item", mod_requirements = "minihud")
-    public static class SetMinihudItem implements BaseCommand {
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
+		}
+	}
 
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
-        }
-    }
+	@PuppeteerCommand(
+	    cmd = "exec minihud config item", description = "Executes specific minihud hotkey config item", mod_requirements = "minihud")
+	public static class ExecMinihudItem implements BaseCommand {
 
-    @PuppeteerCommand(
-            cmd = "exec minihud config item", description = "Executes specific minihud hotkey config item", mod_requirements = "minihud")
-    public static class ExecMinihudItem implements BaseCommand {
-
-        @Override
-        public void onRequest(JsonObject request, LaterCallback callback) {
-            MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
-        }
-    }
+		@Override
+		public void onRequest(JsonObject request, LaterCallback callback) {
+			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
+		}
+	}
 }

@@ -15,9 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.mixin;
-
 
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.CallbackManager;
@@ -36,43 +34,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static me.psychedelicpalimpsest.McPuppeteer.serializeText;
 
-
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
 
+	@Shadow
+	public abstract float getHealth();
 
-    @Shadow
-    public abstract float getHealth();
+	@Inject(method = "damage", at = @At("RETURN"))
+	void onDamage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+		boolean value = cir.getReturnValue();
+		if (!value) return;
 
-    @Inject(method = "damage", at = @At("RETURN"))
-    void onDamage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        boolean value = cir.getReturnValue();
-        if (!value) return;
+		Entity asEntity = (Entity) (Object) this;
+		if (!asEntity.isPlayer()) return;
 
-        Entity asEntity = (Entity) (Object) this;
-        if (!asEntity.isPlayer()) return;
+		Text msg = source.getDeathMessage((LivingEntity) (Object) this);
 
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DAMAGE, () -> BaseCommand.jsonOf("amount", amount, "health", this.getHealth(), "would be death message", serializeText(msg)
 
-        Text msg = source.getDeathMessage((LivingEntity) (Object) this);
+															     ));
+	}
 
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DAMAGE, () -> BaseCommand.jsonOf(
-                "amount", amount,
-                "health", this.getHealth(),
-                "would be death message", serializeText(msg)
+	@Inject(method = "onDeath", at = @At("HEAD"))
+	void onOnDeath(DamageSource damageSource, CallbackInfo ci) {
+		Entity asEntity = (Entity) (Object) this;
+		if (!asEntity.isPlayer()) return;
 
-        ));
-    }
+		Text msg = damageSource.getDeathMessage((LivingEntity) (Object) this);
 
-    @Inject(method = "onDeath", at = @At("HEAD"))
-    void onOnDeath(DamageSource damageSource, CallbackInfo ci) {
-        Entity asEntity = (Entity) (Object) this;
-        if (!asEntity.isPlayer()) return;
-
-        Text msg = damageSource.getDeathMessage((LivingEntity) (Object) this);
-
-        PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH, () -> BaseCommand.jsonOf(
-                "death message", serializeText(msg),
-                "death message json", msg.getString()
-        ));
-    }
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH, () -> BaseCommand.jsonOf("death message", serializeText(msg), "death message json", msg.getString()));
+	}
 }

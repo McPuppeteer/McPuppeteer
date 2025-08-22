@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.modules;
 
 import net.minecraft.client.MinecraftClient;
@@ -24,33 +23,27 @@ import org.lwjgl.glfw.GLFW;
 
 public class HeadlessMode {
 
-    private static boolean activated = false;
+	private static boolean activated = false;
 
+	public static boolean isHeadless() {
+		return activated;
+	}
 
-    public static boolean isHeadless() {
-        return activated;
-    }
+	public static void setHeadless() {
+		if (activated) return;
 
+		activated = true;
 
-    public static void setHeadless() {
-        if (activated) return;
+		/* This is evil */
+		Window win = MinecraftClient.getInstance().getWindow();
+		GLFW.glfwHideWindow(win.getHandle());
+	}
 
-        activated = true;
+	public static void disableHeadless() {
+		if (!activated) return;
 
-        /* This is evil */
-        Window win = MinecraftClient.getInstance().getWindow();
-        GLFW.glfwHideWindow(win.getHandle());
-
-    }
-
-    public static void disableHeadless() {
-        if (!activated) return;
-
-        activated = false;
-        Window win = MinecraftClient.getInstance().getWindow();
-        GLFW.glfwShowWindow(win.getHandle());
-
-    }
-
-
+		activated = false;
+		Window win = MinecraftClient.getInstance().getWindow();
+		GLFW.glfwShowWindow(win.getHandle());
+	}
 }

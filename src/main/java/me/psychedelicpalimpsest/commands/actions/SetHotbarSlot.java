@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.actions;
 
 import com.google.gson.JsonObject;
@@ -24,23 +23,18 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
-
 @PuppeteerCommand(
-        cmd = "set hotbar slot",
-        description = "Set the current hotbar slot. The parameter is 'slot' and is [1, 9]",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "set hotbar slot",
+    description = "Set the current hotbar slot. The parameter is 'slot' and is [1, 9]",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class SetHotbarSlot implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        MinecraftClient.getInstance().execute(() -> {
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		MinecraftClient.getInstance().execute(() -> {
+			MinecraftClient.getInstance().player.getInventory().setSelectedSlot(
+			    MathHelper.clamp(request.get("slot").getAsInt() - 1, 0, 8));
 
-            MinecraftClient.getInstance().player.getInventory().setSelectedSlot(
-                    MathHelper.clamp(request.get("slot").getAsInt() - 1, 0, 8)
-            );
-
-            callback.resultCallback(BaseCommand.jsonOf());
-        });
-
-    }
+			callback.resultCallback(BaseCommand.jsonOf());
+		});
+	}
 }

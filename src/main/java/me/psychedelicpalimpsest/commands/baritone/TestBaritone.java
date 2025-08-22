@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.baritone;
 
 import com.google.gson.JsonObject;
@@ -23,11 +22,11 @@ import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
 @PuppeteerCommand(
-        cmd = "test baritone", mod_requirements = {"baritone"},
-        description = "A quick and simple way to test if baritone is installed. Gives an error if not installed")
+    cmd = "test baritone", mod_requirements = {"baritone"},
+    description = "A quick and simple way to test if baritone is installed. Gives an error if not installed")
 public class TestBaritone implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.resultCallback(new JsonObject());
-    }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		callback.resultCallback(new JsonObject());
+	}
 }

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.callbacks;
 
 import com.google.gson.JsonObject;
@@ -23,16 +22,15 @@ import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
 @PuppeteerCommand(
-        cmd = "clear callbacks",
-        description = "No longer send optional callbacks"
-)
+    cmd = "clear callbacks",
+    description = "No longer send optional callbacks")
 public class ClearCallbacks implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        callback.callbacksModView((callbacks, packetCallbacks) -> {
-            callbacks.clear();
-            packetCallbacks.clear();
-            callback.resultCallback(new JsonObject());
-        });
-    }
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		callback.callbacksModView((callbacks, packetCallbacks) -> {
+			callbacks.clear();
+			packetCallbacks.clear();
+			callback.resultCallback(new JsonObject());
+		});
+	}
 }

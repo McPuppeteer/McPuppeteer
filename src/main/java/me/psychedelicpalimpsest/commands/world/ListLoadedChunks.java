@@ -15,7 +15,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-
 package me.psychedelicpalimpsest.commands.world;
 
 import com.google.gson.JsonArray;
@@ -28,29 +27,26 @@ import net.minecraft.world.chunk.WorldChunk;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 
 @PuppeteerCommand(
-        cmd = "list loaded chunks",
-        description = "Lists what chunks are loaded for the player. Multiply these by 16 to get the 'real' coordinates",
-        cmd_context = BaseCommand.CommandContext.PLAY
-)
+    cmd = "list loaded chunks",
+    description = "Lists what chunks are loaded for the player. Multiply these by 16 to get the 'real' coordinates",
+    cmd_context = BaseCommand.CommandContext.PLAY)
 public class ListLoadedChunks implements BaseCommand {
-    @Override
-    public void onRequest(JsonObject request, LaterCallback callback) {
-        JsonArray chunks = new JsonArray(MinecraftClient.getInstance().worldRenderer.getBuiltChunks().size());
+	@Override
+	public void onRequest(JsonObject request, LaterCallback callback) {
+		JsonArray chunks = new JsonArray(MinecraftClient.getInstance().worldRenderer.getBuiltChunks().size());
 
-        AtomicReferenceArray<WorldChunk> map = MinecraftClient.getInstance().world.getChunkManager().chunks.chunks;
-        for (int i = 0; i < map.length(); i++) {
-            JsonArray array = new JsonArray(2);
-            WorldChunk chunk = map.get(i);
-            if (chunk == null) continue;
+		AtomicReferenceArray<WorldChunk> map = MinecraftClient.getInstance().world.getChunkManager().chunks.chunks;
+		for (int i = 0; i < map.length(); i++) {
+			JsonArray array = new JsonArray(2);
+			WorldChunk chunk = map.get(i);
+			if (chunk == null) continue;
 
-            array.add(chunk.getPos().x);
-            array.add(chunk.getPos().z);
-            chunks.add(array);
-        }
+			array.add(chunk.getPos().x);
+			array.add(chunk.getPos().z);
+			chunks.add(array);
+		}
 
-        callback.resultCallback(BaseCommand.jsonOf(
-                "chunks", chunks
-        ));
-
-    }
+		callback.resultCallback(BaseCommand.jsonOf(
+		    "chunks", chunks));
+	}
 }
