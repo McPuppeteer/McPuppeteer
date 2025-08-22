@@ -23,10 +23,8 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "clear directional movement",
-    description = "Clears the directional movement",
-    cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
+@PuppeteerCommand(cmd = "clear directional movement", description = "Clears the directional movement",
+		  cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
 public class ClearDirectionalInput implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {

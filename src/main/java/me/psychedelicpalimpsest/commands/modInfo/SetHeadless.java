@@ -23,9 +23,8 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.HeadlessMode;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "set headless",
-    description = "Disabled game rendering, and hides the game window. During this time it will be like Minecraft is not even open")
+@PuppeteerCommand(cmd = "set headless", description = "Disabled game rendering, and hides the game window. During " +
+						      "this time it will be like Minecraft is not even open")
 public class SetHeadless implements BaseCommand {
 
 	@Override

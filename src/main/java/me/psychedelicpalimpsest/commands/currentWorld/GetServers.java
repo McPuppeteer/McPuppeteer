@@ -28,9 +28,9 @@ import net.minecraft.client.option.ServerList;
 import java.util.ArrayList;
 import java.util.List;
 
-@PuppeteerCommand(
-    cmd = "get server list",
-    description = "Gets all the multiplayer servers in your server list, along with the \"hidden\" ones (your direct connect history). ")
+@PuppeteerCommand(cmd = "get server list",
+		  description = "Gets all the multiplayer servers in your server list, along with the \"hidden\" " +
+				"ones (your direct connect history). ")
 public class GetServers implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
@@ -43,23 +43,18 @@ public class GetServers implements BaseCommand {
 
 			List<JsonObject> jsonHiddenServers = new ArrayList<>(hiddenServers.size());
 			for (ServerInfo info : hiddenServers) {
-				jsonHiddenServers.add(BaseCommand.jsonOf(
-				    "address", info.address,
-				    "name", info.name));
+				jsonHiddenServers.add(BaseCommand.jsonOf("address", info.address, "name", info.name));
 			}
 
 			List<JsonObject> jsonServerList = new ArrayList<>(serverList.size());
 			for (int i = 0; i < serverList.size(); i++) {
 				ServerInfo info = serverList.get(i);
 
-				jsonServerList.add(BaseCommand.jsonOf(
-				    "address", info.address,
-				    "name", info.name));
+				jsonServerList.add(BaseCommand.jsonOf("address", info.address, "name", info.name));
 			}
 
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "server list", jsonServerList,
-			    "hidden servers", jsonHiddenServers));
+			callback.resultCallback(
+			    BaseCommand.jsonOf("server list", jsonServerList, "hidden servers", jsonHiddenServers));
 		}).start();
 	}
 }

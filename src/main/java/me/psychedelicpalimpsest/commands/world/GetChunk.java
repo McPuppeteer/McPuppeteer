@@ -35,10 +35,8 @@ import net.minecraft.world.chunk.WorldChunk;
 
 import java.util.HashMap;
 
-@PuppeteerCommand(
-    cmd = "get chunk",
-    description = "Gets a **binary** pelleted version of a chunk.",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "get chunk", description = "Gets a **binary** pelleted version of a chunk.",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class GetChunk implements BaseCommand {
 
 	/*
@@ -58,8 +56,7 @@ public class GetChunk implements BaseCommand {
 		buf.writeInt(longs.length);
 		buf.writeNbt(nbtList);
 
-		for (long l : longs)
-			buf.writeLong(l);
+		for (long l : longs) buf.writeLong(l);
 	}
 
 	@Override
@@ -67,12 +64,11 @@ public class GetChunk implements BaseCommand {
 		ClientWorld world = MinecraftClient.getInstance().world;
 
 		new Thread(() -> {
-			WorldChunk c = MinecraftClient.getInstance().world.getChunk(request.get("cx").getAsInt(), request.get("cz").getAsInt());
+			WorldChunk c = MinecraftClient.getInstance().world.getChunk(request.get("cx").getAsInt(),
+										    request.get("cz").getAsInt());
 			if (c == null) {
-				callback.resultCallback(BaseCommand.jsonOf(
-				    "status", "error",
-				    "type", "unknown chunk",
-				    "message", "Cannot find chunk"));
+				callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "unknown chunk",
+									   "message", "Cannot find chunk"));
 				return;
 			}
 
@@ -95,9 +91,7 @@ public class GetChunk implements BaseCommand {
 			buf.writeInt(c.getBottomSectionCoord());
 			buf.writeInt(c.getTopSectionCoord());
 			buf.writeShort(c.getSectionArray().length);
-			for (ChunkSection section : c.getSectionArray()) {
-				serializeSimple(section, buf);
-			}
+			for (ChunkSection section : c.getSectionArray()) { serializeSimple(section, buf); }
 
 			callback.packetResultCallback(buf.array());
 		}).start();

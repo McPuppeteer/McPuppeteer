@@ -58,13 +58,9 @@ public class YarnMapping {
 	private final int namedIdx;
 	private final int intermediaryIdx;
 
-	public static YarnMapping getInstance() {
-		return instance;
-	}
+	public static YarnMapping getInstance() { return instance; }
 
-	public static void createMapping() {
-		instance = new YarnMapping();
-	}
+	public static void createMapping() { instance = new YarnMapping(); }
 
 	private YarnMapping() {
 
@@ -85,7 +81,8 @@ public class YarnMapping {
 			Field mappingsTreeField = res.getClass().getDeclaredField("mappings");
 			mappingsTreeField.setAccessible(true);
 			fabricTree = (MappingTree) mappingsTreeField.get(res);
-		} catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+		} catch (NoSuchFieldException | IllegalAccessException | NoSuchMethodException |
+			 InvocationTargetException e) {
 			McPuppeteer.LOGGER.error("Cannot load mapping tree from fabric", e);
 			fabricTree = null;
 		}
@@ -95,23 +92,18 @@ public class YarnMapping {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(is));
 			MappingFormat mf = MappingReader.detectFormat(reader);
 
-			final FilteringMappingVisitor mappingFilter = new FilteringMappingVisitor((MappingVisitor) tree);
+			final FilteringMappingVisitor mappingFilter =
+			    new FilteringMappingVisitor((MappingVisitor) tree);
 
 			switch (mf) {
-				case TINY_FILE:
-					Tiny1FileReader.read(reader, mappingFilter);
-					break;
-				case TINY_2_FILE:
-					Tiny2FileReader.read(reader, mappingFilter);
-					break;
-				default:
-					throw new RuntimeException("Invalid mappings format");
+				case TINY_FILE: Tiny1FileReader.read(reader, mappingFilter); break;
+				case TINY_2_FILE: Tiny2FileReader.read(reader, mappingFilter); break;
+				default: throw new RuntimeException("Invalid mappings format");
 			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		} catch (IOException e) { throw new RuntimeException(e); }
 		if (!tree.getSrcNamespace().equals("official")) {
-			throw new RuntimeException("Invalid mappings format. Puppeteer requires the mappings format to have the official namespace as the 'source'");
+			throw new RuntimeException("Invalid mappings format. Puppeteer requires the mappings format " +
+						   "to have the official namespace as the 'source'");
 		}
 
 		intermediaryToClass = new HashMap<>(tree.getClasses().size());
@@ -142,20 +134,14 @@ public class YarnMapping {
 	@SuppressWarnings({"unchecked"})
 	public static <T extends Enum<T>> Optional<T> deserializeEnum(Class<T> cls, String str) {
 		assert cls.isEnum();
-		String mapped = YarnMapping.getInstance().mapFieldName(
-		    Namespace.NAMED,
-		    cls.getName(),
-		    str,
-		    null);
+		String mapped = YarnMapping.getInstance().mapFieldName(Namespace.NAMED, cls.getName(), str, null);
 		if (mapped == null) return Optional.empty();
 
 		try {
 			Field f = cls.getDeclaredField(mapped);
 			f.setAccessible(true);
 			return Optional.of((T) f.get(null));
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			return Optional.empty();
-		}
+		} catch (NoSuchFieldException | IllegalAccessException e) { return Optional.empty(); }
 	}
 
 	@Nullable
@@ -167,33 +153,25 @@ public class YarnMapping {
 
 						     try {
 							     return field.get(obj).equals(obj);
-						     } catch (IllegalAccessException e) {
-							     return false;
-						     }
+						     } catch (IllegalAccessException e) { return false; }
 					     }))
 					     .findFirst();
 
 		/* This can only trigger if shit has gone crazy, i.e. memory corruption */
-		if (origin.isEmpty())
-			return null;
+		if (origin.isEmpty()) return null;
 
 		Field real_origin = origin.get();
-		return YarnMapping.getInstance().unmapFieldName(
-		    YarnMapping.Namespace.NAMED,
+		return YarnMapping.getInstance().unmapFieldName(YarnMapping.Namespace.NAMED,
 
-		    real_origin.getDeclaringClass().getName(),
-		    real_origin.getName(),
-		    Type.getDescriptor(real_origin.getType()));
+								real_origin.getDeclaringClass().getName(),
+								real_origin.getName(),
+								Type.getDescriptor(real_origin.getType()));
 	}
 
 	public static <T extends Enum<T>> String[] serializedValues(Class<T> type) {
-		if (!type.isEnum()) {
-			throw new IllegalArgumentException(type + " is not an enum");
-		}
+		if (!type.isEnum()) { throw new IllegalArgumentException(type + " is not an enum"); }
 
-		return Arrays.stream(type.getEnumConstants())
-		    .map(YarnMapping::serializeEnum)
-		    .toArray(String[] ::new);
+		return Arrays.stream(type.getEnumConstants()).map(YarnMapping::serializeEnum).toArray(String[] ::new);
 	}
 
 	@Nullable
@@ -261,11 +239,9 @@ public class YarnMapping {
 		var field = cls.getField(name, descriptor, nsToIdx(namespace));
 		if (field == null) return null;
 
-		return fabricTree.getField(
-				     cls.getName(intermediaryIdx),
-				     field.getName(intermediaryIdx),
-				     descriptor,
-				     fabricTree.getNamespaceId("intermediary"))
+		return fabricTree
+		    .getField(cls.getName(intermediaryIdx), field.getName(intermediaryIdx), descriptor,
+			      fabricTree.getNamespaceId("intermediary"))
 		    .getName(resolver.getCurrentRuntimeNamespace());
 	}
 
@@ -283,7 +259,8 @@ public class YarnMapping {
 		var clsF = unmapClass_builtin(owner);
 		if (cls == null || clsF == null) return null;
 
-		var field = clsF.getField(name, descriptor, fabricTree.getNamespaceId(resolver.getCurrentRuntimeNamespace()));
+		var field =
+		    clsF.getField(name, descriptor, fabricTree.getNamespaceId(resolver.getCurrentRuntimeNamespace()));
 		if (field == null) return null;
 
 		String intr = field.getName("intermediary");
@@ -304,7 +281,5 @@ public class YarnMapping {
 	 * @param descriptor the descriptor of the method
 	 * @return the mapped method name, or {@code name} if no such mapping is present
 	 */
-	String mapMethodName(Namespace namespace, String owner, String name, String descriptor) {
-		return null;
-	}
+	String mapMethodName(Namespace namespace, String owner, String name, String descriptor) { return null; }
 }

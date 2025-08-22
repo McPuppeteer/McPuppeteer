@@ -33,9 +33,7 @@ public class GuiConfigs extends GuiConfigsBase {
 
 	static ConfigGuiTab currentTab = ConfigGuiTab.GENERIC;
 
-	public GuiConfigs() {
-		super(10, 50, McPuppeteer.MOD_ID, null, "Config");
-	}
+	public GuiConfigs() { super(10, 50, McPuppeteer.MOD_ID, null, "Config"); }
 
 	@Override
 	public void initGui() {
@@ -45,8 +43,7 @@ public class GuiConfigs extends GuiConfigsBase {
 		int x = 10;
 		int y = 26;
 
-		for (ConfigGuiTab tab : ConfigGuiTab.values())
-			x += this.createButton(x, y, -1, tab);
+		for (ConfigGuiTab tab : ConfigGuiTab.values()) x += this.createButton(x, y, -1, tab);
 	}
 
 	@Override
@@ -92,12 +89,8 @@ public class GuiConfigs extends GuiConfigsBase {
 
 		private final String name;
 
-		ConfigGuiTab(String name) {
-			this.name = name;
-		}
+		ConfigGuiTab(String name) { this.name = name; }
 
-		public String getDisplayName() {
-			return this.name;
-		}
+		public String getDisplayName() { return this.name; }
 	}
 }

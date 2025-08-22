@@ -23,25 +23,20 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.NoWalk;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "set nowalk",
-    description = "Enable/disable nowalk",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "set nowalk", description = "Enable/disable nowalk",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class SetNowalk implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "message", "Must have 'enabled' as a boolean property",
-			    "type", "expected argument"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "message",
+								   "Must have 'enabled' as a boolean property", "type",
+								   "expected argument"));
 			return;
 		}
 
 		MinecraftClient.getInstance().execute(() -> {
-			if (request.get("enabled").getAsBoolean() != NoWalk.isActive) {
-				NoWalk.toggle(null, null);
-			}
+			if (request.get("enabled").getAsBoolean() != NoWalk.isActive) { NoWalk.toggle(null, null); }
 			callback.resultCallback(BaseCommand.jsonOf());
 		});
 	}

@@ -50,17 +50,10 @@ public class PuppeteerInput extends Input {
 	public static final String USE = "use";
 	public static final String ATTACK = "attack";
 
-	public static final Set<String> validOptions = ImmutableSet.of(
-	    FORWARDS,
-	    BACKWARDS,
-	    LEFT,
-	    RIGHT,
-	    JUMP,
-	    SNEAK,
-	    SPRINT,
+	public static final Set<String> validOptions =
+	    ImmutableSet.of(FORWARDS, BACKWARDS, LEFT, RIGHT, JUMP, SNEAK, SPRINT,
 
-	    USE,
-	    ATTACK);
+			    USE, ATTACK);
 	public static boolean allowUserInput = true;
 
 	public static boolean isDirectionalMovement = false;
@@ -108,12 +101,15 @@ public class PuppeteerInput extends Input {
 				directionBackward *= scalar;
 			}
 
-			this.movementVector = new Vec2f(directionBackward * directionalSpeed, directionForward * directionalSpeed);
+			this.movementVector =
+			    new Vec2f(directionBackward * directionalSpeed, directionForward * directionalSpeed);
 
 		} else {
 
-			float f = KeyboardInput.getMovementMultiplier(this.playerInput.forward(), this.playerInput.backward());
-			float g = KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right());
+			float f = KeyboardInput.getMovementMultiplier(this.playerInput.forward(),
+								      this.playerInput.backward());
+			float g =
+			    KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right());
 			this.movementVector = new Vec2f(g, f).normalize();
 		}
 	}

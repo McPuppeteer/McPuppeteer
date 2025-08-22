@@ -26,6 +26,5 @@ import java.util.List;
 
 @Mixin(ServerList.class)
 public interface HiddenServerAccessor {
-	@Accessor("hiddenServers")
-	List<ServerInfo> getHiddenServers();
+	@Accessor("hiddenServers") List<ServerInfo> getHiddenServers();
 }

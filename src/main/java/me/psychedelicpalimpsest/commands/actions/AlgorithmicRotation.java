@@ -31,7 +31,9 @@ import java.util.Map;
 
 @PuppeteerCommand(
     cmd = "algorithmic rotation",
-    description = "Smoothly rotates the player to the specified pitch and yaw using an optional interpolation method and degrees per tick. Usage: {pitch: float, yaw: float, [interpolation: string], [degrees per tick: float]}",
+    description =
+	"Smoothly rotates the player to the specified pitch and yaw using an optional interpolation method and " +
+	"degrees per tick. Usage: {pitch: float, yaw: float, [interpolation: string], [degrees per tick: float]}",
     cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
 public class AlgorithmicRotation implements BaseCommand {
 	// percentage of time -> percentage toward target
@@ -64,8 +66,10 @@ public class AlgorithmicRotation implements BaseCommand {
 		map.put("sineInOut", t -> (float) (-0.5 * (Math.cos(Math.PI * t) - 1)));
 		map.put("quadraticInOut", t -> t < 0.5 ? 2 * t * t : 1 - (float) Math.pow(-2 * t + 2, 2) / 2);
 		map.put("cubicInOut", t -> t < 0.5 ? 4 * t * t * t : 1 - (float) Math.pow(-2 * t + 2, 3) / 2);
-		map.put("quarticInOut", t -> t < 0.5 ? 8 * (float) Math.pow(t, 4) : 1 - (float) Math.pow(-2 * t + 2, 4) / 2);
-		map.put("quinticInOut", t -> t < 0.5 ? 16 * (float) Math.pow(t, 5) : 1 - (float) Math.pow(-2 * t + 2, 5) / 2);
+		map.put("quarticInOut",
+			t -> t < 0.5 ? 8 * (float) Math.pow(t, 4) : 1 - (float) Math.pow(-2 * t + 2, 4) / 2);
+		map.put("quinticInOut",
+			t -> t < 0.5 ? 16 * (float) Math.pow(t, 5) : 1 - (float) Math.pow(-2 * t + 2, 5) / 2);
 
 		// Exponential
 		map.put("exponentialIn", t -> t == 0 ? 0 : (float) Math.pow(2, 10 * (t - 1)));
@@ -73,9 +77,8 @@ public class AlgorithmicRotation implements BaseCommand {
 		map.put("exponentialInOut", t -> {
 			if (t == 0) return 0f;
 			if (t == 1) return 1f;
-			return t < 0.5
-			    ? (float) Math.pow(2, 20 * t - 10) / 2
-			    : (2 - (float) Math.pow(2, -20 * t + 10)) / 2;
+			return t < 0.5 ? (float) Math.pow(2, 20 * t - 10) / 2
+				       : (2 - (float) Math.pow(2, -20 * t + 10)) / 2;
 		});
 
 		// Elastic
@@ -97,7 +100,8 @@ public class AlgorithmicRotation implements BaseCommand {
 		void invoke();
 	}
 
-	public static void AlgorithmiclyRotate(float target_pitch, float target_yaw, float degrees_per_tick, String methodStr, RotOnError onError, RotOnSuccess onSuccess) {
+	public static void AlgorithmiclyRotate(float target_pitch, float target_yaw, float degrees_per_tick,
+					       String methodStr, RotOnError onError, RotOnSuccess onSuccess) {
 		ClientPlayerEntity mc = MinecraftClient.getInstance().player;
 		float current_pitch = mc.getPitch();
 		float current_yaw = mc.getYaw();
@@ -118,10 +122,8 @@ public class AlgorithmicRotation implements BaseCommand {
 		InterpolationMethod method = interpolationMethods.get(methodStr);
 
 		if (method == null) {
-			onError.invoke(BaseCommand.jsonOf(
-			    "status", "error",
-			    "unexpected argument",
-			    "message", "Unknown interpolation method"));
+			onError.invoke(BaseCommand.jsonOf("status", "error", "unexpected argument", "message",
+							  "Unknown interpolation method"));
 			return;
 		}
 
@@ -130,69 +132,65 @@ public class AlgorithmicRotation implements BaseCommand {
 
 		final float fyaw_diff = yaw_diff;
 
-		McPuppeteer.tasks.add(PuppeteerTask.ticklyTask(
-		    (a, b) -> {/* No setup */}, (task, onFinish) -> {
-			    float t = count[0] + 1;
-			    float mult = method.interpolate(t / total_ticks);
+		McPuppeteer.tasks.add(PuppeteerTask.ticklyTask((a, b) -> {/* No setup */}, (task, onFinish) -> {
+			float t = count[0] + 1;
+			float mult = method.interpolate(t / total_ticks);
 
-			    /*
-				This may seem strange, but without working in diffs like this, if the user
-				attempted to look around while using their mouse, bad things would happen.
-			     */
+			/*
+			    This may seem strange, but without working in diffs like this, if the user
+			    attempted to look around while using their mouse, bad things would happen.
+			 */
 
-			    float theoretical_pitch = current_pitch + pitch_total_diff * mult;
-			    float theoretical_yaw = current_yaw + fyaw_diff * mult;
+			float theoretical_pitch = current_pitch + pitch_total_diff * mult;
+			float theoretical_yaw = current_yaw + fyaw_diff * mult;
 
-			    float tick_pitch_diff = theoretical_pitch - last_pitch[0];
-			    float tick_yaw_diff = theoretical_yaw - last_yaw[0];
+			float tick_pitch_diff = theoretical_pitch - last_pitch[0];
+			float tick_yaw_diff = theoretical_yaw - last_yaw[0];
 
-			    last_yaw[0] = theoretical_yaw;
-			    last_pitch[0] = theoretical_pitch;
+			last_yaw[0] = theoretical_yaw;
+			last_pitch[0] = theoretical_pitch;
 
-			    mc.setPitch(mc.getPitch() + tick_pitch_diff);
-			    mc.setYaw(mc.getYaw() + tick_yaw_diff);
+			mc.setPitch(mc.getPitch() + tick_pitch_diff);
+			mc.setYaw(mc.getYaw() + tick_yaw_diff);
 
-			    count[0]++;
-			    if (count[0] >= total_ticks) {
-				    onFinish.invoke();
+			count[0]++;
+			if (count[0] >= total_ticks) {
+				onFinish.invoke();
 
-				    // Verify the results
-				    float end_pitch_diff = target_pitch - mc.getPitch();
-				    float end_yaw_diff = normalize(target_yaw - mc.getYaw());
-				    if (end_yaw_diff > 180f) end_yaw_diff -= 360f;
+				// Verify the results
+				float end_pitch_diff = target_pitch - mc.getPitch();
+				float end_yaw_diff = normalize(target_yaw - mc.getYaw());
+				if (end_yaw_diff > 180f) end_yaw_diff -= 360f;
 
-				    // Two degrees of error are accepted
-				    if (Math.abs(end_pitch_diff) > 2f || Math.abs(end_yaw_diff) > 2f) {
-					    onError.invoke(BaseCommand.jsonOf(
-						"status", "error",
-						"type", "rotation error",
-						"message", "An issue has occurred during algorithmic rotation. "
-							       + "It is likely that the user, or the server has caused a rotation "
-							       + "that we didn't expect! Pitch diff: " + end_pitch_diff + " Yaw diff: " + end_yaw_diff));
-					    return;
-				    }
+				// Two degrees of error are accepted
+				if (Math.abs(end_pitch_diff) > 2f || Math.abs(end_yaw_diff) > 2f) {
+					onError.invoke(BaseCommand.jsonOf(
+					    "status", "error", "type", "rotation error", "message",
+					    "An issue has occurred during algorithmic rotation. "
+						+ "It is likely that the user, or the server has caused a rotation "
+						+ "that we didn't expect! Pitch diff: " + end_pitch_diff +
+						" Yaw diff: " + end_yaw_diff));
+					return;
+				}
 
-				    // If within that error, snap to the target to avoid float errors
-				    mc.setPitch(target_pitch);
-				    mc.setYaw(target_yaw);
+				// If within that error, snap to the target to avoid float errors
+				mc.setPitch(target_pitch);
+				mc.setYaw(target_yaw);
 
-				    onSuccess.invoke();
-			    }
-		    }));
+				onSuccess.invoke();
+			}
+		}));
 	}
 
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		float target_pitch = request.get("pitch").getAsFloat();
 		float target_yaw = request.get("yaw").getAsFloat();
-		float degrees_per_tick = request.has("degrees per tick")
-					     ? request.get("degrees per tick").getAsFloat()
-					     : 4.0f; // default speed
+		float degrees_per_tick = request.has("degrees per tick") ? request.get("degrees per tick").getAsFloat()
+									 : 4.0f; // default speed
 		String method = request.has("interpolation") ? request.get("interpolation").getAsString() : "linear";
 
-		AlgorithmiclyRotate(
-		    target_pitch, target_yaw, degrees_per_tick, method,
-		    callback::resultCallback,
-		    () -> callback.resultCallback(BaseCommand.jsonOf("message", "rotation complete")));
+		AlgorithmiclyRotate(target_pitch, target_yaw, degrees_per_tick, method, callback::resultCallback,
+				    () -> callback.resultCallback(BaseCommand.jsonOf("message", "rotation complete")));
 	}
 }

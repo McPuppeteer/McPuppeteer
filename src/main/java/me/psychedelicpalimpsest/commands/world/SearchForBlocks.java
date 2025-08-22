@@ -39,9 +39,8 @@ import java.util.function.Consumer;
 
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 
-@PuppeteerCommand(
-    cmd = "search for blocks", description = "Search the players render distance for a block by id",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "search for blocks", description = "Search the players render distance for a block by id",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class SearchForBlocks implements BaseCommand {
 
 	static int[] computelocation(int edge, int index) {
@@ -100,11 +99,11 @@ public class SearchForBlocks implements BaseCommand {
 					if (results.containsKey(id)) {
 						JsonObject obj = new JsonObject();
 
-						var rel_loc = computelocation(blockStateContainer.paletteProvider.edgeBits, secIdx[0]);
-						var global_loc = new BlockPos(
-						    cp.getOffsetX(rel_loc[0]),
-						    rel_loc[1] + offy,
-						    cp.getOffsetZ(rel_loc[2]));
+						var rel_loc = computelocation(
+						    blockStateContainer.paletteProvider.edgeBits, secIdx[0]);
+						var global_loc =
+						    new BlockPos(cp.getOffsetX(rel_loc[0]), rel_loc[1] + offy,
+								 cp.getOffsetZ(rel_loc[2]));
 						var entity = world.getBlockEntity(global_loc);
 
 						obj.add("state", McReflector.serializeObject(results.get(id)));
@@ -137,10 +136,9 @@ public class SearchForBlocks implements BaseCommand {
 
 			// Ensure valid block
 			if (!Registries.BLOCK.getId(b).toString().equals(id.toString())) {
-				callback.resultCallback(BaseCommand.jsonOf(
-				    "status", "error",
-				    "type", "search error",
-				    "message", "Block id is not valid: " + id.toString()));
+				callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "search error",
+									   "message",
+									   "Block id is not valid: " + id.toString()));
 				return;
 			}
 			targets.add(Registries.BLOCK.getRawId(b));
@@ -148,11 +146,8 @@ public class SearchForBlocks implements BaseCommand {
 
 		new Thread(() -> {
 			try {
-				callback.resultCallback(BaseCommand.jsonOf(
-				    "blocks", blockSearcher(targets)));
-			} catch (Exception e) {
-				LOGGER.error("Error in block searcher", e);
-			}
+				callback.resultCallback(BaseCommand.jsonOf("blocks", blockSearcher(targets)));
+			} catch (Exception e) { LOGGER.error("Error in block searcher", e); }
 		}).start();
 	}
 }

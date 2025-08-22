@@ -23,15 +23,11 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.NoWalk;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "is nowalk",
-    description = "Gets the state of nowalk")
+@PuppeteerCommand(cmd = "is nowalk", description = "Gets the state of nowalk")
 public class IsNoWalk implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
-		MinecraftClient.getInstance().execute(() -> {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "is nowalk", NoWalk.isActive));
-		});
+		MinecraftClient.getInstance().execute(
+		    () -> { callback.resultCallback(BaseCommand.jsonOf("is nowalk", NoWalk.isActive)); });
 	}
 }

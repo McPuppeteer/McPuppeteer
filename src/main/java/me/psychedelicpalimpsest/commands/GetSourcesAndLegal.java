@@ -32,12 +32,17 @@ import java.util.Map;
 public class GetSourcesAndLegal implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
-		Map<String, String> contacts = FabricLoader.getInstance().getModContainer(McPuppeteer.MOD_ID).get().getMetadata().getContact().asMap();
+		Map<String, String> contacts = FabricLoader.getInstance()
+						   .getModContainer(McPuppeteer.MOD_ID)
+						   .get()
+						   .getMetadata()
+						   .getContact()
+						   .asMap();
 
 		callback.resultCallback(BaseCommand.jsonOf(
-		    "git commit hash", BuildConstants.GIT_HASH,
-		    "github source code", !contacts.containsKey("sources") ? "UNKNOWN" : contacts.get("sources") + "/tree/" + BuildConstants.GIT_HASH,
-		    "build date", BuildConstants.BUILD_DATE,
-		    "legal license", BuildConstants.LICENSE));
+		    "git commit hash", BuildConstants.GIT_HASH, "github source code",
+		    !contacts.containsKey("sources") ? "UNKNOWN"
+						     : contacts.get("sources") + "/tree/" + BuildConstants.GIT_HASH,
+		    "build date", BuildConstants.BUILD_DATE, "legal license", BuildConstants.LICENSE));
 	}
 }

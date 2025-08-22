@@ -45,9 +45,7 @@ import java.util.Map;
 
 import static me.psychedelicpalimpsest.utils.RotationUtils.calcRotationFromVec3d;
 
-@PuppeteerCommand(
-    cmd = "auto use", description = "",
-    cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
+@PuppeteerCommand(cmd = "auto use", description = "", cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
 public class AutoUse implements BaseCommand {
 	public interface UseOnError {
 		void invoke(JsonObject error);
@@ -66,19 +64,16 @@ public class AutoUse implements BaseCommand {
 		double maxY = shape.getMax(Direction.Axis.Y);
 		double maxZ = shape.getMax(Direction.Axis.Z);
 
-		return new Vec3d(
-		    (maxX + minX) / 2,
-		    (maxY + minY) / 2,
-		    (maxZ + minZ) / 2);
+		return new Vec3d((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
 	}
 
 	@Nullable
-	public static Vec3d handleAndGetPositionForRequest(int x, int y, int z, @Nullable String direction, UseOnError onError) {
+	public static Vec3d handleAndGetPositionForRequest(int x, int y, int z, @Nullable String direction,
+							   UseOnError onError) {
 		ClientWorld world = MinecraftClient.getInstance().world;
 		ClientPlayerEntity p = MinecraftClient.getInstance().player;
 
-		BlockPos bp = new BlockPos(
-		    x, y, z);
+		BlockPos bp = new BlockPos(x, y, z);
 
 		BlockState bs = world.getBlockState(bp);
 
@@ -95,7 +90,8 @@ public class AutoUse implements BaseCommand {
 			Direction dirr = YarnMapping.deserializeEnum(Direction.class, direction).orElse(null);
 
 			if (dirr == null) {
-				onError.invoke(BaseCommand.jsonOf("status", "error", "type", "expected argument", "message", "Invalid direction"));
+				onError.invoke(BaseCommand.jsonOf("status", "error", "type", "expected argument",
+								  "message", "Invalid direction"));
 				return null;
 			}
 
@@ -115,75 +111,59 @@ public class AutoUse implements BaseCommand {
 		return point;
 	}
 
-	public static void AutomaticallyUse(
-	    int x, int y, int z, float degreesPerTick, String method, @Nullable String direction, UseOnError onError, UseOnSuccess onSuccess) {
+	public static void AutomaticallyUse(int x, int y, int z, float degreesPerTick, String method,
+					    @Nullable String direction, UseOnError onError, UseOnSuccess onSuccess) {
 		ClientPlayerEntity p = MinecraftClient.getInstance().player;
 
-		BlockPos bp = new BlockPos(
-		    x, y, z);
+		BlockPos bp = new BlockPos(x, y, z);
 
 		final Vec3d point = handleAndGetPositionForRequest(x, y, z, direction, onError);
 		if (point == null) return;
 
 		double range = p.getBlockInteractionRange();
 		if (p.squaredDistanceTo(point) > range * range) {
-			onError.invoke(
-			    BaseCommand.jsonOf("status", "error", "type", "block range"));
+			onError.invoke(BaseCommand.jsonOf("status", "error", "type", "block range"));
 			return;
 		}
 
 		PuppeteerTask.TaskEvent useEvent = (self, onCompletion) -> {
 			if (p.squaredDistanceTo(point) > range * range) {
-				onError.invoke(
-				    BaseCommand.jsonOf("status", "error", "type", "block range"));
+				onError.invoke(BaseCommand.jsonOf("status", "error", "type", "block range"));
 				return;
 			}
 
 			MinecraftClient.getInstance().interactionManager.interactBlock(
-			    p,
-			    Hand.MAIN_HAND,
-			    new BlockHitResult(
-				point,
-				direction != null
-				    ? YarnMapping.deserializeEnum(Direction.class, direction).get()
-				    : Direction.getFacing(point.subtract(Vec3d.of(bp))),
-				bp,
-				false
+			    p, Hand.MAIN_HAND,
+			    new BlockHitResult(point,
+					       direction != null
+						   ? YarnMapping.deserializeEnum(Direction.class, direction).get()
+						   : Direction.getFacing(point.subtract(Vec3d.of(bp))),
+					       bp, false
 
-				));
+					       ));
 			onSuccess.invoke();
 		};
-		final Rotation rot = calcRotationFromVec3d(
-		    p.getEyePos(),
-		    point,
-		    new Rotation(p.getYaw(), p.getPitch()));
+		final Rotation rot =
+		    calcRotationFromVec3d(p.getEyePos(), point, new Rotation(p.getYaw(), p.getPitch()));
 
 		if (method.equals("instant")) {
-			McPuppeteer.tasks.add(new EventBasedTask(List.of(
-								     (self, onCompletion) -> {
-									     p.setYaw(rot.getYaw());
-									     p.setPitch(rot.getPitch());
-								     },
-								     useEvent),
-								 1));
+			McPuppeteer.tasks.add(new EventBasedTask(List.of((self, onCompletion) -> {
+				p.setYaw(rot.getYaw());
+				p.setPitch(rot.getPitch());
+			}, useEvent), 1));
 		} else {
 			AlgorithmicRotation.AlgorithmiclyRotate(
-			    rot.getPitch(), rot.getYaw(), degreesPerTick, method,
-			    onError::invoke,
+			    rot.getPitch(), rot.getYaw(), degreesPerTick, method, onError::invoke,
 			    () -> MinecraftClient.getInstance().execute(() -> useEvent.invoke(null, null)));
 		}
 	}
 
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
-		AutomaticallyUse(
-		    request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt(),
-		    request.has("degrees per tick")
-			? request.get("degrees per tick").getAsFloat()
-			: 4.0f,
-		    request.has("method") ? request.get("method").getAsString() : "linear",
-		    request.has("direction") ? request.get("direction").getAsString() : null,
-		    callback::resultCallback,
-		    () -> callback.resultCallback(BaseCommand.jsonOf()));
+		AutomaticallyUse(request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt(),
+				 request.has("degrees per tick") ? request.get("degrees per tick").getAsFloat() : 4.0f,
+				 request.has("method") ? request.get("method").getAsString() : "linear",
+				 request.has("direction") ? request.get("direction").getAsString() : null,
+				 callback::resultCallback, () -> callback.resultCallback(BaseCommand.jsonOf()));
 	}
 }

@@ -31,15 +31,14 @@ public class PacketJsonEncoder {
 	public static JsonObject encode(Packet<?> packet) {
 		var nh = MinecraftClient.getInstance().getNetworkHandler();
 		JsonTrackingPacketByteBuf buf = new JsonTrackingPacketByteBuf(Unpooled.buffer());
-		String name = YarnMapping.getInstance().unmapClassName(YarnMapping.Namespace.NAMED, packet.getClass().getName());
+		String name =
+		    YarnMapping.getInstance().unmapClassName(YarnMapping.Namespace.NAMED, packet.getClass().getName());
 		try {
 			Field f = packet.getClass().getDeclaredField("CODEC");
 			f.setAccessible(true);
 			PacketCodec<Object, Object> codec = (PacketCodec<Object, Object>) f.get(packet);
 			codec.encode(buf, packet);
-			return BaseCommand.jsonOf(
-			    "packet type", name,
-			    "data", buf.getJsonArray());
+			return BaseCommand.jsonOf("packet type", name, "data", buf.getJsonArray());
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			System.err.println("UNKNOWN CODEC: " + name);
 		} catch (Exception e) {

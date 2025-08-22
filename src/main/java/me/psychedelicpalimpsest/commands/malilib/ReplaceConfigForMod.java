@@ -28,27 +28,22 @@ import java.io.IOException;
 
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 
-@PuppeteerCommand(
-    cmd = "replace config",
-    description = "Replaces a json file in the config folder")
+@PuppeteerCommand(cmd = "replace config", description = "Replaces a json file in the config folder")
 public class ReplaceConfigForMod implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		if (request.get("file name") == null || !request.get("file name").isJsonPrimitive()) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "expected argument",
-			    "message", "Missing parameter 'file name'"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "expected argument",
+								   "message", "Missing parameter 'file name'"));
 			return;
 		}
 		if (request.get("json") == null) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "expected argument",
-			    "message", "Missing parameter 'json'"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "expected argument",
+								   "message", "Missing parameter 'json'"));
 			return;
 		}
-		File config = FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
+		File config =
+		    FileUtils.getConfigDirectoryAsPath().resolve(request.get("file name").getAsString()).toFile();
 
 		try {
 			FileWriter writer = new FileWriter(config);
@@ -58,10 +53,8 @@ public class ReplaceConfigForMod implements BaseCommand {
 			writer.close();
 
 		} catch (IOException e) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "exception",
-			    "message", e.getMessage()));
+			callback.resultCallback(
+			    BaseCommand.jsonOf("status", "error", "type", "exception", "message", e.getMessage()));
 			LOGGER.error("IO exception in ReplaceConfigForMod", e);
 		}
 	}

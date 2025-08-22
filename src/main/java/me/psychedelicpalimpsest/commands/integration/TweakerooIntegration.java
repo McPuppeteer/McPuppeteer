@@ -35,56 +35,58 @@ import static me.psychedelicpalimpsest.utils.MesaConfigUtils.*;
 public class TweakerooIntegration {
 
 	/*
-	    See: https://github.com/sakura-ryoko/tweakeroo/blob/601acef5eb34bbf44d9b51585d676358d91efb7c/src/main/java/fi/dy/masa/tweakeroo/config/Configs.java#L551
+	    See:
+	   https://github.com/sakura-ryoko/tweakeroo/blob/601acef5eb34bbf44d9b51585d676358d91efb7c/src/main/java/fi/dy/masa/tweakeroo/config/Configs.java#L551
 	    Not sure how well the categories reflect what you see in the gui.
 	 */
 
-	private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
-	    "Fixes", Configs.Fixes.OPTIONS,
-	    "Generic", Configs.Generic.OPTIONS,
-	    "GenericHotkeys", Hotkeys.HOTKEY_LIST,
-	    "Internal", Configs.Internal.OPTIONS,
-	    "Lists", Configs.Lists.OPTIONS,
-	    "DisableToggles", Configs.Disable.OPTIONS,
-	    "TweakToggles", FeatureToggle.VALUES);
+	private final static Map<String, List<? extends IConfigBase>> config =
+	    ImmutableMap.of("Fixes", Configs.Fixes.OPTIONS, "Generic", Configs.Generic.OPTIONS, "GenericHotkeys",
+			    Hotkeys.HOTKEY_LIST, "Internal", Configs.Internal.OPTIONS, "Lists", Configs.Lists.OPTIONS,
+			    "DisableToggles", Configs.Disable.OPTIONS, "TweakToggles", FeatureToggle.VALUES);
 
-	@PuppeteerCommand(
-	    cmd = "dump tweakeroo config", description = "Dumps tweakeroos config", mod_requirements = "tweakeroo")
+	@PuppeteerCommand(cmd = "dump tweakeroo config", description = "Dumps tweakeroos config",
+			  mod_requirements = "tweakeroo")
 	public static class DumpTweakeroo implements BaseCommand {
 
 		@Override
 		public void onRequest(JsonObject request, LaterCallback callback) {
-			MinecraftClient.getInstance().execute(() -> callback.resultCallback(dumpJsonForMasaConfig(config)));
+			MinecraftClient.getInstance().execute(
+			    () -> callback.resultCallback(dumpJsonForMasaConfig(config)));
 		}
 	}
 
-	@PuppeteerCommand(
-	    cmd = "get tweakeroo config item", description = "Gets specific tweakeroo config item", mod_requirements = "tweakeroo")
+	@PuppeteerCommand(cmd = "get tweakeroo config item", description = "Gets specific tweakeroo config item",
+			  mod_requirements = "tweakeroo")
 	public static class GetTweakerooItem implements BaseCommand {
 
 		@Override
 		public void onRequest(JsonObject request, LaterCallback callback) {
-			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
+			MinecraftClient.getInstance().execute(
+			    () -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
 		}
 	}
 
-	@PuppeteerCommand(
-	    cmd = "set tweakeroo config item", description = "Sets specific tweakeroo config item", mod_requirements = "tweakeroo")
+	@PuppeteerCommand(cmd = "set tweakeroo config item", description = "Sets specific tweakeroo config item",
+			  mod_requirements = "tweakeroo")
 	public static class SetTweakerooItem implements BaseCommand {
 
 		@Override
 		public void onRequest(JsonObject request, LaterCallback callback) {
-			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
+			MinecraftClient.getInstance().execute(
+			    () -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
 		}
 	}
 
-	@PuppeteerCommand(
-	    cmd = "exec tweakeroo config item", description = "Executes specific tweakeroo hotkey config item", mod_requirements = "tweakeroo")
+	@PuppeteerCommand(cmd = "exec tweakeroo config item",
+			  description = "Executes specific tweakeroo hotkey config item",
+			  mod_requirements = "tweakeroo")
 	public static class ExecTweakerooItem implements BaseCommand {
 
 		@Override
 		public void onRequest(JsonObject request, LaterCallback callback) {
-			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
+			MinecraftClient.getInstance().execute(
+			    () -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
 		}
 	}
 }

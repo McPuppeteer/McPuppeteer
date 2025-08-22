@@ -31,9 +31,7 @@ public class SerializationTester {
 			if (o == null) {
 				try {
 					Thread.sleep(50);
-				} catch (InterruptedException e) {
-					return;
-				}
+				} catch (InterruptedException e) { return; }
 
 				continue;
 			}
@@ -41,9 +39,7 @@ public class SerializationTester {
 			Future<?> fut = executor.submit(() -> {
 				try {
 					System.out.println(McReflector.serializeObject(o).toString());
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				} catch (Exception e) { e.printStackTrace(); }
 			});
 
 			try {
@@ -62,7 +58,5 @@ public class SerializationTester {
 		thread.start();
 	}
 
-	public void enqueue(Object o) {
-		queue.add(o);
-	}
+	public void enqueue(Object o) { queue.add(o); }
 }

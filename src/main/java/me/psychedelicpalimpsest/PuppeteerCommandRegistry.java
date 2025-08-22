@@ -41,7 +41,8 @@ public class PuppeteerCommandRegistry {
 
 			String commandName = aClass.getAnnotation(PuppeteerCommand.class).cmd();
 			String commandDesc = aClass.getAnnotation(PuppeteerCommand.class).description();
-			BaseCommand.CommandContext commandContext = aClass.getAnnotation(PuppeteerCommand.class).cmd_context();
+			BaseCommand.CommandContext commandContext =
+			    aClass.getAnnotation(PuppeteerCommand.class).cmd_context();
 			String[] requirements = aClass.getAnnotation(PuppeteerCommand.class).mod_requirements();
 
 			boolean canRun = true;
@@ -60,11 +61,14 @@ public class PuppeteerCommandRegistry {
 
 						break;
 					} catch (Exception e) {
-						LOGGER.error("Error instantiating " + aClass.getName() + ", are you sure it implements baseCommand?", e);
+						LOGGER.error("Error instantiating " + aClass.getName() +
+								 ", are you sure it implements baseCommand?",
+							     e);
 					}
 				}
 			if (command == null && canRun) {
-				LOGGER.error("Error instantiating " + aClass.getName() + ", A puppeteer-command annotated class MUST have a no-arg constructor!");
+				LOGGER.error("Error instantiating " + aClass.getName() +
+					     ", A puppeteer-command annotated class MUST have a no-arg constructor!");
 			}
 
 			COMMAND_MAP.put(commandName, command);

@@ -91,9 +91,7 @@ public class PuppeteerServer implements Runnable {
 	private static final int BROADCAST_PORT = 43842;
 	private static final String SERVER_HOST = "0.0.0.0";
 
-	public PuppeteerServer() {
-		this.uuid = UUID.randomUUID();
-	}
+	public PuppeteerServer() { this.uuid = UUID.randomUUID(); }
 
 	public static boolean validateContext(BaseCommand.CommandContext context) {
 		return switch (context) {
@@ -133,8 +131,7 @@ public class PuppeteerServer implements Runnable {
 		byte[] buffer = ("PUPPETEER" + state).getBytes();
 		InetAddress broadcastAddr = InetAddress.getByName("255.255.255.255");
 
-		DatagramPacket packet =
-		    new DatagramPacket(buffer, buffer.length, broadcastAddr, BROADCAST_PORT);
+		DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddr, BROADCAST_PORT);
 
 		socket.send(packet);
 
@@ -147,9 +144,7 @@ public class PuppeteerServer implements Runnable {
 	private static Thread listenThread = null;
 	private final UUID uuid;
 
-	public static PuppeteerServer getInstance() {
-		return instance;
-	}
+	public static PuppeteerServer getInstance() { return instance; }
 
 	public static void createServer() throws IOException {
 		instance = new PuppeteerServer();
@@ -161,17 +156,13 @@ public class PuppeteerServer implements Runnable {
 		instance.running = false;
 		try {
 			listenThread.join();
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+		} catch (InterruptedException e) { throw new RuntimeException(e); }
 	}
 
 	public int getPort() {
 		try {
 			return ((InetSocketAddress) serverSocket.getLocalAddress()).getPort();
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		} catch (IOException e) { throw new RuntimeException(e); }
 	}
 
 	private final Queue<Runnable> pendingTasks = new ConcurrentLinkedQueue<>();
@@ -235,9 +226,7 @@ public class PuppeteerServer implements Runnable {
 						writeData(key);
 					}
 				}
-			} catch (IOException e) {
-				LOGGER.error("Error in creating puppeteer server iteration", e);
-			}
+			} catch (IOException e) { LOGGER.error("Error in creating puppeteer server iteration", e); }
 		}
 	}
 
@@ -285,15 +274,11 @@ public class PuppeteerServer implements Runnable {
 		void onCompletion(JsonObject result);
 	}
 
-	private void processPacket(
-	    SocketChannel client, JsonObject request, PacketOnCompletion onCompletion) {
+	private void processPacket(SocketChannel client, JsonObject request, PacketOnCompletion onCompletion) {
 		if (!request.has("cmd") || !request.has("id")) {
 
 			JsonObject response =
-			    BaseCommand.jsonOf(
-				"status", "error",
-				"type", "format",
-				"message", "invalid request");
+			    BaseCommand.jsonOf("status", "error", "type", "format", "message", "invalid request");
 			if (request.has("id")) response.add("id", request.get("id"));
 
 			writeJsonPacket(client, response);
@@ -304,114 +289,84 @@ public class PuppeteerServer implements Runnable {
 		final String id = request.get("id").getAsString();
 
 		if (!COMMAND_MAP.containsKey(cmd)) {
-			writeJsonPacket(
-			    client,
-			    BaseCommand.jsonOf(
-				"status", "error",
-				"type", "format",
-				"message", "unknown command",
-				"id", id));
+			writeJsonPacket(client, BaseCommand.jsonOf("status", "error", "type", "format", "message",
+								   "unknown command", "id", id));
 			return;
 		}
 
 		for (String r : COMMAND_REQUIREMENTS_MAP.get(cmd)) {
 			if (McPuppeteer.installedMods.contains(r)) continue;
-			writeJsonPacket(
-			    client,
-			    BaseCommand.jsonOf(
-				"status",
-				"error",
-				"type",
-				"mod requirement",
-				"message",
-				r + " not installed",
-				"id",
-				id));
+			writeJsonPacket(client, BaseCommand.jsonOf("status", "error", "type", "mod requirement",
+								   "message", r + " not installed", "id", id));
 			return;
 		}
 		BaseCommand.CommandContext ctx = COMMAND_CONTEXT_MAP.get(cmd);
 		if (!validateContext(ctx)) {
 			writeJsonPacket(
-			    client,
-			    BaseCommand.jsonOf(
-				"status",
-				"error",
-				"type",
-				"context error",
-				"message",
-				"The player is not in the expected context, meaning they cannot complete the"
-				    + " requested action. Expected context: " + ctx,
-				"id",
-				id));
+			    client, BaseCommand.jsonOf(
+					"status", "error", "type", "context error", "message",
+					"The player is not in the expected context, meaning they cannot complete the"
+					    + " requested action. Expected context: " + ctx,
+					"id", id));
 			return;
 		}
 
 		try {
-			COMMAND_MAP
-			    .get(cmd)
-			    .onRequest(
-				request,
-				new BaseCommand.LaterCallback() {
-					@Override
-					public void callbacksModView(BaseCommand.CallbackModView callback) {
-						serverTask(
-						    () -> {
-							    ClientAttachment attachment =
-								(ClientAttachment) client.keyFor(instance.selector).attachment();
-							    callback.invoke(attachment.allowedCallbacks, attachment.packetCallbacks);
-						    });
-					}
+			COMMAND_MAP.get(cmd).onRequest(request, new BaseCommand.LaterCallback() {
+				@Override
+				public void callbacksModView(BaseCommand.CallbackModView callback) {
+					serverTask(() -> {
+						ClientAttachment attachment =
+						    (ClientAttachment) client.keyFor(instance.selector).attachment();
+						callback.invoke(attachment.allowedCallbacks,
+								attachment.packetCallbacks);
+					});
+				}
 
-					@Override
-					public void resultCallback(JsonObject result) {
+				@Override
+				public void resultCallback(JsonObject result) {
 
-						if (!result.has("status")) result.addProperty("status", "ok");
-						result.addProperty("id", id);
+					if (!result.has("status")) result.addProperty("status", "ok");
+					result.addProperty("id", id);
 
-						if (onCompletion != null) onCompletion(result);
+					if (onCompletion != null) onCompletion(result);
 
-						writeJsonPacket(client, result);
-					}
+					writeJsonPacket(client, result);
+				}
 
-					@Override
-					public void generalCallback(JsonObject result) {
+				@Override
+				public void generalCallback(JsonObject result) {
 
-						result.addProperty("callback", true);
+					result.addProperty("callback", true);
 
-						writeJsonPacket(client, result);
-					}
+					writeJsonPacket(client, result);
+				}
 
-					@Override
-					public void packetResultCallback(byte[] result) {
-						writeBinaryStyleData(client, (byte) 'b', result, id);
-					}
+				@Override
+				public void packetResultCallback(byte[] result) {
+					writeBinaryStyleData(client, (byte) 'b', result, id);
+				}
 
-					@Override
-					public void nbtResultCallback(NbtElement result) {
-						PacketByteBuf pb = PacketByteBufs.create();
-						pb.writeNbt(result);
-						writeBinaryStyleData(client, (byte) 'n', pb.array(), id);
-					}
+				@Override
+				public void nbtResultCallback(NbtElement result) {
+					PacketByteBuf pb = PacketByteBufs.create();
+					pb.writeNbt(result);
+					writeBinaryStyleData(client, (byte) 'n', pb.array(), id);
+				}
 
-					@Override
-					public void simulatePuppeteerCommand(
-					    JsonObject request, PacketOnCompletion onCompletion) {
-						PuppeteerServer.this.processPacket(client, request, onCompletion);
-					}
-				});
+				@Override
+				public void simulatePuppeteerCommand(JsonObject request,
+								     PacketOnCompletion onCompletion) {
+					PuppeteerServer.this.processPacket(client, request, onCompletion);
+				}
+			});
 		} catch (Exception e) {
 			LOGGER.error("Error in processData()", e);
 			writeJsonPacket(
 			    client,
-			    BaseCommand.jsonOf(
-				"status",
-				"error",
-				"type",
-				"exception",
-				"message",
-				"An exception occurred while processing this request: " + e.toString(),
-				"id",
-				id));
+			    BaseCommand.jsonOf("status", "error", "type", "exception", "message",
+					       "An exception occurred while processing this request: " + e.toString(),
+					       "id", id));
 		}
 	}
 
@@ -436,8 +391,7 @@ public class PuppeteerServer implements Runnable {
 		key.interestOps(key.interestOps() | SelectionKey.OP_WRITE);
 	}
 
-	private void writeBinaryStyleData(
-	    SocketChannel client, byte format, byte[] data, @Nullable String id) {
+	private void writeBinaryStyleData(SocketChannel client, byte format, byte[] data, @Nullable String id) {
 		byte[] idBytes = id == null ? new byte[0] : id.getBytes(StandardCharsets.UTF_8);
 
 		ByteBuffer respBuffer = ByteBuffer.allocate(1 + 4 + 2 + data.length + idBytes.length);
@@ -477,68 +431,64 @@ public class PuppeteerServer implements Runnable {
 	public static void broadcastPacket(String packetId, ServerToClientPacketCallback callback) {
 		if (getInstance() == null) return;
 
-		getInstance()
-		    .serverTask(
-			() -> {
-				HashMap<CallbackManager.PacketCallbackMode, JsonObject> cache = null;
+		getInstance().serverTask(() -> {
+			HashMap<CallbackManager.PacketCallbackMode, JsonObject> cache = null;
 
-				Selector s = instance.selector;
-				for (SocketChannel client : instance.connectedClients) {
-					if (!client.isOpen()) {
-						instance.connectedClients.remove(client);
-						continue;
-					}
-					ClientAttachment attachment = (ClientAttachment) client.keyFor(s).attachment();
-
-					var type =
-					    attachment.packetCallbacks.getOrDefault(
-						packetId, CallbackManager.PacketCallbackMode.DISABLED);
-					if (type == CallbackManager.PacketCallbackMode.DISABLED) continue;
-
-					if (cache == null) cache = new HashMap<>();
-					if (!cache.containsKey(type)) {
-						JsonObject packet = callback.invoke(type, attachment);
-						if (!packet.has("callback")) packet.addProperty("callback", true);
-						if (!packet.has("status")) packet.addProperty("status", "ok");
-						packet.addProperty("type", packetId);
-						cache.put(type, packet);
-					}
-					instance.writeJsonPacket(client, cache.get(type));
+			Selector s = instance.selector;
+			for (SocketChannel client : instance.connectedClients) {
+				if (!client.isOpen()) {
+					instance.connectedClients.remove(client);
+					continue;
 				}
-			});
+				ClientAttachment attachment = (ClientAttachment) client.keyFor(s).attachment();
+
+				var type = attachment.packetCallbacks.getOrDefault(
+				    packetId, CallbackManager.PacketCallbackMode.DISABLED);
+				if (type == CallbackManager.PacketCallbackMode.DISABLED) continue;
+
+				if (cache == null) cache = new HashMap<>();
+				if (!cache.containsKey(type)) {
+					JsonObject packet = callback.invoke(type, attachment);
+					if (!packet.has("callback")) packet.addProperty("callback", true);
+					if (!packet.has("status")) packet.addProperty("status", "ok");
+					packet.addProperty("type", packetId);
+					cache.put(type, packet);
+				}
+				instance.writeJsonPacket(client, cache.get(type));
+			}
+		});
 	}
 
-	public static void broadcastJsonPacket(
-	    CallbackManager.CallbackType type, ServerToClientCallback callback) {
+	public static void broadcastJsonPacket(CallbackManager.CallbackType type, ServerToClientCallback callback) {
 		String type_name = type.name();
 
 		/* No broadcasts :< */
 		if (getInstance() == null) return;
 
-		getInstance()
-		    .serverTask(
-			() -> {
-				JsonObject packet = null;
+		getInstance().serverTask(() -> {
+			JsonObject packet = null;
 
-				Selector s = instance.selector;
-				for (SocketChannel client : instance.connectedClients) {
-					if (!client.isOpen()) {
-						instance.connectedClients.remove(client);
-						continue;
-					}
-					ClientAttachment attachment = (ClientAttachment) client.keyFor(s).attachment();
-
-					if (type != CallbackManager.CallbackType.FORCED && !attachment.allowedCallbacks.getOrDefault(type, false)) continue;
-
-					if (packet == null) {
-						packet = callback.invoke();
-						if (!packet.has("callback")) packet.addProperty("callback", true);
-						if (!packet.has("status")) packet.addProperty("status", "ok");
-						packet.addProperty("type", type_name);
-					}
-					instance.writeJsonPacket(client, packet);
+			Selector s = instance.selector;
+			for (SocketChannel client : instance.connectedClients) {
+				if (!client.isOpen()) {
+					instance.connectedClients.remove(client);
+					continue;
 				}
-			});
+				ClientAttachment attachment = (ClientAttachment) client.keyFor(s).attachment();
+
+				if (type != CallbackManager.CallbackType.FORCED &&
+				    !attachment.allowedCallbacks.getOrDefault(type, false))
+					continue;
+
+				if (packet == null) {
+					packet = callback.invoke();
+					if (!packet.has("callback")) packet.addProperty("callback", true);
+					if (!packet.has("status")) packet.addProperty("status", "ok");
+					packet.addProperty("type", type_name);
+				}
+				instance.writeJsonPacket(client, packet);
+			}
+		});
 	}
 
 	private static void writeData(SelectionKey key) throws IOException {

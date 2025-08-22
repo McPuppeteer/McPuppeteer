@@ -21,9 +21,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
-@PuppeteerCommand(
-    cmd = "clear callbacks",
-    description = "No longer send optional callbacks")
+@PuppeteerCommand(cmd = "clear callbacks", description = "No longer send optional callbacks")
 public class ClearCallbacks implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {

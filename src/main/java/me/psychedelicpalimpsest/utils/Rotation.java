@@ -1,6 +1,7 @@
 /*
  * I stole this code from baritone
- * From: https://github.com/cabaletta/baritone/blob/89b0fd74ddf8a9e3c2450fafd28267769e31d6a2/src/api/java/baritone/api/utils/Rotation.java
+ * From:
+ * https://github.com/cabaletta/baritone/blob/89b0fd74ddf8a9e3c2450fafd28267769e31d6a2/src/api/java/baritone/api/utils/Rotation.java
  *
  * Baritone is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -30,33 +31,21 @@ public class Rotation {
 		}
 	}
 
-	public float getYaw() {
-		return this.yaw;
-	}
+	public float getYaw() { return this.yaw; }
 
-	public float getPitch() {
-		return this.pitch;
-	}
+	public float getPitch() { return this.pitch; }
 
-	public Rotation add(Rotation other) {
-		return new Rotation(this.yaw + other.yaw, this.pitch + other.pitch);
-	}
+	public Rotation add(Rotation other) { return new Rotation(this.yaw + other.yaw, this.pitch + other.pitch); }
 
 	public Rotation subtract(Rotation other) {
 		return new Rotation(this.yaw - other.yaw, this.pitch - other.pitch);
 	}
 
-	public Rotation clamp() {
-		return new Rotation(this.yaw, clampPitch(this.pitch));
-	}
+	public Rotation clamp() { return new Rotation(this.yaw, clampPitch(this.pitch)); }
 
-	public Rotation normalize() {
-		return new Rotation(normalizeYaw(this.yaw), this.pitch);
-	}
+	public Rotation normalize() { return new Rotation(normalizeYaw(this.yaw), this.pitch); }
 
-	public Rotation normalizeAndClamp() {
-		return new Rotation(normalizeYaw(this.yaw), clampPitch(this.pitch));
-	}
+	public Rotation normalizeAndClamp() { return new Rotation(normalizeYaw(this.yaw), clampPitch(this.pitch)); }
 
 	public boolean isReallyCloseTo(Rotation other) {
 		return this.yawIsReallyClose(other) && (double) Math.abs(this.pitch - other.pitch) < 0.01;
@@ -67,24 +56,16 @@ public class Rotation {
 		return (double) yawDiff < 0.01 || (double) yawDiff > 359.99;
 	}
 
-	public static float clampPitch(float pitch) {
-		return Math.max(-90.0F, Math.min(90.0F, pitch));
-	}
+	public static float clampPitch(float pitch) { return Math.max(-90.0F, Math.min(90.0F, pitch)); }
 
 	public static float normalizeYaw(float yaw) {
 		float newYaw = yaw % 360.0F;
-		if (newYaw < -180.0F) {
-			newYaw += 360.0F;
-		}
+		if (newYaw < -180.0F) { newYaw += 360.0F; }
 
-		if (newYaw > 180.0F) {
-			newYaw -= 360.0F;
-		}
+		if (newYaw > 180.0F) { newYaw -= 360.0F; }
 
 		return newYaw;
 	}
 
-	public String toString() {
-		return "Yaw: " + this.yaw + ", Pitch: " + this.pitch;
-	}
+	public String toString() { return "Yaw: " + this.yaw + ", Pitch: " + this.pitch; }
 }

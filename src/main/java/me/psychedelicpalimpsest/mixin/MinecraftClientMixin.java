@@ -53,38 +53,25 @@ import static me.psychedelicpalimpsest.PuppeteerTask.TaskType.TICKLY;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
-	@Shadow
-	private int itemUseCooldown;
+	@Shadow private int itemUseCooldown;
 
-	@Shadow
-	@Nullable
-	public ClientPlayerEntity player;
+	@Shadow @Nullable public ClientPlayerEntity player;
 
-	@Shadow
-	public abstract void scheduleStop();
+	@Shadow public abstract void scheduleStop();
 
-	@Shadow
-	@Final
-	private Queue<Runnable> renderTaskQueue;
+	@Shadow @Final private Queue<Runnable> renderTaskQueue;
 
-	@Shadow
-	private @Nullable CompletableFuture<Void> resourceReloadFuture;
+	@Shadow private @Nullable CompletableFuture<Void> resourceReloadFuture;
 
-	@Shadow
-	private @Nullable Overlay overlay;
+	@Shadow private @Nullable Overlay overlay;
 
-	@Shadow
-	public abstract CompletableFuture<Void> reloadResources();
+	@Shadow public abstract CompletableFuture<Void> reloadResources();
 
-	@Shadow
-	@Final
-	private RenderTickCounter.Dynamic renderTickCounter;
+	@Shadow @Final private RenderTickCounter.Dynamic renderTickCounter;
 
-	@Shadow
-	public abstract void tick();
+	@Shadow public abstract void tick();
 
-	@Shadow
-	public abstract Window getWindow();
+	@Shadow public abstract Window getWindow();
 
 	@Inject(at = @At("TAIL"), method = "<init>")
 	private void init(CallbackInfo info) {
@@ -105,9 +92,7 @@ public abstract class MinecraftClientMixin {
 				new Thread(() -> {
 					try {
 						broadcastState();
-					} catch (IOException e) {
-						LOGGER.error("Error trying to broadcast state", e);
-					}
+					} catch (IOException e) { LOGGER.error("Error trying to broadcast state", e); }
 				}).start();
 			}
 		}
@@ -115,33 +100,30 @@ public abstract class MinecraftClientMixin {
 		if (!McPuppeteer.tasks.isEmpty()) {
 			PuppeteerTask task = McPuppeteer.tasks.peek();
 			switch (task.getState()) {
-				case NOT_STARTED:
-					task.start();
-					break;
-				case ENDED:
-					McPuppeteer.tasks.remove();
-					break;
+				case NOT_STARTED: task.start(); break;
+				case ENDED: McPuppeteer.tasks.remove(); break;
 				case RUNNING:
-					if (task.getType() == TICKLY)
-						task.tick();
+					if (task.getType() == TICKLY) task.tick();
 					break;
-				default:
-					break;
+				default: break;
 			}
 		}
 
 		/* Minecraft skips this when a screen is open */
-		if (MinecraftClient.getInstance().currentScreen != null && PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK)) {
+		if (MinecraftClient.getInstance().currentScreen != null &&
+		    PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK)) {
 			MinecraftClient.getInstance().handleBlockBreaking(false /* Ignored param */);
 		}
 
-		if (PuppeteerInput.isForcePressed.getOrDefault(PuppeteerInput.USE, false) && this.itemUseCooldown == 0 && !this.player.isUsingItem())
+		if (PuppeteerInput.isForcePressed.getOrDefault(PuppeteerInput.USE, false) &&
+		    this.itemUseCooldown == 0 && !this.player.isUsingItem())
 			MinecraftClient.getInstance().doItemUse();
 	}
 
 	@Inject(at = @At("RETURN"), method = "getWindowTitle", cancellable = true)
 	private void onGetTitle(CallbackInfoReturnable<String> cir) {
-		String port_s = PuppeteerServer.getInstance() == null ? "unknown" : "" + PuppeteerServer.getInstance().getPort();
+		String port_s =
+		    PuppeteerServer.getInstance() == null ? "unknown" : "" + PuppeteerServer.getInstance().getPort();
 
 		cir.setReturnValue(cir.getReturnValue() + " - [" + port_s + "]");
 	}
@@ -149,15 +131,13 @@ public abstract class MinecraftClientMixin {
 	@Inject(at = @At("HEAD"), method = "close")
 	private void onClose(CallbackInfo ci) {
 		PuppeteerServer.killServer();
-		if (!McPuppeteer.tasks.isEmpty())
-			McPuppeteer.tasks.peek().kill();
+		if (!McPuppeteer.tasks.isEmpty()) McPuppeteer.tasks.peek().kill();
 	}
 
 	/* Enforce forced attack state */
 	@ModifyVariable(at = @At("HEAD"), method = "handleBlockBreaking", ordinal = 0, argsOnly = true)
 	boolean handleBlockBreaking(boolean breaking) {
-		if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK))
-			return breaking;
+		if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.ATTACK)) return breaking;
 
 		MinecraftClient.getInstance().attackCooldown = 0;
 		return PuppeteerInput.isForcePressed.get(PuppeteerInput.ATTACK);
@@ -168,8 +148,7 @@ public abstract class MinecraftClientMixin {
 	void doItemUse(CallbackInfo ci) {
 		if (!PuppeteerInput.isForcePressed.containsKey(PuppeteerInput.USE)) return;
 
-		if (!PuppeteerInput.isForcePressed.get(PuppeteerInput.USE))
-			ci.cancel();
+		if (!PuppeteerInput.isForcePressed.get(PuppeteerInput.USE)) ci.cancel();
 	}
 
 	@Inject(at = @At("HEAD"), method = "onResolutionChanged", cancellable = true)
@@ -184,9 +163,7 @@ public abstract class MinecraftClientMixin {
 
 		/* This is all the stuff that 'looked' necessary */
 
-		if (!HeadlessMode.isHeadless() && this.getWindow().shouldClose()) {
-			this.scheduleStop();
-		}
+		if (!HeadlessMode.isHeadless() && this.getWindow().shouldClose()) { this.scheduleStop(); }
 		if (this.resourceReloadFuture != null && !(this.overlay instanceof SplashOverlay)) {
 			CompletableFuture<Void> completableFuture = this.resourceReloadFuture;
 			this.resourceReloadFuture = null;
@@ -194,9 +171,7 @@ public abstract class MinecraftClientMixin {
 		}
 
 		Runnable runnable;
-		while ((runnable = this.renderTaskQueue.poll()) != null) {
-			runnable.run();
-		}
+		while ((runnable = this.renderTaskQueue.poll()) != null) { runnable.run(); }
 
 		int i = this.renderTickCounter.beginRenderTick(Util.getMeasuringTimeMs(), tick);
 		Profiler profiler = Profilers.get();

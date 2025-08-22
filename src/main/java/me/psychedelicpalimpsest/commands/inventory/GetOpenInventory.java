@@ -31,15 +31,15 @@ import net.minecraft.screen.HorseScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
-@PuppeteerCommand(
-    cmd = "get open inventory", description = "Gets what ever inventory/container/entity is open",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "get open inventory", description = "Gets what ever inventory/container/entity is open",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class GetOpenInventory implements BaseCommand {
 
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		var screen = MinecraftClient.getInstance().currentScreen;
-		if (screen instanceof InventoryScreen || screen instanceof CreativeInventoryScreen || !(screen instanceof HandledScreen<?>) ) {
+		if (screen instanceof InventoryScreen || screen instanceof CreativeInventoryScreen ||
+		    !(screen instanceof HandledScreen<?>) ) {
 			callback.resultCallback(GetPlayerInventory.getJson());
 			return;
 		}
@@ -47,19 +47,20 @@ public class GetOpenInventory implements BaseCommand {
 		ScreenHandler handler = handledScreen.getScreenHandler();
 
 		JsonArray slots = new JsonArray();
-		for (Slot slot : handler.slots) {
-			slots.add(McReflector.serializeObject(slot.getStack()));
-		}
-		JsonObject ret = BaseCommand.jsonOf(
-		    "slots", slots,
-		    "name", handledScreen.getTitle().getString(),
-		    "type", handler instanceof HorseScreenHandler ? "horse" : Registries.SCREEN_HANDLER.getId(handler.getType()).toString());
+		for (Slot slot : handler.slots) { slots.add(McReflector.serializeObject(slot.getStack())); }
+		JsonObject ret =
+		    BaseCommand.jsonOf("slots", slots, "name", handledScreen.getTitle().getString(), "type",
+				       handler instanceof HorseScreenHandler
+					   ? "horse"
+					   : Registries.SCREEN_HANDLER.getId(handler.getType()).toString());
 		if (handler instanceof HorseScreenHandler horseScreenHandler) {
-			ret.add("horse data", BaseCommand.jsonOf(
-						  "entity", Registries.ENTITY_TYPE.getId(horseScreenHandler.entity.getType()).toString(),
-						  "inventory cols", horseScreenHandler.entity.getInventoryColumns()
+			ret.add("horse data",
+				BaseCommand.jsonOf(
+				    "entity",
+				    Registries.ENTITY_TYPE.getId(horseScreenHandler.entity.getType()).toString(),
+				    "inventory cols", horseScreenHandler.entity.getInventoryColumns()
 
-						      ));
+					));
 		}
 
 		callback.resultCallback(ret);

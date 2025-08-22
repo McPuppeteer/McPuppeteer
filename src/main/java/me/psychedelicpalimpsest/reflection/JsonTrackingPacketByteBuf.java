@@ -33,8 +33,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 	/* Sometimes you need a registry, no matter what */
 	public static DynamicRegistryManager getSomethingAsARegistry() {
 		var networkHandler = MinecraftClient.getInstance().getNetworkHandler();
-		if (networkHandler != null)
-			return networkHandler.getRegistryManager();
+		if (networkHandler != null) return networkHandler.getRegistryManager();
 		else
 			return DynamicRegistryManager.of(Registries.REGISTRIES);
 	}
@@ -47,28 +46,20 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 		this.isWriting = false;
 	}
 
-	public JsonTrackingPacketByteBuf(ByteBuf parent) {
-		this(parent, getSomethingAsARegistry());
-	}
+	public JsonTrackingPacketByteBuf(ByteBuf parent) { this(parent, getSomethingAsARegistry()); }
 
 	private void withWriting(Runnable action) {
 		boolean prev = isWriting;
 		isWriting = true;
 		try {
 			action.run();
-		} finally {
-			isWriting = prev;
-		}
+		} finally { isWriting = prev; }
 	}
 
-	public JsonArray getJsonArray() {
-		return rootJsonArray;
-	}
+	public JsonArray getJsonArray() { return rootJsonArray; }
 
 	private void appendToJson(JsonElement value) {
-		if (!isWriting) {
-			jsonStack.peek().add(value);
-		}
+		if (!isWriting) { jsonStack.peek().add(value); }
 	}
 
 	private JsonObject wrapWithType(String type, JsonElement value) {
@@ -211,9 +202,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 	@Override
 	public PacketByteBuf writeIntArray(int[] array) {
 		JsonArray jsonArray = new JsonArray();
-		for (int i : array) {
-			jsonArray.add(new JsonPrimitive(i));
-		}
+		for (int i : array) { jsonArray.add(new JsonPrimitive(i)); }
 		appendToJson(wrapWithType("int[]", jsonArray));
 		withWriting(() -> super.writeIntArray(array));
 		return this;
@@ -222,9 +211,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 	@Override
 	public PacketByteBuf writeLongArray(long[] array) {
 		JsonArray jsonArray = new JsonArray();
-		for (long l : array) {
-			jsonArray.add(new JsonPrimitive(l));
-		}
+		for (long l : array) { jsonArray.add(new JsonPrimitive(l)); }
 		appendToJson(wrapWithType("long[]", jsonArray));
 		withWriting(() -> super.writeLongArray(array));
 		return this;
@@ -244,9 +231,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 		JsonArray jsonArray = new JsonArray();
 		jsonStack.push(jsonArray);
 		withWriting(() -> {
-			for (T item : collection) {
-				withWriting(() -> writer.encode(this, item));
-			}
+			for (T item : collection) { withWriting(() -> writer.encode(this, item)); }
 		});
 		jsonStack.pop();
 		appendToJson(wrapWithType("Collection", jsonArray));
@@ -254,7 +239,8 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 	}
 
 	@Override
-	public <K, V> void writeMap(Map<K, V> map, PacketEncoder<? super PacketByteBuf, K> keyWriter, PacketEncoder<? super PacketByteBuf, V> valueWriter) {
+	public <K, V> void writeMap(Map<K, V> map, PacketEncoder<? super PacketByteBuf, K> keyWriter,
+				    PacketEncoder<? super PacketByteBuf, V> valueWriter) {
 		JsonArray jsonArray = new JsonArray();
 		jsonStack.push(jsonArray);
 		withWriting(() -> {
@@ -338,8 +324,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 	public static JsonObject jsonOfEnum(Enum<?> instance) {
 		JsonObject jsonObject = new JsonObject();
 		jsonObject.addProperty("enum type", YarnMapping.getInstance().mapClassName(
-							YarnMapping.Namespace.NAMED,
-							instance.getClass().getName()));
+							YarnMapping.Namespace.NAMED, instance.getClass().getName()));
 		jsonObject.addProperty("value", YarnMapping.serializeEnum(instance));
 		return jsonObject;
 	}
@@ -354,9 +339,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 	@Override
 	public <E extends Enum<E>> void writeEnumSet(EnumSet<E> enumSet, Class<E> type) {
 		JsonArray jsonArray = new JsonArray();
-		for (Enum<E> e : enumSet) {
-			jsonArray.add(jsonOfEnum(e));
-		}
+		for (Enum<E> e : enumSet) { jsonArray.add(jsonOfEnum(e)); }
 		appendToJson(wrapWithType("EnumSet", jsonArray));
 		withWriting(() -> super.writeEnumSet(enumSet, type));
 	}
@@ -364,9 +347,7 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 	@Override
 	public void writeBitSet(BitSet bitSet) {
 		JsonArray jsonArray = new JsonArray();
-		for (long l : bitSet.toLongArray()) {
-			jsonArray.add(new JsonPrimitive(l));
-		}
+		for (long l : bitSet.toLongArray()) { jsonArray.add(new JsonPrimitive(l)); }
 		appendToJson(wrapWithType("BitSet", jsonArray));
 		withWriting(() -> super.writeBitSet(bitSet));
 	}
@@ -419,7 +400,8 @@ public class JsonTrackingPacketByteBuf extends RegistryByteBuf {
 
 	@Override
 	public PacketByteBuf writePublicKey(PublicKey publicKey) {
-		appendToJson(wrapWithType("PublicKey", new JsonPrimitive(Base64.encodeBase64String(publicKey.getEncoded()))));
+		appendToJson(
+		    wrapWithType("PublicKey", new JsonPrimitive(Base64.encodeBase64String(publicKey.getEncoded()))));
 		withWriting(() -> super.writePublicKey(publicKey));
 		return this;
 	}

@@ -37,8 +37,7 @@ import static me.psychedelicpalimpsest.McPuppeteer.serializeText;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
 
-	@Shadow
-	public abstract float getHealth();
+	@Shadow public abstract float getHealth();
 
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
@@ -50,9 +49,13 @@ public abstract class LivingEntityMixin {
 
 		Text msg = source.getDeathMessage((LivingEntity) (Object) this);
 
-		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DAMAGE, () -> BaseCommand.jsonOf("amount", amount, "health", this.getHealth(), "would be death message", serializeText(msg)
+		PuppeteerServer.broadcastJsonPacket(
+		    CallbackManager.CallbackType.PLAYER_DAMAGE,
+		    ()
+			-> BaseCommand.jsonOf("amount", amount, "health", this.getHealth(), "would be death message",
+					      serializeText(msg)
 
-															     ));
+						  ));
 	}
 
 	@Inject(method = "onDeath", at = @At("HEAD"))
@@ -62,6 +65,9 @@ public abstract class LivingEntityMixin {
 
 		Text msg = damageSource.getDeathMessage((LivingEntity) (Object) this);
 
-		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH, () -> BaseCommand.jsonOf("death message", serializeText(msg), "death message json", msg.getString()));
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.PLAYER_DEATH,
+						    ()
+							-> BaseCommand.jsonOf("death message", serializeText(msg),
+									      "death message json", msg.getString()));
 	}
 }

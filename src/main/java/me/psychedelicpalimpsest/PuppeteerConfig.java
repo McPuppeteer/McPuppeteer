@@ -45,40 +45,46 @@ import java.util.List;
 /*
     This file is very much 'inspired' by litematica, as malilib is an undocumented mess
 
-    URL: https://github.com/sakura-ryoko/litematica/blob/LTS/1.21.3/src/main/java/fi/dy/masa/litematica/config/Configs.java
+    URL:
+   https://github.com/sakura-ryoko/litematica/blob/LTS/1.21.3/src/main/java/fi/dy/masa/litematica/config/Configs.java
 */
 
 public class PuppeteerConfig implements IConfigHandler {
 
 	private static final String CONFIG_FILE_NAME = McPuppeteer.MOD_ID + ".json";
 
-	public static ConfigFloat UDP_BROADCAST_INTERVAL = new ConfigFloat("UDP broadcast interval", 3f, 0.5f, 10f, "Amount of time (In seconds) between UDP broadcasts. Smaller values mean you can detect the game faster in python, but slow down your network very slightly.");
-	public static ConfigBoolean SEND_BROADCASTS = new ConfigBoolean("Send UDP broadcasts", true, "If you disable broadcasts you will not be able to \"Discover\" the client from python, but you might need this if you are on public wifi.");
+	public static ConfigFloat UDP_BROADCAST_INTERVAL =
+	    new ConfigFloat("UDP broadcast interval", 3f, 0.5f, 10f,
+			    "Amount of time (In seconds) between UDP broadcasts. Smaller values mean you can detect " +
+			    "the game faster in python, but slow down your network very slightly.");
+	public static ConfigBoolean SEND_BROADCASTS =
+	    new ConfigBoolean("Send UDP broadcasts", true,
+			      "If you disable broadcasts you will not be able to \"Discover\" the client from " +
+			      "python, but you might need this if you are on public wifi.");
 
 	/**
 	 * See: TweekerooCameraMixin.java
 	 */
-	public static ConfigBoolean WARN_ON_TWEAKEROO_FREECAM = new ConfigBoolean("Warn on tweakeroo freecam", true, "Gives a warning message if the user attempts to use the freecam module on tweakeroo");
-	public static ConfigBoolean SWAP_CAPSLOCK_AND_ESCAPE = new ConfigBoolean("Swap escape and capslock key", false, "The average player doesn't need this, but me, a vim user, does.");
+	public static ConfigBoolean WARN_ON_TWEAKEROO_FREECAM =
+	    new ConfigBoolean("Warn on tweakeroo freecam", true,
+			      "Gives a warning message if the user attempts to use the freecam module on tweakeroo");
+	public static ConfigBoolean SWAP_CAPSLOCK_AND_ESCAPE = new ConfigBoolean(
+	    "Swap escape and capslock key", false, "The average player doesn't need this, but me, a vim user, does.");
 
 	public static final ImmutableList<IConfigBase> OPTIONS = ImmutableList.of(
-	    UDP_BROADCAST_INTERVAL,
-	    SEND_BROADCASTS,
-	    WARN_ON_TWEAKEROO_FREECAM,
-	    SWAP_CAPSLOCK_AND_ESCAPE);
+	    UDP_BROADCAST_INTERVAL, SEND_BROADCASTS, WARN_ON_TWEAKEROO_FREECAM, SWAP_CAPSLOCK_AND_ESCAPE);
 
 	public static final ConfigHotkey OPEN_CONFIG_GUI = new ConfigHotkey("Open Config UI", "I,C", "Open this menu");
 	public static final ConfigHotkey TOGGLE_FREECAM = new ConfigHotkey("Freecam", "I,F", "Toggle freecam");
-	public static final ConfigHotkey TOGGLE_FREEROT = new ConfigHotkey("Free rotation", "I,R", "Disconnects your player and cameras rotation");
-	public static final ConfigHotkey TOGGLE_NOWALK = new ConfigHotkey("No walk", "I,W", "Toggles if the player it allowed to walk");
-	public static final ConfigHotkey PANIC_BUTTON = new ConfigHotkey("Panic button", "I,P", "Kills Baritone, and throws a python error");
+	public static final ConfigHotkey TOGGLE_FREEROT =
+	    new ConfigHotkey("Free rotation", "I,R", "Disconnects your player and cameras rotation");
+	public static final ConfigHotkey TOGGLE_NOWALK =
+	    new ConfigHotkey("No walk", "I,W", "Toggles if the player it allowed to walk");
+	public static final ConfigHotkey PANIC_BUTTON =
+	    new ConfigHotkey("Panic button", "I,P", "Kills Baritone, and throws a python error");
 
-	public static final List<ConfigHotkey> HOTKEY_LIST = ImmutableList.of(
-	    OPEN_CONFIG_GUI,
-	    TOGGLE_FREECAM,
-	    TOGGLE_FREEROT,
-	    PANIC_BUTTON,
-	    TOGGLE_NOWALK);
+	public static final List<ConfigHotkey> HOTKEY_LIST =
+	    ImmutableList.of(OPEN_CONFIG_GUI, TOGGLE_FREECAM, TOGGLE_FREEROT, PANIC_BUTTON, TOGGLE_NOWALK);
 
 	@Override
 	public void load() {
@@ -93,7 +99,8 @@ public class PuppeteerConfig implements IConfigHandler {
 				ConfigUtils.readConfigBase(root, "Options", OPTIONS);
 				ConfigUtils.readConfigBase(root, "Hot keys", HOTKEY_LIST);
 			} else
-				McPuppeteer.LOGGER.error("load(): Failed to load config file '{}'.", configFile.toAbsolutePath());
+				McPuppeteer.LOGGER.error("load(): Failed to load config file '{}'.",
+							 configFile.toAbsolutePath());
 		}
 	}
 
@@ -101,8 +108,7 @@ public class PuppeteerConfig implements IConfigHandler {
 	public void save() {
 		Path dir = FileUtils.getConfigDirectoryAsPath();
 
-		if (!Files.exists(dir))
-			FileUtils.createDirectoriesIfMissing(dir);
+		if (!Files.exists(dir)) FileUtils.createDirectoriesIfMissing(dir);
 
 		if (Files.isDirectory(dir)) {
 			JsonObject root = new JsonObject();

@@ -54,9 +54,7 @@ public class Freecam {
 		return true;
 	}
 
-	public static boolean isFreecamActive() {
-		return isFreecam;
-	}
+	public static boolean isFreecamActive() { return isFreecam; }
 
 	private static boolean oldViewBobSetting = false;
 
@@ -87,8 +85,7 @@ public class Freecam {
 
 		public void movementTick() {
 			GameOptions options = MinecraftClient.getInstance().options;
-			if (options.sprintKey.isPressed())
-				sprinting = true;
+			if (options.sprintKey.isPressed()) sprinting = true;
 			else if (!options.forwardKey.isPressed() && !options.backKey.isPressed())
 				sprinting = false;
 			cameraMotion = calculatePlayerMotionWithDeceleration(cameraMotion, 0.15, 0.4);
@@ -96,9 +93,7 @@ public class Freecam {
 			handleMotion(forward, cameraMotion.y, cameraMotion.z);
 		}
 
-		private static double getMoveSpeed() {
-			return 0.7d;
-		}
+		private static double getMoveSpeed() { return 0.7d; }
 
 		private void handleMotion(double forward, double up, double strafe) {
 			Camera c = MinecraftClient.getInstance().gameRenderer.getCamera();
@@ -111,48 +106,42 @@ public class Freecam {
 			double y = up * scale;
 			double z = (forward * zFactor + strafe * xFactor) * scale;
 
-			c.setPos(
-			    c.getPos().add(new Vec3d(x, y, z)));
+			c.setPos(c.getPos().add(new Vec3d(x, y, z)));
 		}
 
-		// Credit: https://github.com/sakura-ryoko/tweakeroo/blob/1.21.5/src/main/java/fi/dy/masa/tweakeroo/util/MiscUtils.java#L77
-		public static Vec3d calculatePlayerMotionWithDeceleration(Vec3d lastMotion,
-									  double rampAmount,
+		// Credit:
+		// https://github.com/sakura-ryoko/tweakeroo/blob/1.21.5/src/main/java/fi/dy/masa/tweakeroo/util/MiscUtils.java#L77
+		public static Vec3d calculatePlayerMotionWithDeceleration(Vec3d lastMotion, double rampAmount,
 									  double decelerationFactor) {
 			GameOptions options = MinecraftClient.getInstance().options;
 			int forward = 0;
 			int vertical = 0;
 			int strafe = 0;
 
-			if (options.forwardKey.isPressed())
-				forward += 1;
-			if (options.backKey.isPressed())
-				forward -= 1;
-			if (options.leftKey.isPressed())
-				strafe += 1;
-			if (options.rightKey.isPressed())
-				strafe -= 1;
-			if (options.jumpKey.isPressed())
-				vertical += 1;
-			if (options.sneakKey.isPressed())
-				vertical -= 1;
+			if (options.forwardKey.isPressed()) forward += 1;
+			if (options.backKey.isPressed()) forward -= 1;
+			if (options.leftKey.isPressed()) strafe += 1;
+			if (options.rightKey.isPressed()) strafe -= 1;
+			if (options.jumpKey.isPressed()) vertical += 1;
+			if (options.sneakKey.isPressed()) vertical -= 1;
 
 			double speed = (forward != 0 && strafe != 0) ? 1.2 : 1.0;
-			double forwardRamped = getRampedMotion(lastMotion.x, forward, rampAmount, decelerationFactor) / speed;
+			double forwardRamped =
+			    getRampedMotion(lastMotion.x, forward, rampAmount, decelerationFactor) / speed;
 			double verticalRamped = getRampedMotion(lastMotion.y, vertical, rampAmount, decelerationFactor);
-			double strafeRamped = getRampedMotion(lastMotion.z, strafe, rampAmount, decelerationFactor) / speed;
+			double strafeRamped =
+			    getRampedMotion(lastMotion.z, strafe, rampAmount, decelerationFactor) / speed;
 
 			return new Vec3d(forwardRamped, verticalRamped, strafeRamped);
 		}
 
-		public static double getRampedMotion(double current, int input, double rampAmount, double decelerationFactor) {
+		public static double getRampedMotion(double current, int input, double rampAmount,
+						     double decelerationFactor) {
 			if (input != 0) {
-				if (input < 0)
-					rampAmount *= -1.0;
+				if (input < 0) rampAmount *= -1.0;
 
 				// Immediately kill the motion when changing direction to the opposite
-				if ((input < 0) != (current < 0.0))
-					current = 0.0;
+				if ((input < 0) != (current < 0.0)) current = 0.0;
 
 				current = Math.clamp(current + rampAmount, -1.0, 1.0);
 			} else {

@@ -23,13 +23,15 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "get forced input",
-    description = "Reports the state of if certain input methods are forced. A key not being present indicates that no input is being forced. If a key is set to false, it is being forced up. And if a key is set to true, it is forced down.",
-    cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
+@PuppeteerCommand(cmd = "get forced input",
+		  description = "Reports the state of if certain input methods are forced. A key not being present " +
+				"indicates that no input is being forced. If a key is set to false, it is being " +
+				"forced up. And if a key is set to true, it is forced down.",
+		  cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
 public class GetInputState implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
-		MinecraftClient.getInstance().execute(() -> callback.resultCallback(BaseCommand.jsonOf("inputs", PuppeteerInput.isForcePressed)));
+		MinecraftClient.getInstance().execute(
+		    () -> callback.resultCallback(BaseCommand.jsonOf("inputs", PuppeteerInput.isForcePressed)));
 	}
 }

@@ -23,32 +23,31 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "force inputs",
-    description = "Takes an 'inputs' parameter identical to 'get forced input's parameter. Also takes an array of strings 'remove' which will remove forced values",
-    cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
+@PuppeteerCommand(cmd = "force inputs",
+		  description = "Takes an 'inputs' parameter identical to 'get forced input's parameter. Also takes " +
+				"an array of strings 'remove' which will remove forced values",
+		  cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
 public class ForceInputStates implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		if (request.has("inputs") && request.get("inputs").isJsonObject()) {
 			JsonObject job = request.getAsJsonObject("inputs");
 
-			job.asMap().forEach((key, value) -> {
-				PuppeteerInput.isForcePressed.put(key, value.getAsBoolean());
-			});
+			job.asMap().forEach(
+			    (key, value) -> { PuppeteerInput.isForcePressed.put(key, value.getAsBoolean()); });
 		}
 
 		if (request.has("remove") && request.isJsonArray()) {
 			request.getAsJsonArray().forEach((obj) -> {
 				String remove = obj.getAsString();
 				if (!PuppeteerInput.validOptions.contains(remove)) {
-					callback.resultCallback(BaseCommand.jsonOf(
-					    "state", "error",
-					    "type", "expected argument",
-					    "message", "Item '" + remove + "' is not a valid option"));
+					callback.resultCallback(
+					    BaseCommand.jsonOf("state", "error", "type", "expected argument", "message",
+							       "Item '" + remove + "' is not a valid option"));
 				}
 
-				MinecraftClient.getInstance().execute(() -> PuppeteerInput.isForcePressed.remove(remove));
+				MinecraftClient.getInstance().execute(
+				    () -> PuppeteerInput.isForcePressed.remove(remove));
 			});
 		}
 

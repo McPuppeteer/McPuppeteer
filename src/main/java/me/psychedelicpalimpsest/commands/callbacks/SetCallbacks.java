@@ -24,39 +24,49 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 
 import java.util.Map;
 
-@PuppeteerCommand(
-    cmd = "set callbacks",
-    description = "")
+@PuppeteerCommand(cmd = "set callbacks", description = "")
 public class SetCallbacks implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		JsonObject userCallbacks = request.getAsJsonObject("callbacks");
 
-		final var packetCallbacks = userCallbacks.entrySet().stream().filter(entry -> !CallbackManager.CALLBACK_STRING_TYPES.contains(entry.getKey())).map((entry -> Map.entry(entry.getKey(), entry.getValue().getAsString()))).toList();
+		final var packetCallbacks =
+		    userCallbacks.entrySet()
+			.stream()
+			.filter(entry -> !CallbackManager.CALLBACK_STRING_TYPES.contains(entry.getKey()))
+			.map((entry -> Map.entry(entry.getKey(), entry.getValue().getAsString())))
+			.toList();
 
-		var typicalCallbacks = userCallbacks.entrySet().stream().filter(entry -> CallbackManager.CALLBACK_STRING_TYPES.contains(entry.getKey())).toList();
-		if (packetCallbacks.stream().anyMatch((entry) -> !CallbackManager.PACKET_LIST.contains(entry.getKey()))) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "unknown callback",
-			    "message", "Unknown packet callback"));
+		var typicalCallbacks =
+		    userCallbacks.entrySet()
+			.stream()
+			.filter(entry -> CallbackManager.CALLBACK_STRING_TYPES.contains(entry.getKey()))
+			.toList();
+		if (packetCallbacks.stream().anyMatch(
+			(entry) -> !CallbackManager.PACKET_LIST.contains(entry.getKey()))) {
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "unknown callback",
+								   "message", "Unknown packet callback"));
 			return;
 		}
 		if (typicalCallbacks.stream().anyMatch(entry -> null == entry.getKey())) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "unknown callback",
-			    "message", "Unknown callback"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "unknown callback",
+								   "message", "Unknown callback"));
 			return;
 		}
 
-		final var typicalCallbackList = typicalCallbacks.stream().map(
-									     (entry) -> Map.entry(CallbackManager.CallbackType.valueOf(entry.getKey()), entry.getValue().getAsBoolean()))
-						    .toList();
+		final var typicalCallbackList =
+		    typicalCallbacks.stream()
+			.map((entry)
+				 -> Map.entry(CallbackManager.CallbackType.valueOf(entry.getKey()),
+					      entry.getValue().getAsBoolean()))
+			.toList();
 
 		callback.callbacksModView((callbackMap, packetMap) -> {
 			typicalCallbackList.forEach(entry -> callbackMap.put(entry.getKey(), entry.getValue()));
-			packetCallbacks.forEach(entry -> packetMap.put(entry.getKey(), CallbackManager.PacketCallbackMode.valueOf(entry.getValue())));
+			packetCallbacks.forEach(
+			    entry
+			    -> packetMap.put(entry.getKey(),
+					     CallbackManager.PacketCallbackMode.valueOf(entry.getValue())));
 
 			callback.resultCallback(new JsonObject());
 		});

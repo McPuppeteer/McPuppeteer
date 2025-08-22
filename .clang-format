@@ -2,7 +2,7 @@
 Language: Java 
 BasedOnStyle: LLVM
 
-ColumnLimit: 0
+ColumnLimit: 120
 
 IndentWidth: 8
 UseTab: Always

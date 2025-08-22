@@ -22,23 +22,19 @@ import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "click inventory button", description = "Simulates clicking an inventory button",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "click inventory button", description = "Simulates clicking an inventory button",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class ClickInventoryButton implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		if (MinecraftClient.getInstance().currentScreen == null) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "unexpected screen",
-			    "message", "No screen is open"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "unexpected screen",
+								   "message", "No screen is open"));
 			return;
 		}
 
 		MinecraftClient.getInstance().interactionManager.clickButton(
-		    MinecraftClient.getInstance().player.currentScreenHandler.syncId,
-		    request.get("button").getAsInt());
+		    MinecraftClient.getInstance().player.currentScreenHandler.syncId, request.get("button").getAsInt());
 
 		callback.resultCallback(new JsonObject());
 	}

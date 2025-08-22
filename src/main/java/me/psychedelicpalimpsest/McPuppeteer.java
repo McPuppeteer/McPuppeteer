@@ -56,9 +56,7 @@ public class McPuppeteer {
 		/* Yes, this makes init slower, but I do not care */
 		try {
 			PuppeteerServer.createServer();
-		} catch (IOException e) {
-			McPuppeteer.LOGGER.error("Failed to create server", e);
-		}
+		} catch (IOException e) { McPuppeteer.LOGGER.error("Failed to create server", e); }
 
 		McPuppeteer.installedMods = FabricLoader.getInstance()
 						.getAllMods()
@@ -72,9 +70,7 @@ public class McPuppeteer {
 
 		PuppeteerConfig.initHotkeys();
 
-		if (McPuppeteer.installedMods.contains("baritone")) {
-			baritoneInit();
-		}
+		if (McPuppeteer.installedMods.contains("baritone")) { baritoneInit(); }
 
 		YarnMapping.createMapping();
 		//        KeyboardOverride.init();
@@ -83,9 +79,7 @@ public class McPuppeteer {
 	public static Queue<PuppeteerTask> tasks = new ConcurrentLinkedQueue<>();
 
 	public static JsonObject serializeText(Text text) {
-		return BaseCommand.jsonOf(
-		    "message", textToString(text),
-		    "message json", textToJson(text));
+		return BaseCommand.jsonOf("message", textToString(text), "message json", textToJson(text));
 	}
 
 	private static String textToString(Text text) {
@@ -99,10 +93,10 @@ public class McPuppeteer {
 	}
 
 	private static JsonElement textToJson(Text text) {
-		Text.Serializer serializer = new Text.Serializer(
-		    MinecraftClient.getInstance().world != null
-			? MinecraftClient.getInstance().world.getRegistryManager()
-			: DynamicRegistryManager.of(Registries.REGISTRIES));
+		Text.Serializer serializer =
+		    new Text.Serializer(MinecraftClient.getInstance().world != null
+					    ? MinecraftClient.getInstance().world.getRegistryManager()
+					    : DynamicRegistryManager.of(Registries.REGISTRIES));
 
 		/* Only the text and registries are used */
 		return serializer.serialize(text, null, null);

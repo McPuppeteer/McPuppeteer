@@ -51,7 +51,5 @@ public class Freerot {
 		noRotationEffect.isActive = false;
 	}
 
-	public static Boolean isFreerotActive() {
-		return isFreerot;
-	}
+	public static Boolean isFreerotActive() { return isFreerot; }
 }

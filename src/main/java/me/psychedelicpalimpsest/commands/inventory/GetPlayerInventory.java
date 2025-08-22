@@ -29,21 +29,22 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.slot.Slot;
 
-@PuppeteerCommand(
-    cmd = "get player inventory", description = "Gets the players inventory",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "get player inventory", description = "Gets the players inventory",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class GetPlayerInventory implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		boolean force = request.has("force") && request.getAsJsonPrimitive("force").getAsBoolean();
 		var mc = MinecraftClient.getInstance();
 
-		if (!force && mc.currentScreen instanceof HandledScreen<?> handledScreen && !(handledScreen instanceof InventoryScreen || handledScreen instanceof CreativeInventoryScreen)) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "incorrect inventory",
-			    "message", "The player has a screen open that is not the inventory, any inventory features will not work correctly. "
-					   + "This message can be disabled by setting force=true, but be warned not to use any slot commands."));
+		if (!force && mc.currentScreen instanceof HandledScreen<?> handledScreen &&
+		    !(handledScreen instanceof InventoryScreen || handledScreen instanceof CreativeInventoryScreen)) {
+			callback.resultCallback(
+			    BaseCommand.jsonOf("status", "error", "type", "incorrect inventory", "message",
+					       "The player has a screen open that is not the inventory, any " +
+					       "inventory features will not work correctly. "
+						   + "This message can be disabled by setting force=true, but be " +
+						     "warned not to use any slot commands."));
 			return;
 		}
 		callback.resultCallback(getJson());
@@ -53,16 +54,12 @@ public class GetPlayerInventory implements BaseCommand {
 		var mc = MinecraftClient.getInstance();
 		var inventory = mc.player.getInventory();
 
-		/* Use a temporary PlayerScreenHandler to convert the slot indexes for us (From storage indexes to network indexes) */
+		/* Use a temporary PlayerScreenHandler to convert the slot indexes for us (From storage indexes to
+		 * network indexes) */
 		PlayerScreenHandler psh = new PlayerScreenHandler(inventory, false, mc.player);
 
 		JsonArray array = new JsonArray();
-		for (Slot slot : psh.slots) {
-			array.add(McReflector.serializeObject(slot.getStack()));
-		}
-		return BaseCommand.jsonOf(
-		    "slots", array,
-		    "name", inventory.getName().getString(),
-		    "type", "inventory");
+		for (Slot slot : psh.slots) { array.add(McReflector.serializeObject(slot.getStack())); }
+		return BaseCommand.jsonOf("slots", array, "name", inventory.getName().getString(), "type", "inventory");
 	}
 }

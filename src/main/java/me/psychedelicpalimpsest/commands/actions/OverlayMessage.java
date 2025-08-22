@@ -24,10 +24,8 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
 
-@PuppeteerCommand(
-    cmd = "overview message",
-    description = "Show a message to the player",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "overview message", description = "Show a message to the player",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class OverlayMessage implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
@@ -35,7 +33,8 @@ public class OverlayMessage implements BaseCommand {
 
 		Text text = Text.of(element.getAsString());
 
-		MinecraftClient.getInstance().execute(() -> MinecraftClient.getInstance().inGameHud.setOverlayMessage(text, false));
+		MinecraftClient.getInstance().execute(
+		    () -> MinecraftClient.getInstance().inGameHud.setOverlayMessage(text, false));
 		callback.resultCallback(new JsonObject());
 	}
 }

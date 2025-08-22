@@ -26,18 +26,36 @@ import net.fabricmc.loader.api.metadata.Person;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@PuppeteerCommand(
-    cmd = "get mod list",
-    description = "List all the installed fabric mods")
+@PuppeteerCommand(cmd = "get mod list", description = "List all the installed fabric mods")
 public class GetFabricModList implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
-		List<JsonObject> mods = FabricLoader.getInstance().getAllMods().stream().map((modContainer -> BaseCommand.jsonOf("name", modContainer.getMetadata().getName(), "description", modContainer.getMetadata().getDescription(), "version", modContainer.getMetadata().getVersion().getFriendlyString(), "mod id", modContainer.getMetadata().getId(), "type", modContainer.getMetadata().getType(),
+		List<JsonObject> mods =
+		    FabricLoader.getInstance()
+			.getAllMods()
+			.stream()
+			.map((modContainer
+			      -> BaseCommand.jsonOf("name", modContainer.getMetadata().getName(), "description",
+						    modContainer.getMetadata().getDescription(), "version",
+						    modContainer.getMetadata().getVersion().getFriendlyString(),
+						    "mod id", modContainer.getMetadata().getId(), "type",
+						    modContainer.getMetadata().getType(),
 
-																 "author names", modContainer.getMetadata().getAuthors().stream().map(Person::getName).collect(Collectors.toList()), "author contacts", modContainer.getMetadata().getAuthors().stream().map((author) -> author.getContact().asMap()).collect(Collectors.toList()),
+						    "author names",
+						    modContainer.getMetadata()
+							.getAuthors()
+							.stream()
+							.map(Person::getName)
+							.collect(Collectors.toList()),
+						    "author contacts",
+						    modContainer.getMetadata()
+							.getAuthors()
+							.stream()
+							.map((author) -> author.getContact().asMap())
+							.collect(Collectors.toList()),
 
-																 "contacts", modContainer.getMetadata().getContact().asMap())))
-					    .toList();
+						    "contacts", modContainer.getMetadata().getContact().asMap())))
+			.toList();
 
 		callback.resultCallback(BaseCommand.jsonOf("mods", mods));
 	}

@@ -37,8 +37,7 @@ public @interface PuppeteerCommand {
 
 	String description();
 
-	@Nullable
-	String[] mod_requirements() default {};
+	@Nullable String[] mod_requirements() default {};
 
 	BaseCommand.CommandContext cmd_context() default BaseCommand.CommandContext.ANY;
 }

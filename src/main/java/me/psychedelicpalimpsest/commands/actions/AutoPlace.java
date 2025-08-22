@@ -32,30 +32,33 @@ import java.util.List;
 
 import static me.psychedelicpalimpsest.commands.actions.AutoUse.AutomaticallyUse;
 
-@PuppeteerCommand(
-    cmd = "auto place", description = "",
-    cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
+@PuppeteerCommand(cmd = "auto place", description = "", cmd_context = BaseCommand.CommandContext.PLAY_WITH_MOVEMENT)
 public class AutoPlace implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		ClientWorld w = MinecraftClient.getInstance().world;
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		String sdirection = request.has("direction") ? request.get("direction").getAsString() : null;
-		BlockPos bp = new BlockPos(request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt());
+		BlockPos bp =
+		    new BlockPos(request.get("x").getAsInt(), request.get("y").getAsInt(), request.get("z").getAsInt());
 		Direction direction;
 
 		if (sdirection != null) {
 			direction = YarnMapping.deserializeEnum(Direction.class, sdirection).get();
 
 		} else {
-			List<Direction> candidates = Arrays.stream(Direction.values())
-							 .filter(d -> !w.getBlockState(bp.offset(d)).isAir())
-							 .filter(d -> bp.offset(d).toCenterPos().isInRange(player.getPos(), player.getBlockInteractionRange()))
-							 .sorted((a, b) -> (int) bp.offset(a).getSquaredDistance(bp.offset(b)))
-							 .toList();
+			List<Direction> candidates =
+			    Arrays.stream(Direction.values())
+				.filter(d -> !w.getBlockState(bp.offset(d)).isAir())
+				.filter(d
+					-> bp.offset(d).toCenterPos().isInRange(player.getPos(),
+										player.getBlockInteractionRange()))
+				.sorted((a, b) -> (int) bp.offset(a).getSquaredDistance(bp.offset(b)))
+				.toList();
 			if (candidates.isEmpty()) {
 				callback.resultCallback(BaseCommand.jsonOf(
-				    "status", "error", "type", "cannot place", "message", "Either the block is out of range, or has no block to place against"));
+				    "status", "error", "type", "cannot place", "message",
+				    "Either the block is out of range, or has no block to place against"));
 				return;
 			}
 			direction = candidates.getFirst();
@@ -63,14 +66,10 @@ public class AutoPlace implements BaseCommand {
 
 		BlockPos placeFrom = bp.offset(direction);
 		direction = direction.getOpposite();
-		AutomaticallyUse(
-		    placeFrom.getX(), placeFrom.getY(), placeFrom.getZ(),
-		    request.has("degrees per tick")
-			? request.get("degrees per tick").getAsFloat()
-			: 4.0f,
-		    request.has("method") ? request.get("method").getAsString() : "linear",
-		    YarnMapping.serializeEnum(direction),
-		    callback::resultCallback,
-		    () -> callback.resultCallback(BaseCommand.jsonOf()));
+		AutomaticallyUse(placeFrom.getX(), placeFrom.getY(), placeFrom.getZ(),
+				 request.has("degrees per tick") ? request.get("degrees per tick").getAsFloat() : 4.0f,
+				 request.has("method") ? request.get("method").getAsString() : "linear",
+				 YarnMapping.serializeEnum(direction), callback::resultCallback,
+				 () -> callback.resultCallback(BaseCommand.jsonOf()));
 	}
 }

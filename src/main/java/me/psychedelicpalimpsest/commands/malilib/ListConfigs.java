@@ -30,24 +30,22 @@ import java.util.*;
 
 import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
 
-@PuppeteerCommand(
-    cmd = "list config info",
-    description = "Lists all mods with configs registered with malilib")
+@PuppeteerCommand(cmd = "list config info", description = "Lists all mods with configs registered with malilib")
 public class ListConfigs implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		File configDir = FileUtils.getConfigDirectoryAsPath().toFile();
 		List<String> jsonFiles = new ArrayList<>();
 		if (configDir.exists() && configDir.isDirectory()) {
-			jsonFiles = Arrays.stream(Objects.requireNonNull(
-						      configDir.listFiles((dir, name) -> name.endsWith(".json"))))
+			jsonFiles = Arrays
+					.stream(Objects.requireNonNull(
+					    configDir.listFiles((dir, name) -> name.endsWith(".json"))))
 					.map(File::getName)
 					.toList();
 		}
 
 		callback.resultCallback(BaseCommand.jsonOf(
-		    "mods installed", getConfigHandlers().keySet().stream().toList(),
-		    "json files", jsonFiles));
+		    "mods installed", getConfigHandlers().keySet().stream().toList(), "json files", jsonFiles));
 	}
 
 	public static Map<String, IConfigHandler> getConfigHandlers() {

@@ -30,9 +30,9 @@ import java.util.Optional;
    See: https://minecraft.wiki/w/Java_Edition_protocol/Packets#Click_Container
  */
 
-@PuppeteerCommand(
-    cmd = "click slot", description = "simulates a single inventory slot click with an arbitrary button and action",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "click slot",
+		  description = "simulates a single inventory slot click with an arbitrary button and action",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class SlotClick implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
@@ -40,9 +40,9 @@ public class SlotClick implements BaseCommand {
 		    YarnMapping.deserializeEnum(SlotActionType.class, request.get("action").getAsString());
 		if (actionOpt.isEmpty()) {
 			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "enum error",
-			    "message", "Please chose from: " + String.join(", ", YarnMapping.serializedValues(SlotActionType.class))));
+			    "status", "error", "type", "enum error", "message",
+			    "Please chose from: " +
+				String.join(", ", YarnMapping.serializedValues(SlotActionType.class))));
 			return;
 		}
 		SlotActionType action = actionOpt.get();
@@ -50,10 +50,7 @@ public class SlotClick implements BaseCommand {
 		int slotId = request.get("slot").getAsInt();
 
 		MinecraftClient.getInstance().interactionManager.clickSlot(
-		    MinecraftClient.getInstance().player.currentScreenHandler.syncId,
-		    slotId,
-		    button,
-		    action,
+		    MinecraftClient.getInstance().player.currentScreenHandler.syncId, slotId, button, action,
 		    MinecraftClient.getInstance().player);
 
 		callback.resultCallback(BaseCommand.jsonOf());

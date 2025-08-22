@@ -25,9 +25,7 @@ public class HeadlessMode {
 
 	private static boolean activated = false;
 
-	public static boolean isHeadless() {
-		return activated;
-	}
+	public static boolean isHeadless() { return activated; }
 
 	public static void setHeadless() {
 		if (activated) return;

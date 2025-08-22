@@ -39,8 +39,8 @@ public class TweekerooCameraMixin {
 		if (!WARN_ON_TWEAKEROO_FREECAM.getBooleanValue()) return;
 		if (!enabled) return;
 
-		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(
-		    Text.of("§c§lWARNING:§r Tweakeroo's freecam is not compatible with §6McPuppeteer§r or §bBaritone§r. "
-			    + "Please use McPuppeteer's freecam module instead."));
+		MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.of(
+		    "§c§lWARNING:§r Tweakeroo's freecam is not compatible with §6McPuppeteer§r or §bBaritone§r. "
+		    + "Please use McPuppeteer's freecam module instead."));
 	}
 }

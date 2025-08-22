@@ -60,16 +60,12 @@ public class CallbackManager {
 
 	static {
 		Set<String> types = new HashSet<>();
-		for (CallbackType type : CallbackType.values()) {
-			types.add(type.name());
-		}
+		for (CallbackType type : CallbackType.values()) { types.add(type.name()); }
 		CALLBACK_STRING_TYPES = Collections.unmodifiableSet(types);
 
-		PlayStateFactories.S2C.buildUnbound().forEachPacketType((type, packet) -> {
-			PACKET_LIST.add(type.toString());
-		});
-		PlayStateFactories.C2S.buildUnbound().forEachPacketType((type, packet) -> {
-			PACKET_LIST.add(type.toString());
-		});
+		PlayStateFactories.S2C.buildUnbound().forEachPacketType(
+		    (type, packet) -> { PACKET_LIST.add(type.toString()); });
+		PlayStateFactories.C2S.buildUnbound().forEachPacketType(
+		    (type, packet) -> { PACKET_LIST.add(type.toString()); });
 	}
 }

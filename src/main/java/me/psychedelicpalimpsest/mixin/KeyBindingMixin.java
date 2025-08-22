@@ -34,13 +34,11 @@ public class KeyBindingMixin {
 
 		if (binding == null) return;
 
-		if (PuppeteerInput.onKeyPressed(binding))
-			ci.cancel();
+		if (PuppeteerInput.onKeyPressed(binding)) ci.cancel();
 	}
 
 	@Inject(method = "setPressed", at = @At("HEAD"), cancellable = true)
 	void setPressed(boolean pressed, CallbackInfo ci) {
-		if (PuppeteerInput.setPressed((KeyBinding) (Object) this))
-			ci.cancel();
+		if (PuppeteerInput.setPressed((KeyBinding) (Object) this)) ci.cancel();
 	}
 }

@@ -21,8 +21,7 @@ import com.google.gson.JsonObject;
 import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
-@PuppeteerCommand(
-    cmd = "ping", description = "Pong")
+@PuppeteerCommand(cmd = "ping", description = "Pong")
 public class Ping implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {

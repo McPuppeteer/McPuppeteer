@@ -23,19 +23,16 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.Freerot;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "set freerot",
-    description = "Enable/disable freerot",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "set freerot", description = "Enable/disable freerot",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class SetFreerot implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		MinecraftClient.getInstance().execute(() -> {
 			if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
-				callback.resultCallback(BaseCommand.jsonOf(
-				    "status", "error",
-				    "message", "Must have 'enabled' as a boolean property",
-				    "type", "expected argument"));
+				callback.resultCallback(BaseCommand.jsonOf("status", "error", "message",
+									   "Must have 'enabled' as a boolean property",
+									   "type", "expected argument"));
 				return;
 			}
 			if (request.get("enabled").getAsBoolean() != Freerot.isFreerotActive()) {

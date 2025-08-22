@@ -36,6 +36,7 @@ public class ChatHubMixin {
 	@Inject(method = "addMessage(Lnet/minecraft/client/gui/hud/ChatHudLine;)V", at = @At("HEAD"))
 	void onAddMessage(ChatHudLine message, CallbackInfo ci) {
 
-		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CHAT, () -> McPuppeteer.serializeText(message.content()));
+		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.CHAT,
+						    () -> McPuppeteer.serializeText(message.content()));
 	}
 }

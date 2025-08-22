@@ -23,45 +23,46 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.TitleScreen;
 
-@PuppeteerCommand(
-    cmd = "join world",
-    description = "Joins a local world. This requires one parameter, 'load name', which needs to be the EXACT same as from 'load name' from 'get worlds'")
+@PuppeteerCommand(cmd = "join world",
+		  description = "Joins a local world. This requires one parameter, 'load name', which needs to be " +
+				"the EXACT same as from 'load name' from 'get worlds'")
 public class JoinWorld implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 
 		if (request.get("load name") == null || !request.get("load name").isJsonPrimitive()) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "message", "Missing parameter 'load name' in joinWorld",
-			    "type", "expected argument"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "message",
+								   "Missing parameter 'load name' in joinWorld", "type",
+								   "expected argument"));
 			return;
 		}
 		MinecraftClient.getInstance().execute(() -> {
 			Thread listenThread = new Thread(() -> {
 				try {
 					while (true) {
-						if (MinecraftClient.getInstance().world != null && MinecraftClient.getInstance().player != null) {
-							callback.resultCallback(BaseCommand.jsonOf("message", "in game"));
+						if (MinecraftClient.getInstance().world != null &&
+						    MinecraftClient.getInstance().player != null) {
+							callback.resultCallback(
+							    BaseCommand.jsonOf("message", "in game"));
 							return;
 						}
 
 						Thread.sleep(100);
 						Thread.yield();
 					}
-				} catch (InterruptedException e) {
-				}
+				} catch (InterruptedException e) {}
 			});
 			listenThread.start();
 
-			MinecraftClient.getInstance().createIntegratedServerLoader().start(request.get("load name").getAsString(), () -> {
-				callback.resultCallback(BaseCommand.jsonOf(
-				    "status", "error",
-				    "type", "cannot join world",
-				    "message", "Unknown world join error, are you sure you sent the 'load name' parameter directly from the 'load name' value from 'get worlds'?"));
-				listenThread.interrupt();
-				MinecraftClient.getInstance().setScreen(new TitleScreen());
-			});
+			MinecraftClient.getInstance().createIntegratedServerLoader().start(
+			    request.get("load name").getAsString(), () -> {
+				    callback.resultCallback(BaseCommand.jsonOf(
+					"status", "error", "type", "cannot join world", "message",
+					"Unknown world join error, are you sure you sent the 'load name' parameter " +
+					"directly from the 'load name' value from 'get worlds'?"));
+				    listenThread.interrupt();
+				    MinecraftClient.getInstance().setScreen(new TitleScreen());
+			    });
 		});
 	}
 }

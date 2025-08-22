@@ -29,18 +29,16 @@ import net.minecraft.screen.EnchantmentScreenHandler;
 
 import java.util.Optional;
 
-@PuppeteerCommand(
-    cmd = "get enchantments", description = "Gets the enchantment options available",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "get enchantments", description = "Gets the enchantment options available",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class GetEnchants implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 
-		if (!(MinecraftClient.getInstance().player.currentScreenHandler instanceof EnchantmentScreenHandler enchantmentScreen)) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "unexpected screen",
-			    "message", "No beacon screen is open"));
+		if (!(MinecraftClient.getInstance().player.currentScreenHandler instanceof
+		      EnchantmentScreenHandler enchantmentScreen)) {
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "unexpected screen",
+								   "message", "No beacon screen is open"));
 			return;
 		}
 		var reg = MinecraftClient.getInstance().world.getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT);
@@ -53,13 +51,9 @@ public class GetEnchants implements BaseCommand {
 			Optional<RegistryEntry.Reference<Enchantment>> entry = reg.getEntry(id);
 
 			if (entry.isEmpty()) continue;
-			arr.add(BaseCommand.jsonOf(
-			    "id", entry.get().getIdAsString(),
-			    "level", level,
-			    "cost", cost));
+			arr.add(BaseCommand.jsonOf("id", entry.get().getIdAsString(), "level", level, "cost", cost));
 		}
 
-		callback.resultCallback(BaseCommand.jsonOf(
-		    "enchantments", arr));
+		callback.resultCallback(BaseCommand.jsonOf("enchantments", arr));
 	}
 }

@@ -34,51 +34,54 @@ import static me.psychedelicpalimpsest.utils.MesaConfigUtils.*;
 public class LitematicaIntegration {
 	// TODO: Add more litematica specific integration (Ex: editing schematics)
 
-	/* https://github.com/sakura-ryoko/litematica/blob/1.21.5/src/main/java/fi/dy/masa/litematica/config/Configs.java#L389 */
+	/* https://github.com/sakura-ryoko/litematica/blob/1.21.5/src/main/java/fi/dy/masa/litematica/config/Configs.java#L389
+	 */
 	private final static Map<String, List<? extends IConfigBase>> config = ImmutableMap.of(
-	    "Colors", Configs.Colors.OPTIONS,
-	    "Generic", Configs.Generic.OPTIONS,
-	    "Hotkeys", Hotkeys.HOTKEY_LIST,
-	    "InfoOverlays", Configs.InfoOverlays.OPTIONS,
-	    "Visuals", Configs.Visuals.OPTIONS);
+	    "Colors", Configs.Colors.OPTIONS, "Generic", Configs.Generic.OPTIONS, "Hotkeys", Hotkeys.HOTKEY_LIST,
+	    "InfoOverlays", Configs.InfoOverlays.OPTIONS, "Visuals", Configs.Visuals.OPTIONS);
 
-	@PuppeteerCommand(
-	    cmd = "dump litematica config", description = "Dumps litematicas config", mod_requirements = "litematica")
+	@PuppeteerCommand(cmd = "dump litematica config", description = "Dumps litematicas config",
+			  mod_requirements = "litematica")
 	public static class DumpLitematica implements BaseCommand {
 
 		@Override
 		public void onRequest(JsonObject request, LaterCallback callback) {
-			MinecraftClient.getInstance().execute(() -> callback.resultCallback(dumpJsonForMasaConfig(config)));
+			MinecraftClient.getInstance().execute(
+			    () -> callback.resultCallback(dumpJsonForMasaConfig(config)));
 		}
 	}
 
-	@PuppeteerCommand(
-	    cmd = "get litematica config item", description = "Gets specific litematica config item", mod_requirements = "litematica")
+	@PuppeteerCommand(cmd = "get litematica config item", description = "Gets specific litematica config item",
+			  mod_requirements = "litematica")
 	public static class GetLitematicaItem implements BaseCommand {
 
 		@Override
 		public void onRequest(JsonObject request, LaterCallback callback) {
-			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
+			MinecraftClient.getInstance().execute(
+			    () -> callback.resultCallback(handleGetMalilibConfigRequest(config, request)));
 		}
 	}
 
-	@PuppeteerCommand(
-	    cmd = "set litematica config item", description = "Sets specific litematica config item", mod_requirements = "litematica")
+	@PuppeteerCommand(cmd = "set litematica config item", description = "Sets specific litematica config item",
+			  mod_requirements = "litematica")
 	public static class SetLitematicaItem implements BaseCommand {
 
 		@Override
 		public void onRequest(JsonObject request, LaterCallback callback) {
-			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
+			MinecraftClient.getInstance().execute(
+			    () -> callback.resultCallback(handleSetMalilibConfigRequest(config, request)));
 		}
 	}
 
-	@PuppeteerCommand(
-	    cmd = "exec litematica config item", description = "Executes specific litematica hotkey config item", mod_requirements = "litematica")
+	@PuppeteerCommand(cmd = "exec litematica config item",
+			  description = "Executes specific litematica hotkey config item",
+			  mod_requirements = "litematica")
 	public static class ExecLitematicaItem implements BaseCommand {
 
 		@Override
 		public void onRequest(JsonObject request, LaterCallback callback) {
-			MinecraftClient.getInstance().execute(() -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
+			MinecraftClient.getInstance().execute(
+			    () -> callback.resultCallback(handleExecMesaConfigRequest(config, request)));
 		}
 	}
 }

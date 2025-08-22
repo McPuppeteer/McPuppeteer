@@ -23,10 +23,9 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.math.MathHelper;
 
-@PuppeteerCommand(
-    cmd = "set hotbar slot",
-    description = "Set the current hotbar slot. The parameter is 'slot' and is [1, 9]",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "set hotbar slot",
+		  description = "Set the current hotbar slot. The parameter is 'slot' and is [1, 9]",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class SetHotbarSlot implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {

@@ -23,15 +23,11 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.Freecam;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "is freecam",
-    description = "Gets the state of freecam")
+@PuppeteerCommand(cmd = "is freecam", description = "Gets the state of freecam")
 public class IsFreecam implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
-		MinecraftClient.getInstance().execute(() -> {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "is freecam", Freecam.isFreecamActive()));
-		});
+		MinecraftClient.getInstance().execute(
+		    () -> { callback.resultCallback(BaseCommand.jsonOf("is freecam", Freecam.isFreecamActive())); });
 	}
 }

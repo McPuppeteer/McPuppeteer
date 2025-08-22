@@ -27,66 +27,66 @@ import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.resource.language.I18n;
 
-@PuppeteerCommand(
-    cmd = "join server",
-    description = "Join multiplayer server. This requires one parameter, the 'address', and it must be valid.")
+@PuppeteerCommand(cmd = "join server",
+		  description =
+		      "Join multiplayer server. This requires one parameter, the 'address', and it must be valid.")
 public class JoinServer implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		if (request.get("address") == null || !request.get("address").isJsonPrimitive()) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "expected argument",
-			    "message", "Missing parameter 'address' in join server"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "expected argument",
+								   "message",
+								   "Missing parameter 'address' in join server"));
 			return;
 		}
 		if (!ServerAddress.isValid(request.get("address").getAsString())) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "cannot connect",
-			    "message", "Invalid server address"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "cannot connect",
+								   "message", "Invalid server address"));
 			return;
 		}
 
 		MinecraftClient.getInstance().execute(() -> {
 			String addr = request.get("address").getAsString();
 
-			ServerInfo info = new ServerInfo(I18n.translate("selectServer.defaultName"), addr, ServerInfo.ServerType.OTHER);
-			ConnectScreen.connect(
-			    MinecraftClient.getInstance().currentScreen,
-			    MinecraftClient.getInstance(),
-			    ServerAddress.parse(addr),
-			    info,
-			    false,
-			    null);
+			ServerInfo info = new ServerInfo(I18n.translate("selectServer.defaultName"), addr,
+							 ServerInfo.ServerType.OTHER);
+			ConnectScreen.connect(MinecraftClient.getInstance().currentScreen,
+					      MinecraftClient.getInstance(), ServerAddress.parse(addr), info, false,
+					      null);
 
 			new Thread(() -> {
 				try {
 					while (true) {
 						Thread.sleep(100);
 
-						if (MinecraftClient.getInstance().currentScreen instanceof DisconnectedScreen) {
+						if (MinecraftClient.getInstance().currentScreen instanceof
+						    DisconnectedScreen) {
 							callback.resultCallback(BaseCommand.jsonOf(
-							    "status", "error",
-							    "type", "cannot connect",
-							    "message", "Disconnect during connect"));
+							    "status", "error", "type", "cannot connect", "message",
+							    "Disconnect during connect"));
 							return;
 						}
-						if (MinecraftClient.getInstance().world != null && MinecraftClient.getInstance().player != null) {
-							callback.resultCallback(BaseCommand.jsonOf("message", "in game"));
+						if (MinecraftClient.getInstance().world != null &&
+						    MinecraftClient.getInstance().player != null) {
+							callback.resultCallback(
+							    BaseCommand.jsonOf("message", "in game"));
 							return;
 						}
-						if (!(MinecraftClient.getInstance().currentScreen instanceof ConnectScreen)) {
+						if (!(MinecraftClient.getInstance().currentScreen instanceof
+						      ConnectScreen)) {
 							callback.resultCallback(BaseCommand.jsonOf(
-							    "status", "error",
-							    "type", "cannot connect",
-							    "message", "Unexpected screen: " + (MinecraftClient.getInstance().currentScreen.getTitle() != null ? MinecraftClient.getInstance().currentScreen.getTitle() : MinecraftClient.getInstance().currentScreen.toString())));
+							    "status", "error", "type", "cannot connect", "message",
+							    "Unexpected screen: " +
+								(MinecraftClient.getInstance()
+									     .currentScreen.getTitle() != null
+								     ? MinecraftClient.getInstance()
+									   .currentScreen.getTitle()
+								     : MinecraftClient.getInstance()
+									   .currentScreen.toString())));
 							return;
 						}
 					}
-				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
-				}
+				} catch (InterruptedException e) { throw new RuntimeException(e); }
 			}).start();
 		});
 	}

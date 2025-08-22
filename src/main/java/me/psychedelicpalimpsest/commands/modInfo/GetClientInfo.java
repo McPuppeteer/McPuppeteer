@@ -29,26 +29,24 @@ import java.util.Optional;
 
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
 
-@PuppeteerCommand(
-    cmd = "get client info",
-    description = "Returns information about the client itself")
+@PuppeteerCommand(cmd = "get client info", description = "Returns information about the client itself")
 public class GetClientInfo implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		Optional<ModContainer> mod = FabricLoader.getInstance().getModContainer(MOD_ID);
-		if (mod.isEmpty()) {
-			throw new RuntimeException("Could not find ModContainer for " + MOD_ID);
-		}
+		if (mod.isEmpty()) { throw new RuntimeException("Could not find ModContainer for " + MOD_ID); }
 		ModContainer modc = mod.get();
 
 		callback.resultCallback(BaseCommand.jsonOf(
-		    "puppeteer commands", GetCommandsList.getCommands(),
-		    "puppeteer info", BaseCommand.jsonOf("name", modc.getMetadata().getName(), "mod id", MOD_ID, "version", modc.getMetadata().getVersion().getFriendlyString(), "description", modc.getMetadata().getDescription()),
-		    "minecraft version", SharedConstants.getGameVersion().getName(),
-		    "minecraft protocol version", SharedConstants.getProtocolVersion(),
+		    "puppeteer commands", GetCommandsList.getCommands(), "puppeteer info",
+		    BaseCommand.jsonOf("name", modc.getMetadata().getName(), "mod id", MOD_ID, "version",
+				       modc.getMetadata().getVersion().getFriendlyString(), "description",
+				       modc.getMetadata().getDescription()),
+		    "minecraft version", SharedConstants.getGameVersion().getName(), "minecraft protocol version",
+		    SharedConstants.getProtocolVersion(),
 
-		    "username", MinecraftClient.getInstance().getSession().getUsername(),
-		    "account type", MinecraftClient.getInstance().getSession().getAccountType().getName(),
+		    "username", MinecraftClient.getInstance().getSession().getUsername(), "account type",
+		    MinecraftClient.getInstance().getSession().getAccountType().getName(),
 
 		    "uuid", MinecraftClient.getInstance().getSession().getXuid().orElse("UNKNOWN")));
 	}

@@ -25,22 +25,20 @@ import java.util.List;
 import static me.psychedelicpalimpsest.McPuppeteer.MOD_ID;
 
 public class PuppeteerEffects {
-	public static PuppeteerEffect noRotationEffect = new PuppeteerEffect(Identifier.of(MOD_ID, "textures/no_rotation.png"));
+	public static PuppeteerEffect noRotationEffect =
+	    new PuppeteerEffect(Identifier.of(MOD_ID, "textures/no_rotation.png"));
 	public static PuppeteerEffect noWalkEffect = new PuppeteerEffect(Identifier.of(MOD_ID, "textures/no_walk.png"));
-	public static PuppeteerEffect freecamEffect = new PuppeteerEffect(Identifier.of(MOD_ID, "textures/freecam.png"));
+	public static PuppeteerEffect freecamEffect =
+	    new PuppeteerEffect(Identifier.of(MOD_ID, "textures/freecam.png"));
 
 	/* Just some simple potion effect like icons, drawn in InGameHudMixin.java */
-	public static final List<PuppeteerEffect> effects = ImmutableList.of(
-	    freecamEffect,
-	    noRotationEffect,
-	    noWalkEffect);
+	public static final List<PuppeteerEffect> effects =
+	    ImmutableList.of(freecamEffect, noRotationEffect, noWalkEffect);
 
 	public static final class PuppeteerEffect {
 		public boolean isActive = false;
 		public final Identifier texture;
 
-		public PuppeteerEffect(Identifier texture) {
-			this.texture = texture;
-		}
+		public PuppeteerEffect(Identifier texture) { this.texture = texture; }
 	}
 }

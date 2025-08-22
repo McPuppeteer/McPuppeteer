@@ -26,7 +26,8 @@ import static me.psychedelicpalimpsest.PuppeteerTask.TaskType.BARITONE;
 public class BaritoneListener implements AbstractGameEventListener {
 	public static void baritoneInit() {
 		/* This needs to be separate or things explode without baritone */
-		BaritoneAPI.getProvider().getPrimaryBaritone().getGameEventHandler().registerEventListener(getOrCreateInstance());
+		BaritoneAPI.getProvider().getPrimaryBaritone().getGameEventHandler().registerEventListener(
+		    getOrCreateInstance());
 	}
 
 	public static void panic() {
@@ -45,9 +46,10 @@ public class BaritoneListener implements AbstractGameEventListener {
 	@Override
 	public void onPathEvent(PathEvent pathEvent) {
 		/* Seems something somebody might want */
-		PuppeteerServer.broadcastJsonPacket(CallbackManager.CallbackType.BARITONE, () -> BaseCommand.jsonOf("type", "baritone event", "path state", pathEvent.name()));
-		if (PathEvent.CALC_FINISHED_NOW_EXECUTING == pathEvent)
-			hasStartedSinceCancel = true;
+		PuppeteerServer.broadcastJsonPacket(
+		    CallbackManager.CallbackType.BARITONE,
+		    () -> BaseCommand.jsonOf("type", "baritone event", "path state", pathEvent.name()));
+		if (PathEvent.CALC_FINISHED_NOW_EXECUTING == pathEvent) hasStartedSinceCancel = true;
 
 		if (McPuppeteer.tasks.isEmpty()) return;
 
@@ -56,12 +58,10 @@ public class BaritoneListener implements AbstractGameEventListener {
 		if (PathEvent.CANCELED == pathEvent && hasStartedSinceCancel) {
 			hasStartedSinceCancel = false;
 
-			if (task.getType() == BARITONE)
-				task.onBaritoneCancel();
+			if (task.getType() == BARITONE) task.onBaritoneCancel();
 		}
 		if (PathEvent.CALC_FAILED == pathEvent) {
-			if (task.getType() == BARITONE)
-				task.onBaritoneCalculationFailure();
+			if (task.getType() == BARITONE) task.onBaritoneCalculationFailure();
 		}
 	}
 }

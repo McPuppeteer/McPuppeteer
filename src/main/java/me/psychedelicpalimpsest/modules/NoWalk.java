@@ -29,7 +29,8 @@ public class NoWalk {
 	public static boolean toggle(KeyAction keyAction, IKeybind iKeybind) {
 		isActive = !isActive;
 
-		MinecraftClient.getInstance().inGameHud.setOverlayMessage(Text.of(isActive ? "Enabled NoWalk" : "Disabled NoWalk"), false);
+		MinecraftClient.getInstance().inGameHud.setOverlayMessage(
+		    Text.of(isActive ? "Enabled NoWalk" : "Disabled NoWalk"), false);
 
 		PuppeteerEffects.noWalkEffect.isActive = isActive;
 		PuppeteerInput.allowUserInput = !isActive;

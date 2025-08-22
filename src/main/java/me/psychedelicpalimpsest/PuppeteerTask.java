@@ -46,11 +46,7 @@ public class PuppeteerTask {
 	/**
 	 * The current state of a task.
 	 */
-	public enum TaskState {
-		NOT_STARTED,
-		RUNNING,
-		ENDED
-	}
+	public enum TaskState { NOT_STARTED, RUNNING, ENDED }
 
 	private final TaskType type;
 	protected TaskEvent onStart;
@@ -88,12 +84,8 @@ public class PuppeteerTask {
 		void invoke();
 	}
 
-	protected PuppeteerTask(
-	    TaskType type,
-	    TaskEvent onStart,
-	    @Nullable TaskEvent onBaritoneFinish,
-	    @Nullable TaskFailureEvent onFailure,
-	    @Nullable TaskEvent onTick) {
+	protected PuppeteerTask(TaskType type, TaskEvent onStart, @Nullable TaskEvent onBaritoneFinish,
+				@Nullable TaskFailureEvent onFailure, @Nullable TaskEvent onTick) {
 		this.type = type;
 		this.onStart = onStart;
 		this.onBaritoneFinish = onBaritoneFinish;
@@ -101,42 +93,23 @@ public class PuppeteerTask {
 		this.onTick = onTick;
 	}
 
-	public TaskType getType() {
-		return type;
-	}
+	public TaskType getType() { return type; }
 
 	/**
 	 * Creates a Baritone task.
 	 */
-	public static PuppeteerTask baritoneTask(
-	    TaskEvent onStart,
-	    TaskEvent onFinish,
-	    TaskFailureEvent onFailure) {
-		return new PuppeteerTask(
-		    TaskType.BARITONE,
-		    onStart,
-		    onFinish,
-		    onFailure,
-		    null);
+	public static PuppeteerTask baritoneTask(TaskEvent onStart, TaskEvent onFinish, TaskFailureEvent onFailure) {
+		return new PuppeteerTask(TaskType.BARITONE, onStart, onFinish, onFailure, null);
 	}
 
 	/**
 	 * Creates a Tickly task.
 	 */
-	public static PuppeteerTask ticklyTask(
-	    TaskEvent onStart,
-	    TaskEvent onTick) {
-		return new PuppeteerTask(
-		    TaskType.TICKLY,
-		    onStart,
-		    null,
-		    null,
-		    onTick);
+	public static PuppeteerTask ticklyTask(TaskEvent onStart, TaskEvent onTick) {
+		return new PuppeteerTask(TaskType.TICKLY, onStart, null, null, onTick);
 	}
 
-	public TaskState getState() {
-		return state;
-	}
+	public TaskState getState() { return state; }
 
 	/**
 	 * Starts the task.
@@ -153,17 +126,14 @@ public class PuppeteerTask {
 			thread = new Thread(() -> {
 				try {
 					onStart.invoke(this, this::end);
-				} catch (Exception e) {
-					handleFailure(e);
-				} finally {
+				} catch (Exception e) { handleFailure(e); } finally {
 					end();
 				}
 			});
 			thread.start();
 		} else {
 			try {
-				if (onStart != null)
-					onStart.invoke(this, this::end);
+				if (onStart != null) onStart.invoke(this, this::end);
 			} catch (Exception e) {
 				handleFailure(e);
 				end();
@@ -173,11 +143,9 @@ public class PuppeteerTask {
 
 	private void handleFailure(Exception e) {
 		if (onFailure != null) {
-			onFailure.invoke(this, BaseCommand.jsonOf(
-						   "status", "error",
-						   "type", "exception",
-						   "message", "Exception thrown during task",
-						   "exception", e.toString()));
+			onFailure.invoke(this,
+					 BaseCommand.jsonOf("status", "error", "type", "exception", "message",
+							    "Exception thrown during task", "exception", e.toString()));
 		}
 		McPuppeteer.LOGGER.error("Exception in PuppeteerTask", e);
 	}
@@ -207,10 +175,9 @@ public class PuppeteerTask {
 		this.state = TaskState.ENDED;
 
 		if (this.onFailure != null) {
-			this.onFailure.invoke(this, BaseCommand.jsonOf(
-							"status", "error",
-							"type", "baritone calculation",
-							"message", "Baritone could not path correctly"));
+			this.onFailure.invoke(this,
+					      BaseCommand.jsonOf("status", "error", "type", "baritone calculation",
+								 "message", "Baritone could not path correctly"));
 		}
 	}
 
@@ -218,8 +185,7 @@ public class PuppeteerTask {
 	 * Kills the task if running in a thread.
 	 */
 	public void kill() {
-		if (thread != null && thread.isAlive())
-			thread.interrupt();
+		if (thread != null && thread.isAlive()) thread.interrupt();
 		this.state = TaskState.ENDED;
 	}
 

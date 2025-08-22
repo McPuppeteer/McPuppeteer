@@ -23,19 +23,16 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.Freecam;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "set freecam",
-    description = "Enable/disable freecam",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "set freecam", description = "Enable/disable freecam",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class SetFreecam implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		MinecraftClient.getInstance().execute(() -> {
 			if (!request.has("enabled") || !request.get("enabled").isJsonPrimitive()) {
-				callback.resultCallback(BaseCommand.jsonOf(
-				    "status", "error",
-				    "message", "Must have 'enabled' as a boolean property",
-				    "type", "expected argument"));
+				callback.resultCallback(BaseCommand.jsonOf("status", "error", "message",
+									   "Must have 'enabled' as a boolean property",
+									   "type", "expected argument"));
 				return;
 			}
 			if (request.get("enabled").getAsBoolean() != Freecam.isFreecamActive()) {

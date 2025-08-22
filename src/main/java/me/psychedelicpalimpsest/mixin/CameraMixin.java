@@ -32,15 +32,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public class CameraMixin {
-	@Shadow
-	private boolean thirdPerson;
-	@Shadow
-	private float lastCameraY;
-	@Shadow
-	private float cameraY;
+	@Shadow private boolean thirdPerson;
+	@Shadow private float lastCameraY;
+	@Shadow private float cameraY;
 
 	@Inject(method = "update", at = @At("HEAD"), cancellable = true)
-	private void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
+	private void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView,
+			      float tickDelta, CallbackInfo ci) {
 		if (Freecam.isFreecamActive()) {
 			this.thirdPerson = true;
 			ci.cancel();
@@ -49,7 +47,8 @@ public class CameraMixin {
 
 			MinecraftClient.getInstance().gameRenderer.getCamera().setPos(
 			    MathHelper.lerp(tickDelta, focusedEntity.getX(), focusedEntity.getX()),
-			    MathHelper.lerp(tickDelta, focusedEntity.getY(), focusedEntity.getY()) + MathHelper.lerp(tickDelta, this.lastCameraY, this.cameraY),
+			    MathHelper.lerp(tickDelta, focusedEntity.getY(), focusedEntity.getY()) +
+				MathHelper.lerp(tickDelta, this.lastCameraY, this.cameraY),
 			    MathHelper.lerp(tickDelta, focusedEntity.getZ(), focusedEntity.getZ()));
 		}
 	}

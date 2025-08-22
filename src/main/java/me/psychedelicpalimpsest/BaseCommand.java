@@ -36,7 +36,8 @@ import java.util.Map;
 public interface BaseCommand {
 
 	interface CallbackModView {
-		void invoke(Map<CallbackManager.CallbackType, Boolean> callbacks, Map<String, CallbackManager.PacketCallbackMode> packetCallbacks);
+		void invoke(Map<CallbackManager.CallbackType, Boolean> callbacks,
+			    Map<String, CallbackManager.PacketCallbackMode> packetCallbacks);
 	}
 
 	interface LaterCallback {
@@ -88,7 +89,8 @@ public interface BaseCommand {
 				JsonObject jsonObject = new JsonObject();
 				map.forEach((key, value) -> {
 					if (!(key instanceof String)) {
-						throw new IllegalArgumentException("Unknown map key type: " + key.getClass());
+						throw new IllegalArgumentException("Unknown map key type: " +
+										   key.getClass());
 					}
 					jsonObject.add((String) key, jsonObjectOf(value));
 				});
@@ -98,12 +100,11 @@ public interface BaseCommand {
 			case Collection ignored -> {
 				Collection<Object> collection = (Collection<Object>) object;
 				JsonArray jsonArray = new JsonArray();
-				for (Object o : collection) {
-					jsonArray.add(jsonObjectOf(o));
-				}
+				for (Object o : collection) { jsonArray.add(jsonObjectOf(o)); }
 				return jsonArray;
 			}
-			case null, default -> throw new IllegalArgumentException("Unknown value type: " + object.getClass());
+			case null, default ->
+				throw new IllegalArgumentException("Unknown value type: " + object.getClass());
 		}
 	}
 
@@ -115,9 +116,7 @@ public interface BaseCommand {
 		for (int i = 0; i < objects.length; i += 2) {
 			Object key = objects[i];
 			Object value = objects[i + 1];
-			if (!(key instanceof String)) {
-				throw new IllegalArgumentException("Key must be a string");
-			}
+			if (!(key instanceof String)) { throw new IllegalArgumentException("Key must be a string"); }
 			jsonObject.add((String) key, jsonObjectOf(value));
 		}
 		return jsonObject;

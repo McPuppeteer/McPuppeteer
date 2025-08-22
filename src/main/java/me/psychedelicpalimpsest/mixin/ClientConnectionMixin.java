@@ -46,18 +46,15 @@ public class ClientConnectionMixin {
 
 			switch (type) {
 				case NOTIFY_NEXT:
-				case NOTIFY_ONLY:
-					return new JsonObject();
+				case NOTIFY_ONLY: return new JsonObject();
 				case NETWORK_SERIALIZED:
-				case NETWORK_SERIALIZED_NEXT:
-					return PacketJsonEncoder.encode(packet);
+				case NETWORK_SERIALIZED_NEXT: return PacketJsonEncoder.encode(packet);
 				case OBJECT_SERIALIZED:
 				case OBJECT_SERIALIZED_NEXT:
 					/* Note: This is safe because we KNOW that packets will return an object */
 					return (JsonObject) McReflector.serializeObject(packet);
 
-				default:
-					throw new AssertionError("Unreachable " + type.name());
+				default: throw new AssertionError("Unreachable " + type.name());
 			}
 		});
 	}

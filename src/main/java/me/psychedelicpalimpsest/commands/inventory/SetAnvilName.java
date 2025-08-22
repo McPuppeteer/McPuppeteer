@@ -24,19 +24,16 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 
-@PuppeteerCommand(
-    cmd = "set anvil name", description = "Sets the name field of an open anvil screen",
-    cmd_context = BaseCommand.CommandContext.PLAY)
+@PuppeteerCommand(cmd = "set anvil name", description = "Sets the name field of an open anvil screen",
+		  cmd_context = BaseCommand.CommandContext.PLAY)
 public class SetAnvilName implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
 		String name = request.get("name").getAsString();
 		Screen screen = MinecraftClient.getInstance().currentScreen;
 		if (!(screen instanceof AnvilScreen anvilScreen)) {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "status", "error",
-			    "type", "unexpected screen",
-			    "message", "Anvil screen is not open"));
+			callback.resultCallback(BaseCommand.jsonOf("status", "error", "type", "unexpected screen",
+								   "message", "Anvil screen is not open"));
 			return;
 		}
 		anvilScreen.nameField.setText(name);

@@ -22,9 +22,7 @@ import me.psychedelicpalimpsest.BaseCommand;
 import me.psychedelicpalimpsest.CallbackManager;
 import me.psychedelicpalimpsest.PuppeteerCommand;
 
-@PuppeteerCommand(
-    cmd = "get callbacks",
-    description = "Gets the state of all the callbacks")
+@PuppeteerCommand(cmd = "get callbacks", description = "Gets the state of all the callbacks")
 public class GetCallbacks implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
@@ -32,14 +30,17 @@ public class GetCallbacks implements BaseCommand {
 			JsonObject typicalCallbackResults = new JsonObject();
 			JsonObject packetCallbackResults = new JsonObject();
 			for (CallbackManager.CallbackType callbackType : CallbackManager.CallbackType.values()) {
-				typicalCallbackResults.addProperty(
-				    callbackType.name(), callbackMap.getOrDefault(callbackType, false));
+				typicalCallbackResults.addProperty(callbackType.name(),
+								   callbackMap.getOrDefault(callbackType, false));
 			}
-			CallbackManager.PACKET_LIST.forEach(packet -> packetCallbackResults.addProperty(packet, packetMap.getOrDefault(packet, CallbackManager.PacketCallbackMode.DISABLED).name()));
+			CallbackManager.PACKET_LIST.forEach(
+			    packet
+			    -> packetCallbackResults.addProperty(
+				packet,
+				packetMap.getOrDefault(packet, CallbackManager.PacketCallbackMode.DISABLED).name()));
 
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "typical callbacks", typicalCallbackResults,
-			    "packet callbacks", packetCallbackResults));
+			callback.resultCallback(BaseCommand.jsonOf("typical callbacks", typicalCallbackResults,
+								   "packet callbacks", packetCallbackResults));
 		});
 	}
 }

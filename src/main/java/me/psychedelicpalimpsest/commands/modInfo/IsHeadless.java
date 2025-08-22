@@ -23,15 +23,11 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import me.psychedelicpalimpsest.modules.HeadlessMode;
 import net.minecraft.client.MinecraftClient;
 
-@PuppeteerCommand(
-    cmd = "is headless",
-    description = "Check if the minecraft window is in headless mode")
+@PuppeteerCommand(cmd = "is headless", description = "Check if the minecraft window is in headless mode")
 public class IsHeadless implements BaseCommand {
 	@Override
 	public void onRequest(JsonObject request, LaterCallback callback) {
-		MinecraftClient.getInstance().execute(() -> {
-			callback.resultCallback(BaseCommand.jsonOf(
-			    "is headless", HeadlessMode.isHeadless()));
-		});
+		MinecraftClient.getInstance().execute(
+		    () -> { callback.resultCallback(BaseCommand.jsonOf("is headless", HeadlessMode.isHeadless())); });
 	}
 }
