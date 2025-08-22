@@ -28,6 +28,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+
+import me.psychedelicpalimpsest.PuppeteerServer.PacketOnCompletion;
 import net.minecraft.nbt.NbtElement;
 
 import java.util.Collection;
@@ -54,6 +56,9 @@ public interface BaseCommand {
         void packetResultCallback(byte[] result);
 
         void nbtResultCallback(NbtElement result);
+
+
+        void simulatePuppeteerCommand(JsonObject request, PacketOnCompletion onCompletion);
     }
 
     enum CommandContext {
