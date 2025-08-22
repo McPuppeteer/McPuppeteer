@@ -1,21 +1,17 @@
 /**
  * Copyright (C) 2025 - PsychedelicPalimpsest
- * <p>
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p>
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *
+ * <p>This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU Affero General Public License as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * <p>
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * <p>You should have received a copy of the GNU Affero General Public License along with this
+ * program. If not, see <https://www.gnu.org/licenses/>.
  */
-
-
 package me.psychedelicpalimpsest.mixin;
 
 import me.psychedelicpalimpsest.McPuppeteer;
@@ -29,25 +25,22 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
-    @Shadow
-    public Input input;
+  @Shadow public Input input;
 
-    @Inject(method = "tickMovement", at = @At("HEAD"))
-    private void tickMovement(CallbackInfo ci) {
+  @Inject(method = "tickMovement", at = @At("HEAD"))
+  private void tickMovement(CallbackInfo ci) {
 
-        /* This allows other inputs, such as baritone, to still function (Looking at you tweakeroo) */
-        if (this.input.getClass() == KeyboardInput.class) {
-            this.input = McPuppeteer.puppeteerInput;
-        }
-
-
-        if (Freecam.isFreecamActive()) {
-            this.input.tick();
-
-            Freecam.movementHandler.movementTick();
-        }
+    /* This allows other inputs, such as baritone, to still function (Looking at you tweakeroo) */
+    if (this.input.getClass() == KeyboardInput.class) {
+      this.input = McPuppeteer.puppeteerInput;
     }
+
+    if (Freecam.isFreecamActive()) {
+      this.input.tick();
+
+      Freecam.movementHandler.movementTick();
+    }
+  }
 }

@@ -1,23 +1,23 @@
 /**
  * Copyright (C) 2025 - PsychedelicPalimpsest
- * <p>
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * <p>
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *
+ * <p>This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU Affero General Public License as published by the Free Software Foundation, either version 3
+ * of the License, or (at your option) any later version.
+ *
+ * <p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU Affero General Public License for more details.
- * <p>
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * <p>You should have received a copy of the GNU Affero General Public License along with this
+ * program. If not, see <https://www.gnu.org/licenses/>.
  */
-
 package me.psychedelicpalimpsest.modules;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.input.KeyboardInput;
@@ -26,140 +26,123 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.util.PlayerInput;
 import net.minecraft.util.math.Vec2f;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
-
-
-
 /*
-    Acts like no keys are being pressed, unless they are forced down
- */
-
+   Acts like no keys are being pressed, unless they are forced down
+*/
 
 public class PuppeteerInput extends Input {
-    public static Map<String, Boolean> isForcePressed = new HashMap<>();
+  public static Map<String, Boolean> isForcePressed = new HashMap<>();
 
-    /* Typical minecraft inputs we can easily override */
-    public static final String FORWARDS = "forwards";
-    public static final String BACKWARDS = "backwards";
-    public static final String LEFT = "left";
-    public static final String RIGHT = "right";
-    public static final String JUMP = "jump";
-    public static final String SNEAK = "sneak";
-    public static final String SPRINT = "sprint";
+  /* Typical minecraft inputs we can easily override */
+  public static final String FORWARDS = "forwards";
+  public static final String BACKWARDS = "backwards";
+  public static final String LEFT = "left";
+  public static final String RIGHT = "right";
+  public static final String JUMP = "jump";
+  public static final String SNEAK = "sneak";
+  public static final String SPRINT = "sprint";
 
+  /* See MinecraftClientMixin.java for implementation */
+  public static final String USE = "use";
+  public static final String ATTACK = "attack";
 
-    /* See MinecraftClientMixin.java for implementation */
-    public static final String USE = "use";
-    public static final String ATTACK = "attack";
+  public static final Set<String> validOptions =
+      ImmutableSet.of(FORWARDS, BACKWARDS, LEFT, RIGHT, JUMP, SNEAK, SPRINT, USE, ATTACK);
 
-    public static final Set<String> validOptions = ImmutableSet.of(
-            FORWARDS,
-            BACKWARDS,
-            LEFT,
-            RIGHT,
-            JUMP,
-            SNEAK,
-            SPRINT,
+  public static boolean allowUserInput = true;
 
-            USE,
-            ATTACK
-    );
-    public static boolean allowUserInput = true;
+  public static boolean isDirectionalMovement = false;
+  public static boolean smartDirectionalScaling = true;
+  public static float direction = 0f;
+  public static float directionalSpeed = 1f;
 
+  private void regenInput() {
+    GameOptions opts = MinecraftClient.getInstance().options;
 
-    public static boolean isDirectionalMovement = false;
-    public static boolean smartDirectionalScaling = true;
-    public static float direction = 0f;
-    public static float directionalSpeed = 1f;
+    boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
 
+    this.playerInput =
+        new PlayerInput(
+            isForcePressed.getOrDefault(
+                FORWARDS, allowUserInputAndNotFreecam && opts.forwardKey.isPressed()),
+            isForcePressed.getOrDefault(
+                BACKWARDS, allowUserInputAndNotFreecam && opts.backKey.isPressed()),
+            isForcePressed.getOrDefault(
+                LEFT, allowUserInputAndNotFreecam && opts.leftKey.isPressed()),
+            isForcePressed.getOrDefault(
+                RIGHT, allowUserInputAndNotFreecam && opts.rightKey.isPressed()),
+            isForcePressed.getOrDefault(
+                JUMP, allowUserInputAndNotFreecam && opts.jumpKey.isPressed()),
+            isForcePressed.getOrDefault(
+                SNEAK, allowUserInputAndNotFreecam && opts.sneakKey.isPressed()),
+            isForcePressed.getOrDefault(
+                SPRINT, allowUserInputAndNotFreecam && opts.sprintKey.isPressed()));
+  }
 
-    private void regenInput() {
-        GameOptions opts = MinecraftClient.getInstance().options;
+  @Override
+  public void tick() {
+    regenInput();
+    if (isDirectionalMovement) {
+      /* Adjust for minecrafts strange yaw system (Why is yaw not clamped????) */
+      float realDir = direction - (MinecraftClient.getInstance().player.getYaw() % 360f);
 
-        boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
+      float directionForward = (float) Math.sin(Math.toRadians(realDir));
+      float directionBackward = (float) Math.cos(Math.toRadians(realDir));
 
+      /*
+         In exchange for making you move at inconsistent speeds,
+         when the player is looking perpendicular to where they are walking,
+         can move (best case) of sqrt(2) times faster!
 
-        this.playerInput = new PlayerInput(
-                isForcePressed.getOrDefault(FORWARDS, allowUserInputAndNotFreecam && opts.forwardKey.isPressed()),
-                isForcePressed.getOrDefault(BACKWARDS, allowUserInputAndNotFreecam && opts.backKey.isPressed()),
-                isForcePressed.getOrDefault(LEFT, allowUserInputAndNotFreecam && opts.leftKey.isPressed()),
-                isForcePressed.getOrDefault(RIGHT, allowUserInputAndNotFreecam && opts.rightKey.isPressed()),
-                isForcePressed.getOrDefault(JUMP, allowUserInputAndNotFreecam && opts.jumpKey.isPressed()),
-                isForcePressed.getOrDefault(SNEAK, allowUserInputAndNotFreecam && opts.sneakKey.isPressed()),
-                isForcePressed.getOrDefault(SPRINT, allowUserInputAndNotFreecam && opts.sprintKey.isPressed())
-        );
+         This is why speed runners walk diagonally MATH
+      */
+      if (smartDirectionalScaling) {
+        float largest = Math.max(Math.abs(directionForward), Math.abs(directionBackward));
+        float scalar = 1f / largest;
+
+        directionForward *= scalar;
+        directionBackward *= scalar;
+      }
+
+      this.movementVector =
+          new Vec2f(directionBackward * directionalSpeed, directionForward * directionalSpeed);
+
+    } else {
+
+      float f =
+          KeyboardInput.getMovementMultiplier(
+              this.playerInput.forward(), this.playerInput.backward());
+      float g =
+          KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right());
+      this.movementVector = new Vec2f(g, f).normalize();
     }
+  }
 
+  /*
+     Called from KeyBindingMixin.java
+  */
+  public static boolean onKeyPressed(KeyBinding keyBinding) {
+    GameOptions opts = MinecraftClient.getInstance().options;
+    boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
 
-    @Override
-    public void tick() {
-        regenInput();
-        if (isDirectionalMovement) {
-            /* Adjust for minecrafts strange yaw system (Why is yaw not clamped????) */
-            float realDir = direction - (MinecraftClient.getInstance().player.getYaw() % 360f);
+    if (!opts.useKey.equals(keyBinding) && !opts.attackKey.equals(keyBinding)) return false;
 
-            float directionForward = (float) Math.sin(Math.toRadians(realDir));
-            float directionBackward = (float) Math.cos(Math.toRadians(realDir));
+    return !allowUserInputAndNotFreecam;
+  }
 
-            /*
-                In exchange for making you move at inconsistent speeds,
-                when the player is looking perpendicular to where they are walking,
-                can move (best case) of sqrt(2) times faster!
+  /*
+     Called from KeyBindingMixin.java
+  */
+  public static boolean setPressed(KeyBinding keyBinding) {
+    GameOptions opts = MinecraftClient.getInstance().options;
+    boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
 
-                This is why speed runners walk diagonally MATH
-             */
-            if (smartDirectionalScaling) {
-                float largest = Math.max(Math.abs(directionForward), Math.abs(directionBackward));
-                float scalar = 1f / largest;
+    if (!opts.useKey.equals(keyBinding) && !opts.attackKey.equals(keyBinding)) return false;
 
-                directionForward *= scalar;
-                directionBackward *= scalar;
-            }
+    if (allowUserInputAndNotFreecam) return false;
 
-            this.movementVector = new Vec2f(directionBackward * directionalSpeed, directionForward * directionalSpeed);
+    keyBinding.pressed = false;
 
-        } else {
-
-            float f = KeyboardInput.getMovementMultiplier(this.playerInput.forward(), this.playerInput.backward());
-            float g = KeyboardInput.getMovementMultiplier(this.playerInput.left(), this.playerInput.right());
-            this.movementVector = new Vec2f(g, f).normalize();
-        }
-    }
-
-
-    /*
-        Called from KeyBindingMixin.java
-     */
-    public static boolean onKeyPressed(KeyBinding keyBinding) {
-        GameOptions opts = MinecraftClient.getInstance().options;
-        boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
-
-
-        if (!opts.useKey.equals(keyBinding) && !opts.attackKey.equals(keyBinding)) return false;
-
-
-        return !allowUserInputAndNotFreecam;
-    }
-
-    /*
-        Called from KeyBindingMixin.java
-     */
-    public static boolean setPressed(KeyBinding keyBinding) {
-        GameOptions opts = MinecraftClient.getInstance().options;
-        boolean allowUserInputAndNotFreecam = allowUserInput && !Freecam.isFreecamActive();
-
-
-        if (!opts.useKey.equals(keyBinding) && !opts.attackKey.equals(keyBinding)) return false;
-
-        if (allowUserInputAndNotFreecam) return false;
-
-        keyBinding.pressed = false;
-
-        return true;
-    }
-
-
+    return true;
+  }
 }
