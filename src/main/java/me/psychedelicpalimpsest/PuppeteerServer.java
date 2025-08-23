@@ -329,7 +329,7 @@ public class PuppeteerServer implements Runnable {
 					if (!result.has("status")) result.addProperty("status", "ok");
 					result.addProperty("id", id);
 
-					if (onCompletion != null) onCompletion(result);
+					if (onCompletion != null) onCompletion.onCompletion(result);
 
 					writeJsonPacket(client, result);
 				}
@@ -374,7 +374,7 @@ public class PuppeteerServer implements Runnable {
 		if (type == 'j') {
 			JsonElement elem = JsonParser.parseString(new String(data, StandardCharsets.UTF_8));
 			JsonObject request = elem.getAsJsonObject();
-			processPacket(client, request);
+			processPacket(client, request, null);
 		} else if (type == 'n') {
 			/* TODO: THIS */
 		} else {

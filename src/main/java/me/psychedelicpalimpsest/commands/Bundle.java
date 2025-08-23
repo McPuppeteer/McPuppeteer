@@ -24,7 +24,7 @@ import me.psychedelicpalimpsest.PuppeteerCommand;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 
-@PuppeteerCommand(cmd = "Bundle", description = "Bundle many packets together")
+@PuppeteerCommand(cmd = "bundle", description = "Bundle many packets together")
 public class Bundle implements BaseCommand {
 
 	@Override
@@ -33,6 +33,7 @@ public class Bundle implements BaseCommand {
 			case "instant":
 				for (JsonElement packet : request.getAsJsonArray("packets"))
 					callback.simulatePuppeteerCommand(packet.getAsJsonObject(), null);
+        callback.resultCallback(new JsonObject());
 
 				break;
 		}

@@ -29,7 +29,6 @@ import java.lang.reflect.Field;
 public class PacketJsonEncoder {
 	@SuppressWarnings({"unchecked"})
 	public static JsonObject encode(Packet<?> packet) {
-		var nh = MinecraftClient.getInstance().getNetworkHandler();
 		JsonTrackingPacketByteBuf buf = new JsonTrackingPacketByteBuf(Unpooled.buffer());
 		String name =
 		    YarnMapping.getInstance().unmapClassName(YarnMapping.Namespace.NAMED, packet.getClass().getName());
