@@ -31,7 +31,7 @@ public class EventBasedTask extends PuppeteerTask implements PuppeteerTask.TaskE
 	private int counter = 0;
 
 	public EventBasedTask(List<PuppeteerTask.TaskEvent> tasks, int delay) {
-		super(TaskType.TICKLY, null, null, null, null);
+		super(TaskType.TICKLY, null, null, null, null, false);
 		this.onTick = this;
 		this.delay = delay;
 

@@ -17,10 +17,27 @@
 
 package me.psychedelicpalimpsest.mixin;
 
+import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
+import static me.psychedelicpalimpsest.PuppeteerServer.broadcastState;
+import static me.psychedelicpalimpsest.PuppeteerTask.TaskType.TICKLY;
+
+import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.CompletableFuture;
+
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 import me.psychedelicpalimpsest.McPuppeteer;
 import me.psychedelicpalimpsest.PuppeteerConfig;
 import me.psychedelicpalimpsest.PuppeteerServer;
-import me.psychedelicpalimpsest.PuppeteerTask;
 import me.psychedelicpalimpsest.modules.HeadlessMode;
 import me.psychedelicpalimpsest.modules.PuppeteerInput;
 import net.minecraft.client.MinecraftClient;
@@ -33,23 +50,6 @@ import net.minecraft.util.Util;
 import net.minecraft.util.profiler.Profiler;
 import net.minecraft.util.profiler.Profilers;
 import net.minecraft.util.thread.ThreadExecutor;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.io.IOException;
-import java.util.Queue;
-import java.util.concurrent.CompletableFuture;
-
-import static me.psychedelicpalimpsest.McPuppeteer.LOGGER;
-import static me.psychedelicpalimpsest.PuppeteerServer.broadcastState;
-import static me.psychedelicpalimpsest.PuppeteerTask.TaskType.TICKLY;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin {
@@ -97,15 +97,21 @@ public abstract class MinecraftClientMixin {
 			}
 		}
 
-		if (!McPuppeteer.tasks.isEmpty()) {
-			PuppeteerTask task = McPuppeteer.tasks.peek();
+		var queueIt =  McPuppeteer.tasks.iterator();
+		boolean keepGoing = true;
+		while (queueIt.hasNext() && keepGoing) {
+			var task = queueIt.next();
 			switch (task.getState()) {
-				case NOT_STARTED: task.start(); break;
-				case ENDED: McPuppeteer.tasks.remove(); break;
-				case RUNNING:
-					if (task.getType() == TICKLY) task.tick();
+				case NOT_STARTED:
+					task.start();
+					keepGoing = task.isTransparent();
 					break;
-				default: break;
+				case ENDED: queueIt.remove(); break;
+				case RUNNING:
+					if (task.getType() == TICKLY) { task.tick(); }
+
+					keepGoing = task.isTransparent();
+					break;
 			}
 		}
 

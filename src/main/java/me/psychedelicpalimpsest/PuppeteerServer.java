@@ -316,6 +316,13 @@ public class PuppeteerServer implements Runnable {
 				@Override
 				public void callbacksModView(BaseCommand.CallbackModView callback) {
 					serverTask(() -> {
+            if (client.keyFor(instance.selector) == null) {
+              McPuppeteer.LOGGER.warn("Cannot modify callbacks for disconnected client");
+              return;
+            }
+
+
+
 						ClientAttachment attachment =
 						    (ClientAttachment) client.keyFor(instance.selector).attachment();
 						callback.invoke(attachment.allowedCallbacks,
@@ -384,6 +391,12 @@ public class PuppeteerServer implements Runnable {
 	}
 
 	private void writeByteBufferRaw(SocketChannel client, ByteBuffer respBuffer) {
+    if (client.keyFor(selector) == null){
+      McPuppeteer.LOGGER.warn("Attempted to send packet to an unknown client!");
+      return;
+    }
+
+
 		ClientAttachment attachment = (ClientAttachment) client.keyFor(selector).attachment();
 		attachment.writeQueue.add(respBuffer);
 

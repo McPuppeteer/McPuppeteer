@@ -179,7 +179,7 @@ public class AlgorithmicRotation implements BaseCommand {
 
 				onSuccess.invoke();
 			}
-		}));
+		}, false));
 	}
 
 	@Override

@@ -54,6 +54,11 @@ public class PuppeteerTask {
 	protected TaskEvent onTick;
 	protected TaskFailureEvent onFailure;
 
+  /* Allow the next task to be executed at the same time */
+  protected boolean isTransparent;
+
+	public boolean isTransparent() { return isTransparent; }
+
 	private volatile Thread thread = null;
 	private volatile TaskState state = TaskState.NOT_STARTED;
 
@@ -85,12 +90,13 @@ public class PuppeteerTask {
 	}
 
 	protected PuppeteerTask(TaskType type, TaskEvent onStart, @Nullable TaskEvent onBaritoneFinish,
-				@Nullable TaskFailureEvent onFailure, @Nullable TaskEvent onTick) {
+				@Nullable TaskFailureEvent onFailure, @Nullable TaskEvent onTick, boolean isTransparent) {
 		this.type = type;
 		this.onStart = onStart;
 		this.onBaritoneFinish = onBaritoneFinish;
 		this.onFailure = onFailure;
 		this.onTick = onTick;
+    this.isTransparent = isTransparent;
 	}
 
 	public TaskType getType() { return type; }
@@ -99,14 +105,14 @@ public class PuppeteerTask {
 	 * Creates a Baritone task.
 	 */
 	public static PuppeteerTask baritoneTask(TaskEvent onStart, TaskEvent onFinish, TaskFailureEvent onFailure) {
-		return new PuppeteerTask(TaskType.BARITONE, onStart, onFinish, onFailure, null);
+		return new PuppeteerTask(TaskType.BARITONE, onStart, onFinish, onFailure, null, false);
 	}
 
 	/**
 	 * Creates a Tickly task.
 	 */
-	public static PuppeteerTask ticklyTask(TaskEvent onStart, TaskEvent onTick) {
-		return new PuppeteerTask(TaskType.TICKLY, onStart, null, null, onTick);
+	public static PuppeteerTask ticklyTask(TaskEvent onStart, TaskEvent onTick, boolean isTransparent) {
+		return new PuppeteerTask(TaskType.TICKLY, onStart, null, null, onTick, isTransparent);
 	}
 
 	public TaskState getState() { return state; }
