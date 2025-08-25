@@ -40,7 +40,7 @@ import net.minecraft.network.PacketByteBuf;
 
     * The MC instance frequently sends UDP broadcasts:
 	- Broadcasts are sent on port 43842.
-	- Each broadcast contains the magic number 'PUPPETEER'.
+	- Each broadcast starts with the magic number 'PUPPETEER'.
 	- The payload is JSON. See broadcastState() for details.
 	    * The JSON includes the server port.
 
@@ -382,11 +382,9 @@ public class PuppeteerServer implements Runnable {
 			JsonElement elem = JsonParser.parseString(new String(data, StandardCharsets.UTF_8));
 			JsonObject request = elem.getAsJsonObject();
 			processPacket(client, request, null);
-		} else if (type == 'n') {
-			/* TODO: THIS */
 		} else {
-
-			LOGGER.warn("Unknown data type: " + (char) type);
+      /* This might be supported in the future, but not yet */
+      LOGGER.warn("Client sent an non json packet, this is not yet supported. Type: " + (char) type);
 		}
 	}
 
